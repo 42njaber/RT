@@ -6,7 +6,7 @@
 /*   By: njaber <neyl.jaber@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/01/25 23:56:43 by njaber            #+#    #+#             */
-/*   Updated: 2018/05/16 18:36:18 by njaber           ###   ########.fr       */
+/*   Updated: 2018/05/20 01:44:27 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -99,13 +99,19 @@ void			identity(t_mat4 m);
 void			translate(t_mat4 m, t_vec3 v);
 void			scale(t_mat4 m, t_vec3 v);
 void			rotate(t_mat4 m, t_vec3 v);
-void			multiply(t_mat4 m1, t_mat4 m2);
+void			multiply(t_mat4 m1, t_mat4 m2, int stock_in_m2);
 
 double			sqr(double n);
 
 t_vec2			c_mult(t_vec2 z1, t_vec2 z2);
 t_vec2			c_add(t_vec2 z1, t_vec2 z2);
 t_vec2			c_pow(t_vec2 z1, int pow);
+
+t_vec3			vec_sub(t_vec3 v1, t_vec3 v2);
+t_vec3			vec_add(t_vec3 v1, t_vec3 v2);
+t_vec3			vec_mult(t_vec3 v1, double d);
+double			length(t_vec3 v1);
+double			scalar(t_vec3 v1, t_vec3 v2);
 
 int				init_new_win(void *mlx, t_win *win, t_ivec size, char *title);
 void			paint_window(t_win *win, t_kernel *opencl_kernel);

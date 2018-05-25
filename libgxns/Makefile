@@ -5,6 +5,7 @@ SRC = draw_fig.c \
 	  matrix.c \
 	  matrix2.c \
 	  math.c \
+	  vectors.c \
 	  colors.c \
 	  util.c \
 	  gnl/get_next_line.c

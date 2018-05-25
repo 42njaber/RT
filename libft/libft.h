@@ -6,7 +6,7 @@
 /*   By: njaber <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/11/20 16:20:23 by njaber            #+#    #+#             */
-/*   Updated: 2018/03/15 12:33:13 by njaber           ###   ########.fr       */
+/*   Updated: 2018/05/25 16:38:40 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,6 +34,9 @@ char			*ft_adtoa(const void *addr);
 int				ft_atoi(const char *str);
 char			*ft_bitstoa(t_byte byte);
 char			*ft_itoa(int n);
+int				ft_parse_int(const char *str, int *i);
+unsigned int	ft_parse_hex(const char *str, int *i);
+double			ft_parse_float(const char *str, int *i);
 char			*ft_strcat(char *s1, const char *s2);
 void			ft_strclr(char *s);
 int				ft_strcmp(const char *s1, const char *s2);

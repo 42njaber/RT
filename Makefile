@@ -1,8 +1,12 @@
-FILES = main \
-		init \
-		display \
-		geometry \
-		key_hooks
+FILES = main.c \
+		read_cfg.c \
+		parse_objs.c \
+		cfg_default.c \
+		init.c \
+		display.c \
+		hit_equations.c \
+		normal.c \
+		hooks.c
 
 CFLAGS = -Llibgxns -lgxns -framework OpenGL -framework AppKit
 
@@ -13,12 +17,12 @@ endif
 MACROS = -D $(KEYBOARD)
 
 SRC_DIR = src
-SRC = $(FILES:%=$(SRC_DIR)/%.o)
+SRC = $(FILES:%=$(SRC_DIR)/%)
 
 NAME = rtv1
 
 OBJ_DIR = obj
-OBJ = $(FILES:%=$(OBJ_DIR)/%.o)
+OBJ = $(FILES:%.c=$(OBJ_DIR)/%.o)
 
 LIB = libgxns/libgxns.a
 FLAGS = -Wall -Wextra -Werror -Iinc/ 
