@@ -6,7 +6,7 @@
 /*   By: njaber <neyl.jaber@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/20 14:52:32 by njaber            #+#    #+#             */
-/*   Updated: 2018/05/29 22:45:53 by njaber           ###   ########.fr       */
+/*   Updated: 2018/05/30 00:40:54 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,7 +62,6 @@ static int		expose_hook(void *parm)
 void			set_hooks(t_ptr *p)
 {
 	mlx_expose_hook(p->win->win, expose_hook, (void*)p);
-	mlx_expose_hook(p->win->win, loop_hook, (void*)p);
 	mlx_hook(p->win->win, 2, 0, key_press_hook, (void*)p);
 	mlx_hook(p->win->win, 17, 0, close_hook, (void*)p);
 }

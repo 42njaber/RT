@@ -6,7 +6,7 @@
 /*   By: njaber <neyl.jaber@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/01/26 00:14:34 by njaber            #+#    #+#             */
-/*   Updated: 2018/05/30 00:15:21 by njaber           ###   ########.fr       */
+/*   Updated: 2018/05/30 00:40:39 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 
 #ifdef OPENCL
 
-void	paint_window(t_win *win, t_kernel *opencl_kernel)
+void	paint_window(t_win *win, t_kernel *opencl_kernel, int clear)
 {
 	uint64_t	time;
 
