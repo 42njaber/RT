@@ -6,7 +6,7 @@
 /*   By: njaber <neyl.jaber@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/03/16 20:23:49 by njaber            #+#    #+#             */
-/*   Updated: 2018/05/29 01:56:42 by njaber           ###   ########.fr       */
+/*   Updated: 2018/05/29 07:04:35 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,9 +23,9 @@ static int		set_args(t_ptr *p, t_ocl *opencl, t_kernel *kernel, t_img *img)
 			img->line * img->size.y, NULL, &err);
 	err |= clSetKernelArg(kernel->cores[0], 0,
 			sizeof(cl_mem), (void*)&kernel->memobjs[0]);
-	err |= clSetKernelArg(kernel->cores[0], 1, sizeof(int), &img->px_size);
-	err |= clSetKernelArg(kernel->cores[0], 2, sizeof(int), &img->line);
-	err |= clSetKernelArg(kernel->cores[0], 3, sizeof(int[2]), &img->size);
+	err |= clSetKernelArg(kernel->cores[0], 8, sizeof(int), &img->px_size);
+	err |= clSetKernelArg(kernel->cores[0], 9, sizeof(int), &img->line);
+	err |= clSetKernelArg(kernel->cores[0], 10, sizeof(int[2]), &img->size);
 	err |= clSetKernelArg(kernel->cores[1], 0,
 			sizeof(cl_mem), (void*)&kernel->memobjs[0]);
 	return (err);

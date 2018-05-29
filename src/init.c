@@ -6,7 +6,7 @@
 /*   By: njaber <neyl.jaber@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/20 13:17:27 by njaber            #+#    #+#             */
-/*   Updated: 2018/05/29 02:56:14 by njaber           ###   ########.fr       */
+/*   Updated: 2018/05/29 06:53:21 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,6 +78,11 @@ void			init_struct(t_ptr *p)
 	p->far = 400;
 	p->opencl = init_opencl();
 	p->kernel = create_kernel(p);
+	if (p->kernel != NULL)
+	{
+		create_obj_memobjs(p);
+		create_spot_memobjs(p);
+	}
 }
 
 #else

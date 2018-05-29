@@ -6,7 +6,7 @@
 /*   By: njaber <neyl.jaber@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/20 15:19:13 by njaber            #+#    #+#             */
-/*   Updated: 2018/05/29 02:30:52 by njaber           ###   ########.fr       */
+/*   Updated: 2018/05/29 05:23:47 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -87,6 +87,8 @@ typedef struct	s_ptr {
 }				t_ptr;
 
 void			process_image_opencl(t_ptr *p);
+void			create_spot_memobjs(t_ptr *p);
+void			create_obj_memobjs(t_ptr *p);
 t_kernel		*create_kernel(t_ptr *p);
 
 #else

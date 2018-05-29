@@ -6,7 +6,7 @@
 /*   By: njaber <neyl.jaber@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/01/26 00:14:34 by njaber            #+#    #+#             */
-/*   Updated: 2018/05/25 21:17:26 by njaber           ###   ########.fr       */
+/*   Updated: 2018/05/30 00:15:21 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,7 @@ void	paint_window(t_win *win, t_kernel *opencl_kernel)
 		win->fps = 300000000000 / (time - win->frames[0]);
 	mlx_clear_window(win->mlx, win->win);
 	mlx_put_image_to_window(win->mlx, win->win, win->img.link, 0, 0);
-	if (opencl_kernel != NULL)
+	if (clear && opencl_kernel != NULL)
 	{
 		clSetKernelArg(opencl_kernel->cores[1], 1, sizeof(int),
 				(int[1]){0x00AF7000});
@@ -34,14 +34,14 @@ void	paint_window(t_win *win, t_kernel *opencl_kernel)
 				NULL, 0, NULL, NULL);
 		clFinish(opencl_kernel->opencl->gpu_command_queue);
 	}
-	else
+	else if (clear)
 		clear_img(&win->img);
 	win->frames[win->frame % 30] = time;
 }
 
 #else
 
-void	paint_window(t_win *win, t_kernel *opencl_kernel)
+void	paint_window(t_win *win, t_kernel *opencl_kernel, int clear)
 {
 	uint64_t	time;
 
@@ -51,7 +51,8 @@ void	paint_window(t_win *win, t_kernel *opencl_kernel)
 		win->fps = 300000000000 / (time - win->frames[0]);
 	mlx_clear_window(win->mlx, win->win);
 	mlx_put_image_to_window(win->mlx, win->win, win->img.link, 0, 0);
-	clear_img(&win->img);
+	if (clear)
+		clear_img(&win->img);
 	win->frames[win->frame % 30] = time;
 }
 

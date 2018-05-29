@@ -6,7 +6,7 @@
 /*   By: njaber <neyl.jaber@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/29 00:39:23 by njaber            #+#    #+#             */
-/*   Updated: 2018/05/29 02:41:48 by njaber           ###   ########.fr       */
+/*   Updated: 2018/05/29 20:25:49 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,25 @@
 
 static void				set_args(t_ptr *p)
 {
-	(void)p;
+	clSetKernelArg(p->kernel->cores[0], 1,
+			sizeof(cl_mem), &p->kernel->memobjs[1]);
+	clSetKernelArg(p->kernel->cores[0], 2,
+			sizeof(cl_mem), &p->kernel->memobjs[2]);
+	clSetKernelArg(p->kernel->cores[0], 3,
+			sizeof(cl_mem), &p->kernel->memobjs[3]);
+	clSetKernelArg(p->kernel->cores[0], 4,
+			sizeof(cl_mem), &p->kernel->memobjs[4]);
+	clSetKernelArg(p->kernel->cores[0], 5,
+			sizeof(cl_mem), &p->kernel->memobjs[5]);
+	clSetKernelArg(p->kernel->cores[0], 6,
+			sizeof(cl_mem), &p->kernel->memobjs[6]);
+	clSetKernelArg(p->kernel->cores[0], 7,
+			sizeof(cl_mem), &p->kernel->memobjs[7]);
+	clSetKernelArg(p->kernel->cores[0], 11, sizeof(int), &p->nobjs);
+	clSetKernelArg(p->kernel->cores[0], 12, sizeof(int), &p->nspots);
+	clSetKernelArg(p->kernel->cores[0], 13, sizeof(float), &p->near);
+	clSetKernelArg(p->kernel->cores[0], 14, sizeof(float), &p->far);
+	clSetKernelArg(p->kernel->cores[0], 15, sizeof(float), &p->fov);
 }
 
 void				process_image_opencl(t_ptr *p)

@@ -9,7 +9,8 @@ FILES = main.c \
 		hooks.c
 
 ALT_FILE = load_opencl.c \
-		   display_opencl.c
+		   display_opencl.c \
+		   buf_handler.c
 
 CFLAGS = -Llibgxns -lgxns -framework OpenGL -framework AppKit
 
@@ -25,7 +26,7 @@ endif
 
 ifeq ($(OPENCL), TRUE)
 MACROS += -D OPENCL
-FILES += load_opencl.c display_opencl.c
+FILES += load_opencl.c display_opencl.c buf_handler.c
 CFLAGS += -framework OpenCL
 else
 endif

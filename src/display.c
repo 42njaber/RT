@@ -6,7 +6,7 @@
 /*   By: njaber <neyl.jaber@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/16 05:31:19 by njaber            #+#    #+#             */
-/*   Updated: 2018/05/27 02:01:22 by njaber           ###   ########.fr       */
+/*   Updated: 2018/05/29 07:32:26 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -221,9 +221,9 @@ void				process_image(t_ptr *p)
 	float			s;
 
 	px = (t_ivec){0, 0};
+	s = 1 / tan(p->fov * 0.5 * M_PI / 180);
 	while (px.y < p->scene->size.y)
 	{
-		s = 1 / tan(p->fov * 0.5 * M_PI / 180);
 		color = trace(p, (t_vec3){
 				(float)(px.x - p->scene->size.x / 2) /
 				(ft_max(p->scene->size.x, p->scene->size.y) / 2) / s * 1,
