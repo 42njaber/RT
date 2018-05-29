@@ -6,11 +6,11 @@
 /*   By: njaber <neyl.jaber@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/25 11:20:41 by njaber            #+#    #+#             */
-/*   Updated: 2018/05/26 00:30:41 by njaber           ###   ########.fr       */
+/*   Updated: 2018/05/26 21:35:32 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "rtv1.h"
+#include "rt.h"
 #include "gnl.h"
 #include "libft.h"
 
@@ -92,7 +92,7 @@ static void		choose_option(t_ptr *p, char *def, int fd, char *line)
 	}
 }
 
-void			parse_configs(t_ptr *p, int fd)
+void			parse_scene_file(t_ptr *p, int fd)
 {
 	char	*line;
 	char	*def;
@@ -107,5 +107,5 @@ void			parse_configs(t_ptr *p, int fd)
 	}
 	if (ret == -1)
 		ft_error("[Error] Unable to read the config file\n");
-	set_default(p, def);
+	set_default_scene(p, def);
 }

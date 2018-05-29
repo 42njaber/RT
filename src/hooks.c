@@ -6,12 +6,16 @@
 /*   By: njaber <neyl.jaber@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/20 14:52:32 by njaber            #+#    #+#             */
-/*   Updated: 2018/05/26 00:32:59 by njaber           ###   ########.fr       */
+/*   Updated: 2018/05/27 02:30:53 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "rtv1.h"
+#include "rt.h"
 #include "mlx.h"
+
+/*
+** If the escape key is pressed, close the program
+*/
 
 static int		key_press_hook(int key_code, void *parm)
 {
@@ -21,12 +25,20 @@ static int		key_press_hook(int key_code, void *parm)
 	return (0);
 }
 
+/*
+** Closes the program
+*/
+
 static int		close_hook(void *parm)
 {
 	(void)parm;
 	exit(0);
 	return (0);
 }
+
+/*
+** Readraws the computed image to the window
+*/
 
 static int		expose_hook(void *parm)
 {
@@ -37,6 +49,15 @@ static int		expose_hook(void *parm)
 	mlx_put_image_to_window(p->mlx, p->win->win, p->scene->link, 0, 0);
 	return (0);
 }
+
+/*
+** p: the program's main structure
+**
+** Sets the hooks for the folowing events:
+**  - Key press
+**  - Expose
+**  - Close button clicked
+*/
 
 void			set_hooks(t_ptr *p)
 {

@@ -6,7 +6,7 @@
 /*   By: njaber <neyl.jaber@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/12/21 21:11:02 by njaber            #+#    #+#             */
-/*   Updated: 2018/03/15 12:32:06 by njaber           ###   ########.fr       */
+/*   Updated: 2018/05/28 22:42:36 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -93,5 +93,5 @@ void			ft_error(const char *format, ...)
 	write(1, buf->buf, buf->printed % B_SIZE);
 	free(buf->tbuf);
 	free(buf);
-	exit(-1);
+	exit(1);
 }

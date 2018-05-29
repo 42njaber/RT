@@ -1,12 +1,15 @@
 FILES = main.c \
+		display.c \
 		read_cfg.c \
 		parse_objs.c \
 		cfg_default.c \
 		init.c \
-		display.c \
 		hit_equations.c \
 		normal.c \
 		hooks.c
+
+ALT_FILE = load_opencl.c \
+		   display_opencl.c
 
 CFLAGS = -Llibgxns -lgxns -framework OpenGL -framework AppKit
 
@@ -16,10 +19,21 @@ endif
 
 MACROS = -D $(KEYBOARD)
 
+ifndef OPENCL
+OPENCL = TRUE
+endif
+
+ifeq ($(OPENCL), TRUE)
+MACROS += -D OPENCL
+FILES += load_opencl.c display_opencl.c
+CFLAGS += -framework OpenCL
+else
+endif
+
 SRC_DIR = src
 SRC = $(FILES:%=$(SRC_DIR)/%)
 
-NAME = rtv1
+NAME = rt
 
 OBJ_DIR = obj
 OBJ = $(FILES:%.c=$(OBJ_DIR)/%.o)
@@ -37,13 +51,13 @@ force:
 	@true
 
 libgxns/libgxns.a: force
-	make -C libgxns/ OPENCL=FALSE
+	make -C libgxns/ OPENCL=$(OPENCL)
 
-$(OBJ_DIR)/%.o: $(SRC_DIR)/%.c inc/rtv1.h
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.c inc/rt.h
 	@mkdir $(OBJ_DIR) &> /dev/null || true
 	$(CC) $(FLAGS) -o $@ -c $< $(MACROS) 
 
-$(NAME): $(LIB) $(OBJ) Makefile inc/rtv1.h
+$(NAME): $(LIB) $(OBJ) Makefile inc/rt.h
 	$(CC) $(CFLAGS) -o $@ $(OBJ)
 
 soft_clean:

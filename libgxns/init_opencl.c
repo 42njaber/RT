@@ -6,7 +6,7 @@
 /*   By: njaber <neyl.jaber@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/03/15 01:57:02 by njaber            #+#    #+#             */
-/*   Updated: 2018/05/15 22:20:31 by njaber           ###   ########.fr       */
+/*   Updated: 2018/05/29 01:18:36 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,14 +36,14 @@ cl_program		create_program_from_file(cl_context context, char *file)
 	int			rd;
 
 	if ((fd = open(file, O_RDONLY)) < 0)
-		ft_error("[Erreur] Impossible d'ouvrir le fichier.\n");
+		return (NULL);
 	rd = read(fd, buf, 4096);
 	kernel = ft_strnew(rd);
 	ft_memcpy(kernel, buf, rd);
 	while ((rd = read(fd, buf, 4096)) > 0)
 		kernel = join_free(kernel, buf, rd);
 	if (rd == -1)
-		ft_error("[Erreur] Erreur durant la lecture du fichier.\n");
+		return (NULL);
 	ret = clCreateProgramWithSource(context, 1,
 			(const char**)&kernel, NULL, NULL);
 	free(kernel);
