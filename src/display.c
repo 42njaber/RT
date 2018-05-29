@@ -36,8 +36,8 @@
 static int			can_trace(t_ptr *p, t_vec3 v1, t_vec3 v2)
 {
 	t_vec3	dir;
-	double	len;
-	double	t;
+	float	len;
+	float	t;
 	int		i;
 
 	dir = vec_sub(v2, v1);
@@ -94,12 +94,12 @@ static int			can_trace(t_ptr *p, t_vec3 v1, t_vec3 v2)
 ** returns: lum
 */
 
-static double		get_luminance(t_ptr *p, t_vec3 v, t_vec3 n, t_vec3 ray)
+static float		get_luminance(t_ptr *p, t_vec3 v, t_vec3 n, t_vec3 ray)
 {
 	t_vec3	r_in;
 	t_vec3	r_out;
-	double	lum;
-	double	reflected;
+	float	lum;
+	float	reflected;
 	int		i;
 
 	reflected = 0;
@@ -143,7 +143,7 @@ static double		get_luminance(t_ptr *p, t_vec3 v, t_vec3 n, t_vec3 ray)
 
 static unsigned int	get_color(t_ptr *p, t_obj *obj, t_vec3 v, t_vec3 ray)
 {
-	double	lum;
+	float	lum;
 
 	lum = get_luminance(p, v, get_normal(obj, v),
 			(t_vec3){-ray.x, -ray.y, -ray.z});
@@ -177,8 +177,8 @@ static unsigned int	get_color(t_ptr *p, t_obj *obj, t_vec3 v, t_vec3 ray)
 
 static unsigned int	trace(t_ptr *p, t_vec3 dir)
 {
-	double	hit;
-	double	tmp;
+	float	hit;
+	float	tmp;
 	t_vec3	v;
 	int		obj_hit;
 	int		i;
@@ -218,23 +218,23 @@ void				process_image(t_ptr *p)
 {
 	t_ivec			px;
 	unsigned int	color;
-	double			s;
+	float			s;
 
 	px = (t_ivec){0, 0};
 	while (px.y < p->scene->size.y)
 	{
 		s = 1 / tan(p->fov * 0.5 * M_PI / 180);
 		color = trace(p, (t_vec3){
-				(double)(px.x - p->scene->size.x / 2) /
+				(float)(px.x - p->scene->size.x / 2) /
 				(ft_max(p->scene->size.x, p->scene->size.y) / 2) / s * 1,
-				(double)(px.y - p->scene->size.y / 2) /
+				(float)(px.y - p->scene->size.y / 2) /
 				(ft_max(p->scene->size.x, p->scene->size.y) / 2) / s * 1,
 				1});
 		img_px(p->scene, color, px);
 		px.x = (px.x + 1) % p->scene->size.x;
 		if (px.x == 0)
 			ft_printf("\rComputing image... %.1f%%",
-					(double)px.y++ / p->scene->size.y * 100);
+					(float)px.y++ / p->scene->size.y * 100);
 	}
 	ft_printf("\nFinished\n");
 }

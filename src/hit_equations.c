@@ -34,12 +34,12 @@
 ** returns: 1 if a positive solution to the equation was found, 0 otherwise
 */
 
-static int	sphere_hit(t_vec3 ori, t_vec3 dir, double *t)
+static int	sphere_hit(t_vec3 ori, t_vec3 dir, float *t)
 {
-	double	a;
-	double	b;
-	double	c;
-	double	d;
+	float	a;
+	float	b;
+	float	c;
+	float	d;
 
 	a = sqr(dir.x) + sqr(dir.y) + sqr(dir.z);
 	b = 2 * (ori.x * dir.x + ori.y * dir.y + ori.z * dir.z);
@@ -74,9 +74,9 @@ static int	sphere_hit(t_vec3 ori, t_vec3 dir, double *t)
 ** returns: 1 if a positive solution to the equation was found, 0 otherwise
 */
 
-static int	plane_hit(t_vec3 ori, t_vec3 dir, double *t)
+static int	plane_hit(t_vec3 ori, t_vec3 dir, float *t)
 {
-	double	a;
+	float	a;
 
 	if (ori.z == 0)
 	{
@@ -113,12 +113,12 @@ static int	plane_hit(t_vec3 ori, t_vec3 dir, double *t)
 ** returns: 1 if a positive solution to the equation was found, 0 otherwise
 */
 
-static int	cylindre_hit(t_vec3 ori, t_vec3 dir, double *t)
+static int	cylindre_hit(t_vec3 ori, t_vec3 dir, float *t)
 {
-	double	a;
-	double	b;
-	double	c;
-	double	d;
+	float	a;
+	float	b;
+	float	c;
+	float	d;
 
 	a = sqr(dir.x) + sqr(dir.z);
 	b = 2 * (ori.x * dir.x + ori.z * dir.z);
@@ -158,12 +158,12 @@ static int	cylindre_hit(t_vec3 ori, t_vec3 dir, double *t)
 ** returns: 1 if a positive solution to the equation was found, 0 otherwise
 */
 
-static int	cone_hit(t_vec3 ori, t_vec3 dir, double *t)
+static int	cone_hit(t_vec3 ori, t_vec3 dir, float *t)
 {
-	double	a;
-	double	b;
-	double	c;
-	double	d;
+	float	a;
+	float	b;
+	float	c;
+	float	d;
 
 	a = sqr(dir.x) + sqr(dir.z) - sqr(dir.y);
 	b = 2 * (ori.x * dir.x + ori.z * dir.z - ori.y * dir.y);
@@ -198,7 +198,7 @@ static int	cone_hit(t_vec3 ori, t_vec3 dir, double *t)
 ** returns: 1 if an intersection was found, 0 otherwise
 */
 
-int			does_intersect(t_obj *obj, t_vec3 origin, t_vec3 dir, double *t)
+int			does_intersect(t_obj *obj, t_vec3 origin, t_vec3 dir, float *t)
 {
 	origin = apply_mat_vec3(origin, obj->transform);
 	dir = apply_mat_vec3(dir, obj->rot_mat);

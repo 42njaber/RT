@@ -12,7 +12,7 @@
 
 #include "libgxns.h"
 
-double			sqr(double n)
+float			sqr(float n)
 {
 	return (n * n);
 }

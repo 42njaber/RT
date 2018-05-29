@@ -13,7 +13,7 @@
 #include "libgxns.h"
 #include "mlx.h"
 
-void	display_data_float(t_win *win, char *name, double data, int y)
+void	display_data_float(t_win *win, char *name, float data, int y)
 {
 	char	*tmp;
 

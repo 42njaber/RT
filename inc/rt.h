@@ -59,7 +59,7 @@ typedef struct	s_obj {
 
 typedef struct	s_spot {
 	t_vec3			pos;
-	double			lum;
+	float			lum;
 }				t_spot;
 
 #ifdef OPENCL
@@ -70,9 +70,9 @@ typedef struct	s_ptr {
 	t_ocl		*opencl;
 	t_kernel	*kernel;
 	char		keys[512];
-	double		fov;
-	double		near;
-	double		far;
+	float		fov;
+	float		near;
+	float		far;
 	int			nobjs;
 	int			nspots;
 	t_vec3		cam_pos;
@@ -95,9 +95,9 @@ typedef struct	s_ptr {
 	t_win		*win;
 	void		*mlx;
 	char		keys[512];
-	double		fov;
-	double		near;
-	double		far;
+	float		fov;
+	float		near;
+	float		far;
 	int			nobjs;
 	int			nspots;
 	t_vec3		cam_pos;
@@ -121,7 +121,7 @@ void			set_default_scene(t_ptr *p, char *def);
 
 void			process_image(t_ptr *p);
 
-int				does_intersect(t_obj *obj, t_vec3 origin, t_vec3 dir, double *t);
+int				does_intersect(t_obj *obj, t_vec3 origin, t_vec3 dir, float *t);
 t_vec3			get_normal(t_obj *obj, t_vec3 v);
 
 #endif
