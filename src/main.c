@@ -6,7 +6,7 @@
 /*   By: njaber <neyl.jaber@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/18 17:01:19 by njaber            #+#    #+#             */
-/*   Updated: 2018/05/29 05:26:16 by njaber           ###   ########.fr       */
+/*   Updated: 2018/05/31 04:47:35 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,12 +23,12 @@
 
 static void		launch_window(t_ptr *p)
 {
-	if ((p->win = (t_win*)ft_memalloc(sizeof(t_win))) == NULL)
-		ft_error("[Erreur] Failed to allocate memory\n");
+	if (p->kernel == NULL)
+		process_image_opencl(p);
 	if ((init_new_win(p->mlx, p->win, (t_ivec){1200, 800}, "RT")) == 0)
 		ft_error("[Erreur] Failed to initialize window\n");
 	set_hooks(p);
-	mlx_put_image_to_window(p->mlx, p->win->win, p->scene->link, 0, 0);
+	paint_window(p->win, NULL, 0);
 	mlx_loop(p->mlx);
 }
 
@@ -65,6 +65,8 @@ static void		parse_arguments(t_ptr *p, int argc, char **argv)
 			p->shadows = 1;
 		else if (ft_strncmp(argv[i], "-fov=", 5) == 0)
 			p->fov = ft_atoi(argv[i] + 5);
+		else if (ft_strncmp(argv[i], "-res=", 5) == 0)
+			p->res = ft_atoi(argv[i] + 5);
 	}
 	if (p->fov < 10 || p->fov > 170)
 		ft_error("[Error] Please enter an fov value between 10 and 170\n");
@@ -109,7 +111,6 @@ int				main(int argc, char **argv)
 		ft_error("[Error] Failed to initialize mlx\n");
 	init_struct(&p);
 	parse_arguments(&p, argc, argv);
-	process_image_opencl(&p);
 	launch_window(&p);
 }
 
@@ -140,7 +141,6 @@ int				main(int argc, char **argv)
 		ft_error("[Error] Failed to initialize mlx\n");
 	init_struct(&p);
 	parse_arguments(&p, argc, argv);
-	process_image(&p);
 	launch_window(&p);
 }
 

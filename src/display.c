@@ -6,7 +6,7 @@
 /*   By: njaber <neyl.jaber@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/16 05:31:19 by njaber            #+#    #+#             */
-/*   Updated: 2018/05/29 07:32:26 by njaber           ###   ########.fr       */
+/*   Updated: 2018/05/30 01:00:30 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -222,19 +222,19 @@ void				process_image(t_ptr *p)
 
 	px = (t_ivec){0, 0};
 	s = 1 / tan(p->fov * 0.5 * M_PI / 180);
-	while (px.y < p->scene->size.y)
+	while (px.y < p->win->img.size.y)
 	{
 		color = trace(p, (t_vec3){
-				(float)(px.x - p->scene->size.x / 2) /
-				(ft_max(p->scene->size.x, p->scene->size.y) / 2) / s * 1,
-				(float)(px.y - p->scene->size.y / 2) /
-				(ft_max(p->scene->size.x, p->scene->size.y) / 2) / s * 1,
+				(float)(px.x - p->win->img.size.x / 2) /
+				(ft_max(p->win->img.size.x, p->win->img.size.y) / 2) / s * 1,
+				(float)(px.y - p->win->img.size.y / 2) /
+				(ft_max(p->win->img.size.x, p->win->img.size.y) / 2) / s * 1,
 				1});
-		img_px(p->scene, color, px);
-		px.x = (px.x + 1) % p->scene->size.x;
+		img_px(&p->win->img, color, px);
+		px.x = (px.x + 1) % p->win->img.size.x;
 		if (px.x == 0)
 			ft_printf("\rComputing image... %.1f%%",
-					(float)px.y++ / p->scene->size.y * 100);
+					(float)px.y++ / p->win->img.size.y * 100);
 	}
 	ft_printf("\nFinished\n");
 }

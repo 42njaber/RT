@@ -24,8 +24,8 @@ void		set_default_scene(t_ptr *p, char *def)
 {
 	if (def[0] == 1)
 	{
-		p->cam_pos = (t_vec3){0, 0, 0};
-		p->cam_rot = (t_vec3){0, 0, 0};
+		p->pos = (t_vec3){0, 0, 0};
+		p->rot = (t_vec3){0, 0, 0};
 	}
 	if (def[1] == 1)
 	{

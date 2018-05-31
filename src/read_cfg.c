@@ -22,16 +22,16 @@ static void		parse_cam(t_ptr *p, int fd)
 	if (get_next_line(fd, &line) != 1)
 		ft_error("[Error] Error in the camera parameters\n");
 	i = 0;
-	p->cam_pos.x = ft_parse_float(line, &i);
-	p->cam_pos.y = ft_parse_float(line, &i);
-	p->cam_pos.z = ft_parse_float(line, &i);
+	p->pos.x = ft_parse_float(line, &i);
+	p->pos.y = ft_parse_float(line, &i);
+	p->pos.z = ft_parse_float(line, &i);
 	free(line);
 	if (get_next_line(fd, &line) != 1)
 		ft_error("[Error] Error in the camera parameters\n");
 	i = 0;
-	p->cam_rot.x = ft_parse_float(line, &i);
-	p->cam_rot.y = ft_parse_float(line, &i);
-	p->cam_rot.z = ft_parse_float(line, &i);
+	p->rot.x = ft_parse_float(line, &i);
+	p->rot.y = ft_parse_float(line, &i);
+	p->rot.z = ft_parse_float(line, &i);
 	free(line);
 }
 

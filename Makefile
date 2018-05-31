@@ -5,7 +5,9 @@ FILES = main.c \
 		cfg_default.c \
 		init.c \
 		hit_equations.c \
+		gen_matricies.c \
 		normal.c \
+		loop_hook.c \
 		hooks.c
 
 ALT_FILE = load_opencl.c \

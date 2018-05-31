@@ -233,6 +233,10 @@ int						can_trace(
 	return (1);
 }
 
+#ifndef SQR_WORK_GROUP_SIZE
+# define SQR_WORK_GROUP_SIZE 8
+#endif
+
 __kernel void			process_image(
 						   __global uchar4	*buf,
 						   __global int		*obj_type,
@@ -242,33 +246,38 @@ __kernel void			process_image(
 						   __global float16	*obj_rev_rot,
 						   __global float	*spot_lum,
 						   __global float3	*spot_pos,
-						   uint				pixel_sz,
-						   uint				line,
 						   int2				img_size,
+						   float16			cam_mat,
+						   float16			cam_mat_rot,
 						   int				nobjs,
 						   int				nspots,
-						   float			near,
 						   float			far,
 						   float			fov
 						  )
 {
-	int				id;
-	int2			px;
+	__local uchar4	tmp_buf[SQR_WORK_GROUP_SIZE][SQR_WORK_GROUP_SIZE];
+	int2			id;
+	int2			wg_id;
+	int				buf_pos;
 	float			s;
 	int				i;
 
-	if ((id = get_global_id(0)) >= img_size.x * img_size.y)
+	if ((id.x = get_global_id(0)) >= img_size.x
+			|| (id.y = get_global_id(1)) >= img_size.y)
 		return ;
-	px = (int2)(id % img_size.x, id / img_size.x);
+	wg_id = (int2)(get_local_id(0), get_local_id(1));
+	buf_pos = id.x + img_size.x * id.y;
 	s = 1 / tan((float)(fov * 0.5 * M_PI_F / 180));
 
 	// Creation of origin and direction vectors of the ray
 	float3			ori;
 	float3			dir;
 
-	ori = (float3)((float)(px.x - img_size.x / 2) / (max(img_size.x, img_size.y) / 2) / s,
-				   (float)(px.y - img_size.y / 2) / (max(img_size.x, img_size.y) / 2) / s, 1);
+	ori = (float3)((float)(id.x - img_size.x / 2) / (max(img_size.x, img_size.y) / 2) / s,
+				   (float)(id.y - img_size.y / 2) / (max(img_size.x, img_size.y) / 2) / s, 1);
 	dir = normalize(ori);
+	ori = vec_mat_mult(cam_mat, ori);
+	dir = vec_mat_mult(cam_mat_rot, dir);
 
 	// Iterate throught all the objects to detect the first one hit by the ray
 	float3			ori_tmp;
@@ -305,6 +314,7 @@ __kernel void			process_image(
 	float			reflected;
 
 	hit -= 0.01; // To prevent precision errors
+	lum = 1;
 	if (hit < far)
 	{
 		v_hit = ori + dir * hit;
@@ -324,12 +334,73 @@ __kernel void			process_image(
 					lum += spot_lum[i] * a_in / pow(length(r_in), (float)2) + reflected * spot_lum[i];
 			}
 		if (lum < 1)
-			buf[id] = mix((uchar4)(0x00, 0x00, 0x00, 0x00), (obj_color[obj_hit]), lum);
+			tmp_buf[wg_id.y][wg_id.x] = mix((uchar4)(0x00, 0x00, 0x00, 0x00), (obj_color[obj_hit]), lum);
 		else
-			buf[id] = mix((uchar4)(0xFF, 0xFF, 0xFF, 0x00), (obj_color[obj_hit]), 1 / lum);
+			tmp_buf[wg_id.y][wg_id.x] = mix((uchar4)(0xFF, 0xFF, 0xFF, 0x00), (obj_color[obj_hit]), 1 / lum);
 	}
 	else
-		buf[id] = (uchar4)(0x00, 0x00, 0x00, 0x00);
+		tmp_buf[wg_id.y][wg_id.x] = (uchar4)(0x00, 0x00, 0x00, 0x00);
+	buf[buf_pos] = tmp_buf[wg_id.y][wg_id.x];
+}
+
+__kernel void	sampler(
+				  __global uchar4	*dest_buf,
+				  __global uchar4	*origin_buf,
+				  int2				dest_size,
+				  int2				origin_size
+				 )
+{
+	int2			id;
+	int				buf_pos;
+	uchar4			color;
+	uchar4			tmp_colors[2];
+	float4			tmp_color_mix;
+	float2			ratio;
+	float			total_ratio;
+	float2			sampler_coord;
+	float2			sampler_fract;
+	int2			origin_pos;
+	int				origin_buf_pos;
+	int				i;
+	int				j;
+
+	if ((id.x = get_global_id(0)) >= dest_size.x
+			|| (id.y = get_global_id(1)) >= dest_size.y)
+		return ;
+	buf_pos = id.x + dest_size.x * id.y;
+	ratio = (float2)((float)origin_size.x / dest_size.x, (float)origin_size.y / dest_size.y);
+	sampler_coord = (float2)(id.x * ratio.x, id.y * ratio.y);
+	if (ratio.x < 0.99)
+	{
+		sampler_fract = fmod(sampler_coord, 1);
+		origin_pos = (int2)floor(sampler_coord);
+		origin_buf_pos = (int)sampler_coord.x + origin_size.x * (int)sampler_coord.y;
+		tmp_colors[0] = mix(origin_buf[origin_buf_pos], origin_buf[origin_buf_pos + 1], sampler_fract.x);
+		tmp_colors[1] = mix(origin_buf[origin_buf_pos + origin_size.x], origin_buf[origin_buf_pos + origin_size.x + 1], sampler_fract.x);
+		color = mix(tmp_colors[0], tmp_colors[1], sampler_fract.y);
+		dest_buf[buf_pos] = color;
+	}
+	else if (ratio.x > 1.01)
+	{
+		origin_pos = (int2)floor(sampler_coord);
+		origin_buf_pos = (int)sampler_coord.x + origin_size.x * (int)sampler_coord.y;
+		total_ratio = round(ratio.x) * round(ratio.y);
+		tmp_color_mix = (float4)0;
+		i = 0;
+		j = 0;
+		while (j < round(ratio.y))
+		{
+			tmp_colors[0] = origin_buf[origin_buf_pos + i + j * origin_size.x];
+			tmp_color_mix += (float4)(tmp_colors[0].r / total_ratio, tmp_colors[0].g / total_ratio, tmp_colors[0].b / total_ratio, tmp_colors[0].a / total_ratio);
+			i = (i + 1) % (int)round(ratio.x);
+			if (i == 0)
+				j++;
+		}
+		color = (uchar4)(tmp_color_mix.r, tmp_color_mix.g, tmp_color_mix.b, tmp_color_mix.a);
+		dest_buf[buf_pos] = color;
+	}
+	else
+		dest_buf[buf_pos] = origin_buf[buf_pos];
 }
 
 __kernel void	clear_buf(__global uchar4 *buf,

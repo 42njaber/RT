@@ -6,7 +6,7 @@
 /*   By: njaber <neyl.jaber@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/20 15:19:13 by njaber            #+#    #+#             */
-/*   Updated: 2018/05/29 05:23:47 by njaber           ###   ########.fr       */
+/*   Updated: 2018/05/31 00:28:35 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,20 +73,21 @@ typedef struct	s_ptr {
 	float		fov;
 	float		near;
 	float		far;
+	int		res;
 	int			nobjs;
 	int			nspots;
-	t_vec3		cam_pos;
-	t_vec3		cam_rot;
+	t_vec3		pos;
+	t_vec3		rot;
 	t_mat4		cam_mat;
 	t_mat4		cam_mat_rot;
 	t_obj		*objs;
 	t_spot		*spots;
-	t_img		*scene;
 	char		brilliance;
 	char		shadows;
 }				t_ptr;
 
 void			process_image_opencl(t_ptr *p);
+
 void			create_spot_memobjs(t_ptr *p);
 void			create_obj_memobjs(t_ptr *p);
 t_kernel		*create_kernel(t_ptr *p);
@@ -100,15 +101,15 @@ typedef struct	s_ptr {
 	float		fov;
 	float		near;
 	float		far;
+	int		res;
 	int			nobjs;
 	int			nspots;
-	t_vec3		cam_pos;
-	t_vec3		cam_rot;
+	t_vec3		pos;
+	t_vec3		rot;
 	t_mat4		cam_mat;
 	t_mat4		cam_mat_rot;
 	t_obj		*objs;
 	t_spot		*spots;
-	t_img		*scene;
 	char		brilliance;
 	char		shadows;
 }				t_ptr;
@@ -121,9 +122,14 @@ void			parse_scene_file(t_ptr *p, int fd);
 void			parse_objs(t_ptr *p, int fd);
 void			set_default_scene(t_ptr *p, char *def);
 
+int				loop_hook(void *parm);
+
 void			process_image(t_ptr *p);
 
 int				does_intersect(t_obj *obj, t_vec3 origin, t_vec3 dir, float *t);
 t_vec3			get_normal(t_obj *obj, t_vec3 v);
+
+void			generate_cam_matricies(t_ptr *p);
+void			generate_obj_matricies(t_ptr *p);
 
 #endif

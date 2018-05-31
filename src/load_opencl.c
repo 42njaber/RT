@@ -6,13 +6,14 @@
 /*   By: njaber <neyl.jaber@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/03/16 20:23:49 by njaber            #+#    #+#             */
-/*   Updated: 2018/05/29 07:04:35 by njaber           ###   ########.fr       */
+/*   Updated: 2018/05/31 03:54:39 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "rt.h"
 
-static int		set_args(t_ptr *p, t_ocl *opencl, t_kernel *kernel, t_img *img)
+static int		set_init_args(t_ptr *p, t_ocl *opencl,
+		t_kernel *kernel, t_img *img)
 {
 	int err;
 
@@ -21,43 +22,53 @@ static int		set_args(t_ptr *p, t_ocl *opencl, t_kernel *kernel, t_img *img)
 		ft_error("[Erreur] Echec d'allocation mémoire.");
 	kernel->memobjs[0] = clCreateBuffer(opencl->gpu_context, CL_MEM_READ_WRITE,
 			img->line * img->size.y, NULL, &err);
+	kernel->memobjs[8] = clCreateBuffer(opencl->gpu_context, CL_MEM_READ_WRITE,
+			img->line * img->size.y * 16, NULL, &err);
 	err |= clSetKernelArg(kernel->cores[0], 0,
-			sizeof(cl_mem), (void*)&kernel->memobjs[0]);
-	err |= clSetKernelArg(kernel->cores[0], 8, sizeof(int), &img->px_size);
-	err |= clSetKernelArg(kernel->cores[0], 9, sizeof(int), &img->line);
-	err |= clSetKernelArg(kernel->cores[0], 10, sizeof(int[2]), &img->size);
+			sizeof(cl_mem), (void*)&kernel->memobjs[8]);
 	err |= clSetKernelArg(kernel->cores[1], 0,
 			sizeof(cl_mem), (void*)&kernel->memobjs[0]);
+	err |= clSetKernelArg(kernel->cores[2], 0,
+			sizeof(cl_mem), (void*)&kernel->memobjs[0]);
+	err |= clSetKernelArg(kernel->cores[2], 1,
+			sizeof(cl_mem), (void*)&kernel->memobjs[8]);
+	err |= clSetKernelArg(kernel->cores[2], 2, sizeof(int[2]), &img->size);
+	return (err);
+}
+
+static int		make_kernels(t_kernel *kernel)
+{
+	int			err;
+
+	kernel->cores[0] = clCreateKernel(kernel->program, "process_image", &err);
+	if (err != CL_SUCCESS)
+		return (err);
+	kernel->cores[1] = clCreateKernel(kernel->program, "clear_buf", &err);
+	if (err != CL_SUCCESS)
+		return (err);
+	kernel->cores[2] = clCreateKernel(kernel->program, "sampler", &err);
 	return (err);
 }
 
 static int		build_program(t_ocl *opencl, t_kernel *kernel)
 {
-	char		*tmp;
+	char		tmp[4096];
 	size_t		tmp2;
+	char		*tmp3;
 	int			err;
 
 	kernel->program = create_program_from_file(opencl->gpu_context,
 			"src/kernel.cl");
 	if (kernel->program == NULL)
-	{
-		ft_putendl("Could not create program from file");
 		return (-100);
-	}
 	ft_printf("Launching with single-point precision\n");
-	err = clBuildProgram(kernel->program, 0, NULL,
-					"-Iinc/", NULL, NULL);
-	tmp = (char*)ft_memalloc(4096);
+	tmp3 = ft_printb("-cl-fast-relaxed-math -D SQR_WORK_GROUP_SIZE=%d",
+			(int)trunc(sqrt(opencl->gpu_wg_sz)));
+	err = clBuildProgram(kernel->program, 0, NULL, tmp3, NULL, NULL);
+	free(tmp3);
 	clGetProgramBuildInfo(kernel->program, opencl->gpus[0],
 			CL_PROGRAM_BUILD_LOG, 4096, tmp, &tmp2);
 	ft_printf("Build log :\n%.*s\n", tmp2, tmp);
-	free(tmp);
-	if (err != CL_SUCCESS)
-		return (err);
-	kernel->cores[0] = clCreateKernel(kernel->program, "process_image", &err);
-	if (err != CL_SUCCESS)
-		return (err);
-	kernel->cores[1] = clCreateKernel(kernel->program, "clear_buf", &err);
 	return (err);
 }
 
@@ -70,10 +81,11 @@ t_kernel		*create_kernel(t_ptr *p)
 	p->kernel = NULL;
 	if ((kernel = (t_kernel*)ft_memalloc(sizeof(t_kernel))) == NULL)
 		ft_error("[Erreur] Echec d'allocation mémoire.");
-	img = p->scene;
+	img = &p->win->img;
 	kernel->opencl = p->opencl;
 	if ((err = build_program(p->opencl, kernel)) != CL_SUCCESS ||
-		(err = set_args(p, p->opencl, kernel, img)) != CL_SUCCESS)
+		(err = make_kernels(kernel)) != CL_SUCCESS ||
+		(err = set_init_args(p, p->opencl, kernel, img)) != CL_SUCCESS)
 	{
 		ft_printf("[Error] Could not build kernel program"
 				"%<R>  (Error code: %<i>%2d)%<0>\n", err);

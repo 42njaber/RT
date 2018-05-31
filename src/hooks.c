@@ -6,7 +6,7 @@
 /*   By: njaber <neyl.jaber@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/20 14:52:32 by njaber            #+#    #+#             */
-/*   Updated: 2018/05/30 00:40:54 by njaber           ###   ########.fr       */
+/*   Updated: 2018/05/30 01:12:49 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,8 +45,7 @@ static int		expose_hook(void *parm)
 	t_ptr *p;
 
 	p = (t_ptr*)parm;
-	mlx_clear_window(p->mlx, p->win->win);
-	mlx_put_image_to_window(p->mlx, p->win->win, p->scene->link, 0, 0);
+	paint_window(p->win, NULL, 0);
 	return (0);
 }
 
@@ -62,6 +61,7 @@ static int		expose_hook(void *parm)
 void			set_hooks(t_ptr *p)
 {
 	mlx_expose_hook(p->win->win, expose_hook, (void*)p);
+	mlx_loop_hook(p->win->mlx, loop_hook, (void*)p);
 	mlx_hook(p->win->win, 2, 0, key_press_hook, (void*)p);
 	mlx_hook(p->win->win, 17, 0, close_hook, (void*)p);
 }

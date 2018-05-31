@@ -6,7 +6,7 @@
 /*   By: njaber <neyl.jaber@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/03/15 01:57:02 by njaber            #+#    #+#             */
-/*   Updated: 2018/05/29 01:18:36 by njaber           ###   ########.fr       */
+/*   Updated: 2018/05/31 00:52:09 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,8 +62,8 @@ void			get_configs(t_ocl *opencl)
 			sizeof(cl_device_id[16]), opencl->gpus, NULL);
 	clGetDeviceInfo(opencl->gpus[0], CL_DEVICE_MAX_WORK_GROUP_SIZE,
 			sizeof(tmp), tmp, NULL);
-	ft_printf("Max work-group size: %d\n", tmp[0]);
-	opencl->gpu_wg_sz = *tmp / 2u;
+	opencl->gpu_wg_sz = pow(2, trunc(log2(*tmp)));
+	ft_printf("Max work-group size: %d\n", opencl->gpu_wg_sz);
 	clGetDeviceInfo(opencl->gpus[0], CL_DEVICE_VERSION,
 			sizeof(tmp2), tmp2, &tmp3);
 	ft_printf("Version: %.*s\n", tmp3, tmp2);
