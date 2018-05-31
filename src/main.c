@@ -6,31 +6,13 @@
 /*   By: njaber <neyl.jaber@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/18 17:01:19 by njaber            #+#    #+#             */
-/*   Updated: 2018/05/31 04:47:35 by njaber           ###   ########.fr       */
+/*   Updated: 2018/05/31 19:03:59 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <fcntl.h>
 #include "rt.h"
 #include "mlx.h"
-
-/*
-** p: the program's main structure
-**
-** Creates the window structure, sets the event hooks, copies the processed
-** image to the newly created window, and then launches the main loop
-*/
-
-static void		launch_window(t_ptr *p)
-{
-	if (p->kernel == NULL)
-		process_image_opencl(p);
-	if ((init_new_win(p->mlx, p->win, (t_ivec){1200, 800}, "RT")) == 0)
-		ft_error("[Erreur] Failed to initialize window\n");
-	set_hooks(p);
-	paint_window(p->win, NULL, 0);
-	mlx_loop(p->mlx);
-}
 
 /*
 ** p: the program's main structure
@@ -86,6 +68,24 @@ static void		parse_arguments(t_ptr *p, int argc, char **argv)
 
 #ifdef OPENCL
 
+/*
+** p: the program's main structure
+**
+** Creates the window structure, sets the event hooks, copies the processed
+** image to the newly created window, and then launches the main loop
+*/
+
+static void		launch_window(t_ptr *p)
+{
+	if (p->kernel == NULL)
+		process_image_opencl(p);
+	if ((init_new_win(p->mlx, p->win, (t_ivec){1200, 800}, "RT")) == 0)
+		ft_error("[Erreur] Failed to initialize window\n");
+	set_hooks(p);
+	paint_window(p->win, NULL, 0);
+	mlx_loop(p->mlx);
+}
+
 int				main(int argc, char **argv)
 {
 	t_ptr	p;
@@ -115,6 +115,23 @@ int				main(int argc, char **argv)
 }
 
 #else
+
+/*
+** p: the program's main structure
+**
+** Creates the window structure, sets the event hooks, copies the processed
+** image to the newly created window, and then launches the main loop
+*/
+
+static void		launch_window(t_ptr *p)
+{
+	if ((init_new_win(p->mlx, p->win, (t_ivec){1200, 800}, "RT")) == 0)
+		ft_error("[Erreur] Failed to initialize window\n");
+	set_hooks(p);
+	process_image(p);
+	paint_window(p->win, NULL, 0);
+	mlx_loop(p->mlx);
+}
 
 int				main(int argc, char **argv)
 {
