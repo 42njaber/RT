@@ -313,7 +313,7 @@ __kernel void			process_image(
 	float			a_in;
 	float			reflected;
 
-	hit -= 0.01; // To prevent precision errors
+	hit -= 0.02; // To prevent precision errors
 	lum = 1;
 	if (hit < far)
 	{

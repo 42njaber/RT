@@ -6,7 +6,7 @@
 /*   By: njaber <neyl.jaber@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/29 00:39:23 by njaber            #+#    #+#             */
-/*   Updated: 2018/05/31 05:25:09 by njaber           ###   ########.fr       */
+/*   Updated: 2018/06/01 01:07:18 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,31 +38,54 @@ static void			set_args(t_ptr *p, float res)
 	clSetKernelArg(p->kernel->cores[0], 14, sizeof(float), &p->fov);
 }
 
-static void			sample_buffer(t_ptr *p, cl_event event, int g_sz, float res)
-{
-	cl_event	event2;
-	cl_int		err;
 
+static void			sampler_callback(cl_event event, cl_int complete, void *parm)
+{
+	t_ptr	*p;
+
+	(void)complete;
+	p = (t_ptr*)parm;
+	if (p->tmp == 2)
+		ft_error("PROBLEM\n");
+	p->tmp = 0;
+	clReleaseEvent(event);
+}
+
+static void			sample_buffer(t_ptr *p)
+{
+	cl_int		err;
+	cl_event	event;
+	int			g_sz;
+	float		res;
+
+	g_sz = sqrt(p->opencl->gpu_wg_sz);
+	res = pow(2, fmin(p->res, 2));
 	clSetKernelArg(p->kernel->cores[2], 3, sizeof(int[2]),
 			(int[2]){p->win->size.x * res, p->win->size.y * res});
 	if ((err = clEnqueueNDRangeKernel(p->opencl->gpu_command_queue,
 			p->kernel->cores[2], 2, NULL, (size_t[2]){(p->win->size.x / g_sz
 				+ 1) * g_sz, (p->win->size.y / g_sz + 1) * g_sz},
-			(size_t[2]){g_sz, g_sz}, 1, &event, &event2)) != CL_SUCCESS)
+			(size_t[2]){g_sz, g_sz}, 0, NULL, &event)) != CL_SUCCESS)
 		ft_error("[Erreur] Echec d'execution du sampler"
 				"%<R>  (Error code: %<i>%2d)%<0>\n", err);
-	if ((err = clEnqueueReadBuffer(p->opencl->gpu_command_queue,
-			p->kernel->memobjs[0], CL_TRUE, 0,
-			p->win->img.line * p->win->img.size.y,
-			p->win->img.buf, 1, &event2, NULL)) != CL_SUCCESS)
-		ft_error("[Erreur] Echec durant la lecture du buffer"
-				"%<R>  (Error code: %<i>%2d)%<0>\n", err);
+	clSetEventCallback(event, CL_COMPLETE, &sampler_callback, (void*)p);
+	clFlush(p->opencl->gpu_command_queue);
 }
 
+static void			image_callback(cl_event event, cl_int complete, void *parm)
+{
+	t_ptr	*p;
+
+	(void)complete;
+	p = (t_ptr*)parm;
+	p->tmp = 1;
+	clReleaseEvent(event);
+	sample_buffer(p);
+}
 void				process_image_opencl(t_ptr *p)
 {
-	cl_event	event;
 	cl_int		err;
+	cl_event	event;
 	int			g_sz;
 	float		res;
 
@@ -74,6 +97,7 @@ void				process_image_opencl(t_ptr *p)
 	else
 	{
 		set_args(p, res);
+		p->tmp = 2;
 		if ((err = clEnqueueNDRangeKernel(p->opencl->gpu_command_queue,
 				p->kernel->cores[0], 2, NULL, (size_t[2]){
 				(int)floor(p->win->size.x * res / g_sz + 1) * g_sz,
@@ -81,6 +105,7 @@ void				process_image_opencl(t_ptr *p)
 				(size_t[2]){g_sz, g_sz}, 0, NULL, &event)) != CL_SUCCESS)
 			ft_error("[Erreur] Echec d'execution du kernel"
 					"%<R>  (Error code: %<i>%2d)%<0>\n", err);
-		sample_buffer(p, event, g_sz, res);
+		clSetEventCallback(event, CL_COMPLETE, &image_callback,(void*)p);
+		clFlush(p->opencl->gpu_command_queue);
 	}
 }

@@ -1,3 +1,4 @@
+
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
@@ -6,7 +7,7 @@
 /*   By: njaber <neyl.jaber@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/20 13:17:27 by njaber            #+#    #+#             */
-/*   Updated: 2018/05/31 00:35:35 by njaber           ###   ########.fr       */
+/*   Updated: 2018/06/01 00:09:31 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,9 +30,11 @@ void			init_struct(t_ptr *p)
 	generate_obj_matricies(p);
 	p->near = 0.1;
 	p->far = 400;
-	p->res = 0;
+	p->res = -2;
+	p->update = 30;
 	p->opencl = init_opencl();
 	p->kernel = create_kernel(p);
+	p->tmp = 0;
 	if (p->kernel != NULL)
 	{
 		create_obj_memobjs(p);

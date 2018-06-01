@@ -6,7 +6,7 @@
 /*   By: njaber <neyl.jaber@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/30 01:22:13 by njaber            #+#    #+#             */
-/*   Updated: 2018/05/30 01:27:13 by njaber           ###   ########.fr       */
+/*   Updated: 2018/06/01 18:34:34 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,10 +21,12 @@
 void		generate_cam_matricies(t_ptr *p)
 {
 	identity(p->cam_mat);
-	rotate(p->cam_mat, (t_vec3){p->rot.x, p->rot.y, p->rot.z});
+	rotate(p->cam_mat, (t_vec3){p->rot.x, 0, 0});
+	rotate(p->cam_mat, (t_vec3){0, p->rot.y, 0});
 	translate(p->cam_mat, (t_vec3){p->pos.x, p->pos.y, p->pos.z});
 	identity(p->cam_mat_rot);
-	rotate(p->cam_mat_rot, (t_vec3){p->rot.x, p->rot.y, p->rot.z});
+	rotate(p->cam_mat_rot, (t_vec3){p->rot.x, 0, 0});
+	rotate(p->cam_mat_rot, (t_vec3){0, p->rot.y, 0});
 }
 
 /*

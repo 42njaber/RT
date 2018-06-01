@@ -8,6 +8,8 @@ FILES = main.c \
 		gen_matricies.c \
 		normal.c \
 		loop_hook.c \
+		key_hooks.c \
+		mouse_hooks.c \
 		hooks.c
 
 ALT_FILE = load_opencl.c \

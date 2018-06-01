@@ -6,7 +6,7 @@
 /*   By: njaber <neyl.jaber@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/20 15:14:43 by njaber            #+#    #+#             */
-/*   Updated: 2018/05/14 16:20:34 by njaber           ###   ########.fr       */
+/*   Updated: 2018/06/01 18:45:42 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,8 @@
 # define K_8		28
 # define K_9		25
 # define K_0		29
+
+# define K_SPACE	49
 
 # define K_ESC		53
 

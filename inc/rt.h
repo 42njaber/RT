@@ -6,7 +6,7 @@
 /*   By: njaber <neyl.jaber@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/20 15:19:13 by njaber            #+#    #+#             */
-/*   Updated: 2018/05/31 00:28:35 by njaber           ###   ########.fr       */
+/*   Updated: 2018/06/01 19:05:18 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,13 +70,19 @@ typedef struct	s_ptr {
 	t_ocl		*opencl;
 	t_kernel	*kernel;
 	char		keys[512];
+	int			button;
+	t_ivec		mouse_pos;
+	t_ivec		tmp_mouse_pos;
+	int			update;
+	int			timer;
 	float		fov;
 	float		near;
 	float		far;
-	int		res;
+	int			res;
 	int			nobjs;
 	int			nspots;
 	t_vec3		pos;
+	t_vec3		origin_rot;
 	t_vec3		rot;
 	t_mat4		cam_mat;
 	t_mat4		cam_mat_rot;
@@ -84,6 +90,7 @@ typedef struct	s_ptr {
 	t_spot		*spots;
 	char		brilliance;
 	char		shadows;
+	int			tmp;
 }				t_ptr;
 
 void			process_image_opencl(t_ptr *p);
@@ -98,14 +105,20 @@ typedef struct	s_ptr {
 	t_win		*win;
 	void		*mlx;
 	char		keys[512];
+	int			button;
+	t_ivec		mouse_pos;
+	t_ivec		tmp_mouse_pos;
+	int			update;
+	int			timer;
 	float		fov;
 	float		near;
 	float		far;
-	int		res;
+	int			res;
 	int			nobjs;
 	int			nspots;
 	t_vec3		pos;
 	t_vec3		rot;
+	t_vec3		origin_rot;
 	t_mat4		cam_mat;
 	t_mat4		cam_mat_rot;
 	t_obj		*objs;
@@ -123,6 +136,13 @@ void			parse_objs(t_ptr *p, int fd);
 void			set_default_scene(t_ptr *p, char *def);
 
 int				loop_hook(void *parm);
+
+int				button_press_hook(int button, int x, int y, void *parms);
+int				button_release_hook(int button, int x, int y, void *parms);
+int				motion_hook(int x, int y, void *parm);
+int				key_press_hook(int key_code, void *parm);
+int				key_release_hook(int key_code, void *parm);
+void			move(t_ptr *p);
 
 void			process_image(t_ptr *p);
 

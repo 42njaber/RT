@@ -6,7 +6,7 @@
 /*   By: njaber <neyl.jaber@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/01/25 23:56:43 by njaber            #+#    #+#             */
-/*   Updated: 2018/05/30 00:08:58 by njaber           ###   ########.fr       */
+/*   Updated: 2018/05/31 23:17:31 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -114,7 +114,7 @@ float			length(t_vec3 v1);
 float			scalar(t_vec3 v1, t_vec3 v2);
 
 int				init_new_win(void *mlx, t_win *win, t_ivec size, char *title);
-void			paint_window(t_win *win, t_kernel *opencl_kernel, int clear);
+void			paint_window(t_win *win, t_kernel *opencl_kernel);
 
 void			display_data_float(t_win *win, char *name, float data, int y);
 void			display_data_vec2(t_win *win, char *name, t_vec2 data, int y);

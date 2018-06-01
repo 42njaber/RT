@@ -6,7 +6,7 @@
 /*   By: njaber <neyl.jaber@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/03/16 20:23:49 by njaber            #+#    #+#             */
-/*   Updated: 2018/05/31 03:54:39 by njaber           ###   ########.fr       */
+/*   Updated: 2018/06/01 01:38:57 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,6 +89,8 @@ t_kernel		*create_kernel(t_ptr *p)
 	{
 		ft_printf("[Error] Could not build kernel program"
 				"%<R>  (Error code: %<i>%2d)%<0>\n", err);
+		if (kernel->program != NULL)
+			clReleaseProgram(kernel->program);
 		free(kernel);
 		return (NULL);
 	}
