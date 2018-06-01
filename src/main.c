@@ -6,7 +6,7 @@
 /*   By: njaber <neyl.jaber@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/18 17:01:19 by njaber            #+#    #+#             */
-/*   Updated: 2018/06/01 18:52:13 by njaber           ###   ########.fr       */
+/*   Updated: 2018/06/01 22:14:25 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -92,7 +92,7 @@ int				main(int argc, char **argv)
 	if (argc < 2 || ft_strcmp(argv[1], "help") == 0)
 	{
 		ft_printf("Usage : rt <help|default|scene-description-file>"
-				"[-brilliance=off|reflected-camera|indicent-normal]"
+				"[-brilliance=off|reflected-camera|incdent-normal]"
 				"[-shadows=on|off] [-fov=number]\n");
 		return (0);
 	}
