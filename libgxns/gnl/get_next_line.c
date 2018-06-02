@@ -81,7 +81,6 @@ int				get_next_line(const int fd, char **line)
 	int		rd;
 	char	tmp[BUFF_SIZE];
 
-	rd = 0;
 	if ((f_buf = *get_file_buf(fd)))
 		f_buf = ft_lstnew(((t_stock*)(f_buf->content))->buf,
 			((t_stock*)(f_buf->content))->len);

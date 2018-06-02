@@ -98,6 +98,7 @@ void			parse_scene_file(t_ptr *p, int fd)
 	char	*def;
 	int		ret;
 
+	ret = -1;
 	def = (char[3]){1, 1, 1};
 	while ((def[0] == 1 || def[1] == 1 || def[2] == 1) &&
 			(ret = get_next_line(fd, &line)) == 1)

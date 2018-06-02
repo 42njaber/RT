@@ -16,10 +16,8 @@ static void	put_fract_hex(t_dbl d, t_mods mods, t_byte *parm, t_buf *buf)
 {
 	const char		*base;
 	size_t			fract;
-	size_t			exp;
 
 	str_totmpbuf(parm[1] ? "0X" : "0x", 2, buf, 0);
-	exp = 0;
 	fract = (d.l & 0x000fffffffffffff) << 12;
 	base = g_base[16 + parm[1]];
 	if (d.d != 0)
