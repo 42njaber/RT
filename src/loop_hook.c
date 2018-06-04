@@ -6,7 +6,7 @@
 /*   By: njaber <neyl.jaber@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/20 16:00:11 by njaber            #+#    #+#             */
-/*   Updated: 2018/06/01 20:36:24 by njaber           ###   ########.fr       */
+/*   Updated: 2018/06/02 22:08:01 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,13 +19,13 @@ static void		print_data(t_ptr *p)
 	display_data_vec3(p->win, "Rotation:", p->rot, 50);
 }
 
+#ifdef OPENCL
+
 static void		update_tranform(t_ptr *p)
 {
 	(void)p;
 	generate_cam_matricies(p);
 }
-
-#ifdef OPENCL
 
 void			update_image(t_ptr *p)
 {
@@ -63,7 +63,7 @@ int				loop_hook(void *parm)
 	p = (t_ptr*)parm;
 	move(p);
 	update_tranform(p);
-	paint_window(p->win, p->kernel);
+	paint_window(p->win, p->kernel, 0);
 	if (p->kernel != NULL)
 		update_image(p);
 	print_data(p);
@@ -77,7 +77,7 @@ int				loop_hook(void *parm)
 	t_ptr	*p;
 
 	p = (t_ptr*)parm;
-	paint_window(p->win, NULL);
+	paint_window(p->win, NULL, 1);
 	print_data(p);
 	return (0);
 }

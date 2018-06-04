@@ -6,7 +6,7 @@
 /*   By: njaber <neyl.jaber@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/03/16 20:23:49 by njaber            #+#    #+#             */
-/*   Updated: 2018/06/01 01:38:57 by njaber           ###   ########.fr       */
+/*   Updated: 2018/06/04 23:56:16 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,16 +22,16 @@ static int		set_init_args(t_ptr *p, t_ocl *opencl,
 		ft_error("[Erreur] Echec d'allocation mémoire.");
 	kernel->memobjs[0] = clCreateBuffer(opencl->gpu_context, CL_MEM_READ_WRITE,
 			img->line * img->size.y, NULL, &err);
-	kernel->memobjs[8] = clCreateBuffer(opencl->gpu_context, CL_MEM_READ_WRITE,
+	kernel->memobjs[15] = clCreateBuffer(opencl->gpu_context, CL_MEM_READ_WRITE,
 			img->line * img->size.y * 16, NULL, &err);
 	err |= clSetKernelArg(kernel->cores[0], 0,
-			sizeof(cl_mem), (void*)&kernel->memobjs[8]);
+			sizeof(cl_mem), (void*)&kernel->memobjs[15]);
 	err |= clSetKernelArg(kernel->cores[1], 0,
 			sizeof(cl_mem), (void*)&kernel->memobjs[0]);
 	err |= clSetKernelArg(kernel->cores[2], 0,
 			sizeof(cl_mem), (void*)&kernel->memobjs[0]);
 	err |= clSetKernelArg(kernel->cores[2], 1,
-			sizeof(cl_mem), (void*)&kernel->memobjs[8]);
+			sizeof(cl_mem), (void*)&kernel->memobjs[15]);
 	err |= clSetKernelArg(kernel->cores[2], 2, sizeof(int[2]), &img->size);
 	return (err);
 }
@@ -61,9 +61,7 @@ static int		build_program(t_ocl *opencl, t_kernel *kernel)
 			"src/kernel.cl");
 	if (kernel->program == NULL)
 		return (-100);
-	ft_printf("Launching with single-point precision\n");
-	tmp3 = ft_printb("-cl-fast-relaxed-math -D SQR_WORK_GROUP_SIZE=%d",
-			(int)trunc(sqrt(opencl->gpu_wg_sz)));
+	tmp3 = ft_printb("-cl-opt-disable");
 	err = clBuildProgram(kernel->program, 0, NULL, tmp3, NULL, NULL);
 	free(tmp3);
 	clGetProgramBuildInfo(kernel->program, opencl->gpus[0],

@@ -6,7 +6,7 @@
 /*   By: njaber <neyl.jaber@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/01/26 01:32:56 by njaber            #+#    #+#             */
-/*   Updated: 2018/06/01 19:05:51 by njaber           ###   ########.fr       */
+/*   Updated: 2018/06/04 21:27:44 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,7 @@ int		button_press_hook(int button, int x, int y, void *parms)
 			p->fov = 10;
 		if (p->fov > 170)
 			p->fov = 170;
+		p->update = 1;
 	}
 	else
 		p->button = button;
