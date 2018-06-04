@@ -6,7 +6,7 @@
 /*   By: njaber <neyl.jaber@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/25 19:22:52 by njaber            #+#    #+#             */
-/*   Updated: 2018/05/29 02:18:15 by njaber           ###   ########.fr       */
+/*   Updated: 2018/06/04 23:42:31 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,24 +18,26 @@ static void		parse_single_obj2(t_ptr *p, int fd, int j)
 	int		i;
 	char	*line;
 
-	i = 0;
-	if (get_next_line(fd, &line) != 1)
+	line = NULL;
+	if ((i = 0) == 0 && get_next_line(fd, &line) != 1)
 		ft_error("[Error] Error in the camera parameters\n");
 	p->objs[j].rot.x = ft_parse_float(line, &i);
 	p->objs[j].rot.y = ft_parse_float(line, &i);
 	p->objs[j].rot.z = ft_parse_float(line, &i);
 	free(line);
-	i = 0;
-	if (get_next_line(fd, &line) != 1)
+	if ((i = 0) == 0 && get_next_line(fd, &line) != 1)
 		ft_error("[Error] Error in the camera parameters\n");
 	p->objs[j].color = ft_parse_hex(line, &i);
 	free(line);
-	i = 0;
-	if (get_next_line(fd, &line) != 1)
+	if ((i = 0) == 0 && get_next_line(fd, &line) != 1)
 		ft_error("[Error] Error in the camera parameters\n");
 	p->objs[j].size.x = ft_parse_float(line, &i);
 	p->objs[j].size.y = ft_parse_float(line, &i);
 	p->objs[j].size.z = ft_parse_float(line, &i);
+	free(line);
+	if ((i = 0) == 0 && get_next_line(fd, &line) != 1)
+		ft_error("[Error] Error in the camera parameters\n");
+	p->objs[j].reflect = ft_parse_float(line, &i);
 	free(line);
 }
 

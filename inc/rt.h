@@ -6,7 +6,7 @@
 /*   By: njaber <neyl.jaber@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/20 15:19:13 by njaber            #+#    #+#             */
-/*   Updated: 2018/06/01 19:05:18 by njaber           ###   ########.fr       */
+/*   Updated: 2018/06/04 23:42:13 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,6 +45,7 @@ typedef struct	s_obj {
 	t_vec3			rot;
 	t_vec3			size;
 	unsigned int	color;
+	float			reflect;
 	t_mat4			transform;
 	t_mat4			rot_mat;
 	t_mat4			rev_rot;
