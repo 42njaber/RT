@@ -31,6 +31,7 @@ void			update_image(t_ptr *p)
 {
 	cl_int		err;
 
+    clFinish(p->opencl->gpu_command_queue);
 	if (p->update)
 	{
 		p->update = 0;
