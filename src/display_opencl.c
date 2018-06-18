@@ -6,7 +6,7 @@
 /*   By: njaber <neyl.jaber@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/29 00:39:23 by njaber            #+#    #+#             */
-/*   Updated: 2018/06/05 00:31:36 by njaber           ###   ########.fr       */
+/*   Updated: 2018/06/05 23:06:02 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,8 +48,6 @@ static void			sampler_callback(cl_event event,
 
 	(void)complete;
 	p = (t_ptr*)parm;
-	if (p->tmp == 2)
-		ft_error("PROBLEM\n");
 	p->tmp = 0;
 	clReleaseEvent(event);
 }

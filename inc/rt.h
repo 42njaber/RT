@@ -6,7 +6,7 @@
 /*   By: njaber <neyl.jaber@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/20 15:19:13 by njaber            #+#    #+#             */
-/*   Updated: 2018/06/04 23:42:13 by njaber           ###   ########.fr       */
+/*   Updated: 2018/06/06 14:17:31 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,8 @@ enum e_shape
 	SPHERE,
 	PLANE,
 	CYLINDER,
-	CONE
+	CONE,
+	TORUS
 };
 
 /*
@@ -80,6 +81,8 @@ typedef struct	s_ptr {
 	float		near;
 	float		far;
 	int			res;
+	int			res_min;
+	int			res_max;
 	int			nobjs;
 	int			nspots;
 	t_vec3		pos;

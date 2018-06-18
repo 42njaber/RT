@@ -6,7 +6,7 @@
 /*   By: njaber <neyl.jaber@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/03/16 20:23:49 by njaber            #+#    #+#             */
-/*   Updated: 2018/06/04 23:56:16 by njaber           ###   ########.fr       */
+/*   Updated: 2018/06/18 19:15:42 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,12 +61,13 @@ static int		build_program(t_ocl *opencl, t_kernel *kernel)
 			"src/kernel.cl");
 	if (kernel->program == NULL)
 		return (-100);
-	tmp3 = ft_printb("-cl-opt-disable");
+	tmp3 = ft_printb("-cl-single-precision-constant -cl-opt-disable");
 	err = clBuildProgram(kernel->program, 0, NULL, tmp3, NULL, NULL);
 	free(tmp3);
 	clGetProgramBuildInfo(kernel->program, opencl->gpus[0],
 			CL_PROGRAM_BUILD_LOG, 4096, tmp, &tmp2);
-	ft_printf("Build log :\n%.*s\n", tmp2, tmp);
+	if (tmp2 < 4096)
+		ft_printf("Build log :\n%.*s\n", tmp2, tmp);
 	return (err);
 }
 

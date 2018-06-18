@@ -1,4 +1,5 @@
 .*.sw*
 *.o
 *.a
+**/.DS_STORE
 rt

@@ -6,7 +6,7 @@
 /*   By: njaber <neyl.jaber@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/18 17:01:19 by njaber            #+#    #+#             */
-/*   Updated: 2018/06/02 22:12:07 by njaber           ###   ########.fr       */
+/*   Updated: 2018/06/06 14:19:03 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,6 +47,10 @@ static void		parse_arguments(t_ptr *p, int argc, char **argv)
 			p->shadows = 1;
 		else if (ft_strncmp(argv[i], "-fov=", 5) == 0)
 			p->fov = ft_atoi(argv[i] + 5);
+		else if (ft_strncmp(argv[i], "-res-min=", 9) == 0)
+			p->res_min = ft_atoi(argv[i] + 9);
+		else if (ft_strncmp(argv[i], "-res-max=", 9) == 0)
+			p->res_max = ft_atoi(argv[i] + 9);
 	}
 	if (p->fov < 10 || p->fov > 170)
 		ft_error("[Error] Please enter an fov value between 10 and 170\n");

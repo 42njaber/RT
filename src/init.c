@@ -29,8 +29,10 @@ void			init_struct(t_ptr *p)
 	generate_cam_matricies(p);
 	generate_obj_matricies(p);
 	p->near = 0.1;
-	p->far = 400;
+	p->far = 50000;
 	p->res = -2;
+	p->res_min = -2;
+	p->res_max = 2;
 	p->update = 30;
 	p->opencl = init_opencl();
 	p->kernel = create_kernel(p);

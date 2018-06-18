@@ -8,9 +8,17 @@ float2					c_pow(float2 z, int pow);
 uchar4					sky(float gradiant, float shift);
 uchar4					neon(float gradiant, float shift);
 uchar4					black_white(float gradiant, float shift);
+float2 __OVERLOAD__		order(float2 in);
+float3 __OVERLOAD__		order(float3 in);
+float4 __OVERLOAD__		order(float4 in);
+float2					quadratic_solver(float2 parm);
+float3					cubic_solver(float3 parm);
+//float4					quartic_solver(float4 parm, __global uchar4 *buf, int id, int2 img_size);
+float4					quartic_solver(float4 parm);
 int						sphere_hit(float3 ori, float3 dir, float *t);
 int						plane_hit(float3 ori, float3 dir, float *t);
 int						cylinder_hit(float3 ori, float3 dir, float *t);
+int						torus_hit(float3 ori, float3 dir, float *t);
 int						cone_hit(float3 ori, float3 dir, float *t);
 float3					get_normal(int type, float16 transform, float16 rev_rot, float3 v, float3 dir);
 int						can_trace(__global int *obj_type, __global float16 *obj_transform, __global float16	*obj_rot_mat, int nobjs, float3 v1, float3 v2);
@@ -27,11 +35,49 @@ constant char nb_2[16] =		".XX.X..X..X.XXXX";
 constant char nb_3[16] =		"XXX....X..XXXXX.";
 constant char nb_4[16] =		"..X..XX.XXXX..X.";
 constant char nb_5[16] =		"XXXXXX....X.XX..";
-constant char nb_6[16] =		"XXX..X.XX.XXXXX.";
+constant char nb_6[16] =		".XX....XXXXX.XX.";
 constant char nb_7[16] =		"XXXX..X...X..X..";
 constant char nb_8[16] =		".XXX.X.XX.X.XXX.";
-constant char nb_9[16] =		"XXX.X.XX.X.XXXX.";
+constant char nb_9[16] =		".XX.XXXX...X.XX.";
 constant char nb_X[16] =		"X..X.XX..XX.X..X";
+
+/* LOGGER
+	int		i;
+	float	test;
+	i = -1;
+	while (++i < 4)
+	{
+		test = root[i];
+		if (isinf(test))
+		{
+			write_nb(buf, buf_pos, img_size, -sign(test) - 2					, 10, 70 + i * 10);
+		}
+		else if (isnan(test))
+		{
+			write_nb(buf, buf_pos, img_size, -4									, 10, 70 + i * 10);
+		}
+		else
+		{
+			write_nb(buf, buf_pos, img_size, copysign(1, test) - 2				, 10, 70 + i * 10);
+			write_nb(buf, buf_pos, img_size, (int)fabs(test) / 100000000		, 20, 70 + i * 10);
+			write_nb(buf, buf_pos, img_size, ((int)fabs(test) / 10000000) % 10	, 30, 70 + i * 10);
+			write_nb(buf, buf_pos, img_size, ((int)fabs(test) / 1000000) % 10	, 40, 70 + i * 10);
+			write_nb(buf, buf_pos, img_size, ((int)fabs(test) / 100000) % 10	, 50, 70 + i * 10);
+			write_nb(buf, buf_pos, img_size, ((int)fabs(test) / 10000) % 10		, 60, 70 + i * 10);
+			write_nb(buf, buf_pos, img_size, ((int)fabs(test) / 1000) % 10		, 70, 70 + i * 10);
+			write_nb(buf, buf_pos, img_size, ((int)fabs(test) / 100) % 10		, 80, 70 + i * 10);
+			write_nb(buf, buf_pos, img_size, ((int)fabs(test) / 10) % 10		, 90, 70 + i * 10);
+			write_nb(buf, buf_pos, img_size, (int)fabs(test) % 10				, 100, 70 + i * 10);
+			write_nb(buf, buf_pos, img_size, -2									, 110, 70 + i * 10);
+			write_nb(buf, buf_pos, img_size, (int)(fabs(test) * 10) % 10		, 120, 70 + i * 10);
+			write_nb(buf, buf_pos, img_size, (int)(fabs(test) * 100) % 10		, 130, 70 + i * 10);
+			write_nb(buf, buf_pos, img_size, (int)(fabs(test) * 1000) % 10		, 140, 70 + i * 10);
+			write_nb(buf, buf_pos, img_size, (int)(fabs(test) * 10000) % 10		, 150, 70 + i * 10);
+			write_nb(buf, buf_pos, img_size, (int)(fabs(test) * 100000) % 10	, 160, 70 + i * 10);
+			write_nb(buf, buf_pos, img_size, (int)(fabs(test) * 1000000) % 10	, 170, 70 + i * 10);
+		}
+	}
+*/
 
 void					write_nb(__global uchar4 *buf, int id, int2 img_size, int nb, int x, int y)
 {
@@ -83,7 +129,7 @@ float3					vec_mat_mult(float16 mat, float3 vec)
 	return (ret);
 }
 
-uchar4 __OVERLOAD__ mix(uchar4 c1, uchar4 c2, float gradiant)
+uchar4 __OVERLOAD__		mix(uchar4 c1, uchar4 c2, float gradiant)
 {
 	float4	tmp;
 	float4	tmp1;
@@ -95,27 +141,189 @@ uchar4 __OVERLOAD__ mix(uchar4 c1, uchar4 c2, float gradiant)
 	return ((uchar4)(tmp.x, tmp.y, tmp.z, tmp.w));
 }
 
+float2 __OVERLOAD__		order(float2 in)
+{
+	float2	out;
+
+	out.x = fmin(in.x, in.y);
+	out.y = fmax(in.x, in.y);
+	return (out);
+}
+
+float3 __OVERLOAD__		order(float3 in)
+{
+	float3	out;
+
+	if (in.x < in.y || isnan(out.z))
+		out.xy = in.xy;
+	else
+		out.xy = in.yx;
+	if (in.z < out.x || isnan(out.z))
+		out = (float3)(in.z, out.xy);
+	else if (in.z < out.y || isnan(out.z))
+		out = (float3)(out.x, in.z, out.y);
+	else
+		out.z = in.z;
+	return (out);
+}
+
+float4 __OVERLOAD__		order(float4 in)
+{
+	float4	out;
+
+	if (in.x < in.y || isnan(in.y))
+		out.xy = in.xy;
+	else
+		out.xy = in.yx;
+	if (in.z < out.x || isnan(out.x))
+		out.xyz = (float3)(in.z, out.xy);
+	else if (in.z < out.y || isnan(out.y))
+		out.xyz = (float3)(out.x, in.z, out.y);
+	else
+		out.z = in.z;
+	if (in.w < out.x || isnan(out.x))
+		out = (float4)(in.w, out.xyz);
+	else if (in.w < out.y || isnan(out.y))
+		out = (float4)(out.x, in.w, out.yz);
+	else if (in.w < out.z || isnan(out.z))
+		out = (float4)(out.xy, in.w, out.z);
+	else
+		out.w = in.w;
+	return (out);
+}
+
+//float4					quartic_solver(float4 parm, __global uchar4 *buf, int buf_pos, int2 img_size)
+float4					quartic_solver(float4 parm)
+{
+	float4	root;
+	float	p;
+	float	q;
+	float	r;
+	float3	cub_res;
+	float3	cub_eq;
+	float	m;
+	float	root2m;
+	float	tmp;
+	float2	w;
+	float2	z;
+	float	sub;
+
+	root = NAN;
+	p = parm.y - 3 * pow(parm.x, 2) / 8;
+	q = parm.z - parm.x * parm.y / 2 + pow(parm.x, 3) / 8;
+	r = parm.w - parm.x * parm.z / 4 + pow(parm.x, 2) * parm.y / 16 - 3 * pow(parm.x, 4) / 256;
+	sub = -parm.x / 4;
+	if (fabs(p) < 0.001 && fabs(q) < 0.001 && fabs(r) < 0.001)
+		return ((float4)(sub, 0, 0, 0));
+	cub_eq.x = p;
+	cub_eq.y = pow(p, 2) / 4 - r;
+	cub_eq.z = -pow(q, 2) / 8;
+	cub_res = cubic_solver(cub_eq);
+	if (fabs(cub_res.x) > fmax(fabs(cub_res.y), fabs(cub_res.z)) && !isinf(cub_res.x))
+		m = cub_res.x;
+	else
+	{
+		if (fabs(cub_res.y) < fabs(cub_res.z) && !isinf(cub_res.z))
+			m = fabs(cub_res.z);
+		else if (!isinf(cub_res.y))
+			m = fabs(cub_res.y);
+		else
+			m = fabs(cub_res.x);
+	}
+	if (m >= 0)
+	{
+		root2m = sqrt(2 * m);
+		root.xy = quadratic_solver((float2)(root2m, p / 2 + m - q / (2 * root2m))) + sub;
+		root.zw = quadratic_solver((float2)(-root2m, p / 2 + m + q / (2 * root2m))) + sub;
+	}
+	else
+	{
+		root2m = sqrt(-2 * m);
+		w.y = -2 * p / root2m;
+		w.x = -2 * p - 2 * m;
+		tmp = length(w);
+		z = sqrt(tmp) * (float2)(w.x + tmp, w.y) / length((float2)(w.x + tmp, w.y));
+		if (fabs(fabs(z.y) - root2m) < 0.01)
+			root.xy = (float2)(z.x, -z.x) / 2 + sub;
+	}
+
+	//float3	test2 = ((float3)(p, q, r));
+	root = order(root);
+	return (root);
+}
+
+float3					cubic_solver(float3 parm)
+{
+	float3	root;
+	float	p;
+	float	q;
+	float	delta;
+	float	root3;
+	float	tmp1;
+	float	tmp2;
+	float	sub;
+
+	root = NAN;
+	p = parm.y - pow(parm.x, 2) / 3;
+	q = 2 * pow(parm.x, 3) / 27 - parm.y * parm.x / 3 + parm.z;
+	sub = -parm.x / 3;
+	delta = pow(q, 2) / 4 + pow(p, 3) / 27;
+	if (delta > 0)
+		root.s0 = cbrt(-q / 2 + sqrt(delta)) + cbrt(-q / 2 - sqrt(delta)) + sub;
+	else if (delta == 0)
+	{
+		root.s0 = -2 * cbrt(q / 2) + sub;
+		root.s1 = cbrt(q / 2) + sub;
+	}
+	else
+	{
+		root3 = sqrt((float)3);
+		tmp2 = sqrt(-p);
+		tmp1 = (2 / root3) * tmp2;
+		tmp2 = asin((3 * root3 * q) / (2 * pow(tmp2, 3))) / 3;
+		root.s0 = tmp1 * sin(tmp2) + sub;
+		root.s1 = -tmp1 * sin(tmp2 + M_PI_F / 3) + sub;
+		root.s2 = tmp1 * cos(tmp2 + M_PI_F / 6) + sub;
+	}
+	return (order(root));
+}
+
+float2					quadratic_solver(float2 parm)
+{
+	float	delta;
+	float2	root;
+
+	root = NAN;
+	delta = pow(parm.x, 2) - 4 * parm.y;
+	if (delta < 0)
+		return (root);
+	else if (delta == 0)
+	{
+		root.s1 = -parm.x / 2;
+		return (root);
+	}
+	root.s0 = (-parm.x - sqrt(delta)) / 2;
+	root.s1 = (-parm.x + sqrt(delta)) / 2;
+	return (order(root));
+}
+
 int			sphere_hit(float3 ori, float3 dir, float *t)
 {
 	float	a;
 	float	b;
 	float	c;
-	float	d;
+	float2	inter;
 
 	a = pow(dir.x, 2) + pow(dir.y, 2) + pow(dir.z, 2);
 	b = 2 * (ori.x * dir.x + ori.y * dir.y + ori.z * dir.z);
 	c = pow(ori.x, 2) + pow(ori.y, 2) + pow(ori.z, 2) - 1;
-	d = pow(b, 2) - 4 * a * c;
-	if (d < 0)
-		return (0);
-	c = (-b - sqrt(d)) / (2 * a);
-	d = (-b + sqrt(d)) / (2 * a);
-	if (c <= 0 && d <= 0)
-		return (0);
-	if (c < 0 || d < 0)
-		*t = fmax(c, d);
+	inter = quadratic_solver((float2)(b, c) / a);
+	if (inter.x < 0.01)
+		*t = inter.y;
 	else
-		*t = fmin(c, d);
+		*t = inter.x;
+	if (*t < 0.01)
+		return (0);
 	return (1);
 }
 
@@ -123,15 +331,10 @@ int			plane_hit(float3 ori, float3 dir, float *t)
 {
 	float	a;
 
-	if (ori.z == 0)
-	{
-		*t = 0;
-		return (1);
-	}
 	if (dir.z == 0)
 		return (0);
 	a = -ori.z / dir.z;
-	if (a < 0)
+	if (a < 0.01)
 		return (0);
 	*t = a;
 	return (1);
@@ -142,22 +345,18 @@ int			cylinder_hit(float3 ori, float3 dir, float *t)
 	float	a;
 	float	b;
 	float	c;
-	float	d;
+	float2	inter;
 
 	a = pow(dir.x, 2) + pow(dir.z, 2);
 	b = 2 * (ori.x * dir.x + ori.z * dir.z);
 	c = pow(ori.x, 2) + pow(ori.z, 2) - 1;
-	d = pow(b, 2) - 4 * a * c;
-	if (d < 0)
-		return (0);
-	c = (-b - sqrt(d)) / (2 * a);
-	d = (-b + sqrt(d)) / (2 * a);
-	if (c <= 0 && d <= 0)
-		return (0);
-	if (c < 0 || d < 0)
-		*t = fmax(c, d);
+	inter = quadratic_solver((float2)(b, c) / a);
+	if (inter.x < 0.01)
+		*t = inter.y;
 	else
-		*t = fmin(c, d);
+		*t = inter.x;
+	if (*t < 0.01)
+		return (0);
 	return (1);
 }
 
@@ -166,22 +365,62 @@ int			cone_hit(float3 ori, float3 dir, float *t)
 	float	a;
 	float	b;
 	float	c;
-	float	d;
+	float2	inter;
 
 	a = pow(dir.x, 2) + pow(dir.z, 2) - pow(dir.y * 1, 2);
 	b = 2 * (ori.x * dir.x + ori.z * dir.z - ori.y * dir.y);
 	c = pow(ori.x, 2) + pow(ori.z, 2) - pow(ori.y * 1, 2);
-	d = pow(b, 2) - 4 * a * c;
-	if (d < 0)
-		return (0);
-	c = (-b - sqrt(d)) / (2 * a);
-	d = (-b + sqrt(d)) / (2 * a);
-	if (c <= 0 && d <= 0)
-		return (0);
-	if (c < 0 || d < 0)
-		*t = fmax(c, d);
+	inter = quadratic_solver((float2)(b, c) / a);
+	if (inter.x < 0.01)
+		*t = inter.y;
 	else
-		*t = fmin(c, d);
+		*t = inter.x;
+	if (*t < 0.01)
+		return (0);
+	return (1);
+}
+
+int			torus_hit(float3 ori, float3 dir, float *t)
+{
+	float	a;
+	float	b;
+	float	c;
+	float	d;
+	float	e;
+	float4	inter;
+	float	R;
+	float	r;
+
+	R = 2;
+	r = 0.5;
+	a = pow(dir.x, 4) + pow(dir.y, 4) + pow(dir.z, 4) + 2 * pow(dir.x, 2) * pow(dir.y, 2)
+		+ 2 * pow(dir.x, 2) * pow(dir.z, 2) + 2 * pow(dir.y, 2) * pow(dir.z, 2);
+	b = 4 * pow(dir.x, 3) * ori.x + 4 * pow(dir.y, 3) * ori.y + 4 * pow(dir.z, 3) * ori.z + 4 * pow(dir.x, 2) * dir.y * ori.y
+		+ 4 * pow(dir.x, 2) * dir.z * ori.z + 4 * dir.x * ori.x * pow(dir.y, 2) + 4 * pow(dir.y, 2) * dir.z * ori.z
+		+ 4 * dir.x * ori.x * pow(dir.z, 2) + 4 * dir.y * ori.y * pow(dir.z, 2);
+	c = - 2 * pow(R, 2) * pow(dir.x, 2) - 2 * pow(R, 2) * pow(dir.y, 2) + 2 * pow(R, 2) * pow(dir.z, 2) - 2 * pow(r, 2) * pow(dir.x, 2)
+		- 2 * pow(r, 2) * pow(dir.y, 2) - 2 * pow(r, 2) * pow(dir.z, 2) + 6 * pow(dir.x, 2) * pow(ori.x, 2) + 2 * pow(ori.x, 2) * pow(dir.y, 2)
+		+ 8 * dir.x * ori.x * dir.y * ori.y + 2 * pow(dir.x, 2) * pow(ori.y, 2) + 6 * pow(dir.y, 2) * pow(ori.y, 2) + 2 * pow(ori.x, 2) * pow(dir.z, 2)
+		+ 2 * pow(ori.y, 2) * pow(dir.z, 2) + 8 * dir.x * ori.x * dir.z * ori.z + 8 * dir.y * ori.y * dir.z * ori.z + 2 * pow(dir.x, 2) * pow(ori.z, 2)
+		+ 2 * pow(dir.y, 2) * pow(ori.z, 2) + 6 * pow(dir.z, 2) * pow(ori.z, 2);
+	d = - 4 * pow(R, 2) * dir.x * ori.x - 4 * pow(R, 2) * dir.y * ori.y + 4 * pow(R, 2) * dir.z * ori.z - 4 * pow(r, 2) * dir.x * ori.x
+		- 4 * pow(r, 2) * dir.y * ori.y - 4 * pow(r, 2) * dir.z * ori.z + 4 * dir.x * pow(ori.x, 3) + 4 * pow(ori.x, 2) * dir.y * ori.y
+		+ 4 * dir.x * ori.x * pow(ori.y, 2) + 4 * dir.y * pow(ori.y, 3) + 4 * pow(ori.x, 2) * dir.z * ori.z + 4 * pow(ori.y, 2) * dir.z * ori.z
+		+ 4 * dir.x * ori.x * pow(ori.z, 2) + 4 * dir.y * ori.y * pow(ori.z, 2) + 4 * dir.z * pow(ori.z, 3);
+	e = pow(R, 4) - 2 * pow(R, 2) * pow(ori.x, 2) - 2 * pow(R, 2) * pow(ori.y, 2) + 2 * pow(R, 2) * pow(ori.z, 2) + pow(r, 4) - 2 * pow(r, 2) * pow(R, 2)
+		- 2 * pow(r, 2) * pow(ori.x, 2) - 2 * pow(r, 2) * pow(ori.y, 2) - 2 * pow(r, 2) * pow(ori.z, 2) + pow(ori.x, 4) + pow(ori.y, 4) + pow(ori.z, 4)
+		+ 2 * pow(ori.x, 2) * pow(ori.y, 2) + 2 * pow(ori.x, 2) * pow(ori.z, 2) + 2 * pow(ori.y, 2) * pow(ori.z, 2);
+	inter = quartic_solver((float4)(b, c, d, e) / a);
+	if (inter.z < 0.01)
+		*t = inter.w;
+	else if (inter.y < 0.01)
+		*t = inter.z;
+	else if (inter.x < 0.01)
+		*t = inter.y;
+	else
+		*t = inter.x;
+	if (*t < 0.01)
+		return (0);
 	return (1);
 }
 
@@ -219,6 +458,7 @@ int						can_trace(
 	float3			line;
 	float3			ori_tmp;
 	float3			dir_tmp;
+	float			len;
 	float			tmp;
 	int				i;
 
@@ -228,11 +468,14 @@ int						can_trace(
 	{
 		ori_tmp = vec_mat_mult(obj_transform[i], v1);
 		dir_tmp = vec_mat_mult(obj_rot_mat[i], line);
+		len = length(dir_tmp);
+		dir_tmp = normalize(dir_tmp);
 		if (((obj_type[i] == 0 && sphere_hit(ori_tmp, dir_tmp, &tmp) == 1) ||
 			(obj_type[i] == 1 && plane_hit(ori_tmp, dir_tmp, &tmp) == 1) ||
 			(obj_type[i] == 2 && cylinder_hit(ori_tmp, dir_tmp, &tmp) == 1) ||
-			(obj_type[i] == 3 && cone_hit(ori_tmp, dir_tmp, &tmp) == 1)) &&
-				tmp < 1)
+			(obj_type[i] == 3 && cone_hit(ori_tmp, dir_tmp, &tmp) == 1) ||
+			(obj_type[i] == 4 && torus_hit(ori_tmp, dir_tmp, &tmp) == 1)) &&
+				tmp < len - 0.01)
 			return (0);
 	}
 	return (1);
@@ -278,6 +521,8 @@ float4					get_point_color(
 		}
 	color = (float4)(lum * ((float)1 + obj_color[obj_hit].r) / 255, lum * ((float)1 + obj_color[obj_hit].g) / 255,
 					lum * ((float)1 + obj_color[obj_hit].b) / 255, lum * ((float)1 + obj_color[obj_hit].a) / 255);
+	if (fabs(fmod(v.x + 0.2, (float)20)) < 0.03 || fabs(fmod(v.y + 0.2, (float)20)) < 0.03 || fabs(fmod(v.z + 0.2, (float)20)) < 0.03)
+		color = 1 / color;
 	return (color);
 }
 
@@ -319,7 +564,7 @@ __kernel void			process_image(
 				   (float)(id.y - img_size.y / 2) / (max(img_size.x, img_size.y) / 2) / s, 1);
 	dir = normalize(ori);
 	ori = vec_mat_mult(cam_mat, ori);
-	dir = normalize(vec_mat_mult(cam_mat_rot, dir));
+	dir = vec_mat_mult(cam_mat_rot, dir);
 
 	int				reflected;
 	float			reflect_amount;
@@ -349,7 +594,8 @@ __kernel void			process_image(
 			if (((obj_type[i] == 0 && sphere_hit(ori_tmp, dir_tmp, &tmp) == 1) ||
 				(obj_type[i] == 1 && plane_hit(ori_tmp, dir_tmp, &tmp) == 1) ||
 				(obj_type[i] == 2 && cylinder_hit(ori_tmp, dir_tmp, &tmp) == 1) ||
-				(obj_type[i] == 3 && cone_hit(ori_tmp, dir_tmp, &tmp) == 1)) &&
+				(obj_type[i] == 3 && cone_hit(ori_tmp, dir_tmp, &tmp) == 1) ||
+				(obj_type[i] == 4 && torus_hit(ori_tmp, dir_tmp, &tmp) == 1)) &&
 					tmp < hit)
 			{
 				hit = tmp;
@@ -375,7 +621,6 @@ __kernel void			process_image(
 		}
 
 		// If the closest object hit is closer then the far plane, calculate the luminosity add it tu the color value
-		hit -= 0.01; // To prevent precision errors
 		v = ori + dir * hit;
 		if (hit < far)
 		{
@@ -389,7 +634,7 @@ __kernel void			process_image(
 				float3		normal;
 
 				normal = get_normal(obj_type[obj_hit], obj_transform[obj_hit], obj_rev_rot[obj_hit], v, dir);
-				dir = normalize(normalize(dir) - (normal * 2 * dot(normalize(dir), normal)));
+				dir = normalize(dir - (normal * 2 * dot(dir, normal)));
 				ori = v;
 			}
 		}
@@ -399,6 +644,8 @@ __kernel void			process_image(
 
 	color = color / (color + 1); 
 	buf[buf_pos] = (uchar4)(255 * color.r, 255 * color.g, 255 * color.b, 255 * color.a);
+
+	//quartic_solver((float4)(-0.1970370674, 148.5148515, -49752.85455, 6.25e6) / (float)9.802960494e-5, buf, buf_pos, img_size);
 }
 
 __kernel void	sampler(

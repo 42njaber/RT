@@ -6,7 +6,7 @@
 /*   By: njaber <neyl.jaber@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/20 16:00:11 by njaber            #+#    #+#             */
-/*   Updated: 2018/06/02 22:08:01 by njaber           ###   ########.fr       */
+/*   Updated: 2018/06/06 14:20:14 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,7 @@ void			update_image(t_ptr *p)
 	{
 		p->update = 0;
 		p->timer = 0;
-		p->res = -3;
+		p->res = p->res_min - 1;
 	}
 	if (p->tmp == 0)
 	{
@@ -49,7 +49,7 @@ void			update_image(t_ptr *p)
 		clFinish(p->opencl->gpu_command_queue);
 		p->tmp = -1;
 	}
-	if (p->timer-- <= 0 && p->tmp == -1 && p->res < 3)
+	if (p->timer-- <= 0 && p->tmp == -1 && p->res < p->res_max)
 	{
 		p->res++;
 		p->timer = 30;

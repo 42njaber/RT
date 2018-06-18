@@ -6,7 +6,7 @@
 /*   By: njaber <neyl.jaber@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/25 19:22:52 by njaber            #+#    #+#             */
-/*   Updated: 2018/06/04 23:42:31 by njaber           ###   ########.fr       */
+/*   Updated: 2018/06/06 08:54:27 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,10 +62,12 @@ static void		parse_single_obj1(t_ptr *p, int fd, int j)
 		ft_error("[Error] Error in the objects parameters\n");
 	if (ft_strncmp(line, "PLANE", 5) == 0)
 		p->objs[j].type = PLANE;
-	else if (ft_strncmp(line, "CYLINDER", 4) == 0)
+	else if (ft_strncmp(line, "CYLINDER", 8) == 0)
 		p->objs[j].type = CYLINDER;
-	else if (ft_strncmp(line, "CONE", 8) == 0)
+	else if (ft_strncmp(line, "CONE", 4) == 0)
 		p->objs[j].type = CONE;
+	else if (ft_strncmp(line, "TORUS", 5) == 0)
+		p->objs[j].type = TORUS;
 	else
 		p->objs[j].type = SPHERE;
 	free(line);
