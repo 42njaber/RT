@@ -1,0 +1,13 @@
+
+#ifndef SOLVERS_CLH
+# define SOLVERS_CLH
+
+int						sphere_hit(float3 ori, float3 dir, float *t);
+int						plane_hit(float3 ori, float3 dir, float *t);
+int						cylinder_hit(float3 ori, float3 dir, float *t);
+int						cone_hit(float3 ori, float3 dir, float *t);
+int						torus_hit(float3 ori, float3 dir, float *t);
+int						moebius_hit(float3 ori, float3 dir, float *t);
+float3					get_normal(int type, float16 transform, float16 rev_rot, float3 v, float3 dir);
+
+#endif

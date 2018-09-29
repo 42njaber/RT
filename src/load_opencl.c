@@ -6,7 +6,7 @@
 /*   By: njaber <neyl.jaber@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/03/16 20:23:49 by njaber            #+#    #+#             */
-/*   Updated: 2018/06/18 19:15:42 by njaber           ###   ########.fr       */
+/*   Updated: 2018/06/22 02:20:58 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,24 +50,55 @@ static int		make_kernels(t_kernel *kernel)
 	return (err);
 }
 
+#define		FILE_NUMBER 5
+
+static int		compile_files(t_ocl *opencl, cl_program *objects)
+{
+	const char		*files[FILE_NUMBER] = {"kernel.cl", "math.cl",
+		"hit_equations.cl", "solvers.cl", "debug.cl"};
+	cl_int			err;
+	int				i;
+
+	i = -1;
+	while (++i < FILE_NUMBER)
+	{
+		ft_printf("Compiling file %<G,i>%s%<0>...\n", files[i]);
+		objects[i] = create_program_from_file(opencl->gpu_context, files[i]);
+		if (objects[i] == NULL)
+			err = -100;
+		else
+			err = clCompileProgram(objects[i], opencl->gpu_nbr, opencl->gpus,
+				"-cl-single-precision-constant -cl-opt-disable"
+				, 0, NULL, NULL, NULL, NULL);
+		if (err != CL_SUCCESS)
+		{
+			i++;
+			while (--i >= 0)
+				clReleaseProgram(objects[i]);
+			return (err);
+		}
+	}
+	return (err);
+}
+
 static int		build_program(t_ocl *opencl, t_kernel *kernel)
 {
-	char		tmp[4096];
-	size_t		tmp2;
-	char		*tmp3;
-	int			err;
+	cl_program	objects[FILE_NUMBER];
+	cl_int		err;
+	int			i;
 
-	kernel->program = create_program_from_file(opencl->gpu_context,
-			"src/kernel.cl");
-	if (kernel->program == NULL)
-		return (-100);
-	tmp3 = ft_printb("-cl-single-precision-constant -cl-opt-disable");
-	err = clBuildProgram(kernel->program, 0, NULL, tmp3, NULL, NULL);
-	free(tmp3);
-	clGetProgramBuildInfo(kernel->program, opencl->gpus[0],
-			CL_PROGRAM_BUILD_LOG, 4096, tmp, &tmp2);
-	if (tmp2 < 4096)
-		ft_printf("Build log :\n%.*s\n", tmp2, tmp);
+	chdir("opencl/");
+	err = compile_files(opencl, objects);
+	if (err != CL_SUCCESS)
+		return (err);
+	ft_putendl("Linking program...");
+	kernel->program = clLinkProgram(opencl->gpu_context, opencl->gpu_nbr,
+			opencl->gpus, "", FILE_NUMBER, objects, NULL, NULL, &err);
+	i = -1;
+	while (++i < FILE_NUMBER)
+		clReleaseProgram(objects[i]);
+	if (err != CL_SUCCESS && kernel->program != NULL)
+		clReleaseProgram(kernel->program);
 	return (err);
 }
 

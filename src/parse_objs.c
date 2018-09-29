@@ -6,7 +6,7 @@
 /*   By: njaber <neyl.jaber@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/25 19:22:52 by njaber            #+#    #+#             */
-/*   Updated: 2018/06/06 08:54:27 by njaber           ###   ########.fr       */
+/*   Updated: 2018/06/19 02:07:11 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,6 +68,8 @@ static void		parse_single_obj1(t_ptr *p, int fd, int j)
 		p->objs[j].type = CONE;
 	else if (ft_strncmp(line, "TORUS", 5) == 0)
 		p->objs[j].type = TORUS;
+	else if (ft_strncmp(line, "MOEBIUS", 7) == 0)
+		p->objs[j].type = MOEBIUS;
 	else
 		p->objs[j].type = SPHERE;
 	free(line);

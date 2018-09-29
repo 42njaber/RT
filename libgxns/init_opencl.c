@@ -6,7 +6,7 @@
 /*   By: njaber <neyl.jaber@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/03/15 01:57:02 by njaber            #+#    #+#             */
-/*   Updated: 2018/06/01 01:20:09 by njaber           ###   ########.fr       */
+/*   Updated: 2018/06/22 02:34:11 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,7 @@ char			*join_free(char *s1, char *s2, size_t src_len)
 	return (ret);
 }
 
-cl_program		create_program_from_file(cl_context context, char *file)
+cl_program		create_program_from_file(cl_context context, const char *file)
 {
 	cl_program	ret;
 	char		*kernel;

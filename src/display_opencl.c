@@ -6,7 +6,7 @@
 /*   By: njaber <neyl.jaber@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/29 00:39:23 by njaber            #+#    #+#             */
-/*   Updated: 2018/06/05 23:06:02 by njaber           ###   ########.fr       */
+/*   Updated: 2018/06/22 17:44:58 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,7 +62,7 @@ static void			sample_buffer(t_ptr *p)
 	g_sz = sqrt(p->opencl->gpu_wg_sz);
 	res = pow(2, fmin(p->res, 2));
 	clSetKernelArg(p->kernel->cores[2], 3, sizeof(int[2]),
-			(int[2]){p->win->size.x * res, p->win->size.y * res});
+			(int[2]){p->win->size.x * res, p->win->size.y * res - 1});
 	if ((err = clEnqueueNDRangeKernel(p->opencl->gpu_command_queue,
 			p->kernel->cores[2], 2, NULL, (size_t[2]){(p->win->size.x / g_sz
 				+ 1) * g_sz, (p->win->size.y / g_sz + 1) * g_sz},
@@ -102,8 +102,8 @@ void				process_image_opencl(t_ptr *p)
 		p->tmp = 2;
 		if ((err = clEnqueueNDRangeKernel(p->opencl->gpu_command_queue,
 				p->kernel->cores[0], 2, NULL, (size_t[2]){
-				(int)floor(p->win->size.x * res / g_sz + 1) * g_sz,
-				(int)floor(p->win->size.y * res / g_sz + 1) * g_sz},
+				(int)ceil((int)(p->win->size.x * res) / g_sz + 1) * g_sz,
+				(int)ceil((int)(p->win->size.y * res) / g_sz + 1) * g_sz},
 				(size_t[2]){g_sz, g_sz}, 0, NULL, &event)) != CL_SUCCESS)
 			ft_error("[Erreur] Echec d'execution du kernel"
 					"%<R>  (Error code: %<i>%2d)%<0>\n", err);

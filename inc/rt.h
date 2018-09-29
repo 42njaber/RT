@@ -6,7 +6,7 @@
 /*   By: njaber <neyl.jaber@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/20 15:19:13 by njaber            #+#    #+#             */
-/*   Updated: 2018/06/06 14:17:31 by njaber           ###   ########.fr       */
+/*   Updated: 2018/06/19 01:30:44 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,8 @@ enum e_shape
 	PLANE,
 	CYLINDER,
 	CONE,
-	TORUS
+	TORUS,
+	MOEBIUS
 };
 
 /*

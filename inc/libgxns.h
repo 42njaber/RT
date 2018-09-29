@@ -6,7 +6,7 @@
 /*   By: njaber <neyl.jaber@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/01/25 23:56:43 by njaber            #+#    #+#             */
-/*   Updated: 2018/06/02 01:08:03 by njaber           ###   ########.fr       */
+/*   Updated: 2018/06/22 01:20:48 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,7 +45,7 @@ typedef struct	s_kernel {
 }				t_kernel;
 
 t_ocl			*init_opencl(void);
-cl_program		create_program_from_file(cl_context context, char *file);
+cl_program		create_program_from_file(cl_context context, const char *file);
 
 # else
 

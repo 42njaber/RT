@@ -1,0 +1,8 @@
+
+#ifndef DEBUG_CLH
+# define DEBUG_CLH
+
+int		write_nb(int nb, int x, int y);
+int		logger(float16 data, int len);
+
+#endif
