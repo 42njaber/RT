@@ -4,7 +4,6 @@
 
 float3					vec_mat_mult(float16 mat, float3 vec);
 uchar4 __OVERLOAD__		mix(uchar4 c1, uchar4 c2, float gradiant);
-void					put_px(int2 px, uchar4 color, __global uchar4 *buf, int2 img_size);
 float					angle(float2 v);
 float2 __OVERLOAD__		order(float2 in);
 float3 __OVERLOAD__		order(float3 in);

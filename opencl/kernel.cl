@@ -38,7 +38,7 @@ int						can_trace(
 			(obj_type[i] == 3 && cone_hit(ori_tmp, dir_tmp, &tmp) == 1) ||
 			(obj_type[i] == 4 && torus_hit(ori_tmp, dir_tmp, &tmp) == 1) ||
 			(obj_type[i] == 5 && moebius_hit(ori_tmp, dir_tmp, &tmp) == 1)) &&
-				tmp < len - 0.001)
+				tmp < len - 0.0001)
 			return (0);
 	}
 	return (1);

@@ -6,7 +6,7 @@
 /*   By: njaber <neyl.jaber@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/29 00:39:23 by njaber            #+#    #+#             */
-/*   Updated: 2018/06/22 17:44:58 by njaber           ###   ########.fr       */
+/*   Updated: 2018/10/11 19:25:51 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -94,8 +94,7 @@ void				process_image_opencl(t_ptr *p)
 	g_sz = sqrt(p->opencl->gpu_wg_sz);
 	res = pow(2, fmin(p->res, 2));
 	if (p->kernel == NULL)
-		process_image(p);
-		//exit(0);
+		ft_error("Could not launch OpenCL kernel, stopping program...\n");
 	else
 	{
 		set_args(p, res);

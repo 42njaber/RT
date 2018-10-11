@@ -6,7 +6,7 @@
 /*   By: njaber <neyl.jaber@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/18 17:01:19 by njaber            #+#    #+#             */
-/*   Updated: 2018/06/22 02:31:40 by njaber           ###   ########.fr       */
+/*   Updated: 2018/10/11 19:19:38 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,8 +56,6 @@ static void		parse_arguments(t_ptr *p, int argc, char **argv)
 		ft_error("[Error] Please enter an fov value between 10 and 170\n");
 }
 
-#ifdef OPENCL
-
 /*
 ** p: the program's main structure
 **
@@ -74,26 +72,6 @@ static void		launch_window(t_ptr *p)
 	set_hooks(p);
 	mlx_loop(p->mlx);
 }
-
-#else
-
-/*
-** p: the program's main structure
-**
-** Creates the window structure, sets the event hooks, copies the processed
-** image to the newly created window, and then launches the main loop
-*/
-
-static void		launch_window(t_ptr *p)
-{
-	if ((init_new_win(p->mlx, p->win, (t_ivec){1200, 800}, "RT")) == 0)
-		ft_error("[Erreur] Failed to initialize window\n");
-	set_hooks(p);
-	process_image(p);
-	mlx_loop(p->mlx);
-}
-
-#endif
 
 /*
 ** p: the program's main structure, which is going to passed to most functions

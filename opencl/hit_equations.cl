@@ -178,7 +178,7 @@ float3					get_normal(int type, float16 transform, float16 rev_rot, float3 v, fl
 	else if (type == 5)
 	{
 		tmp = angle(v.xy) / 2;
-		ret = (float3)(normalize(v.xy) * sin(tmp), cos(tmp));
+		ret = (float3)(normalize(v.xy) * cos(tmp), sin(tmp));
 	}
 	else
 		ret = (float3){0, 0, 1};

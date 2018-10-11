@@ -1,39 +1,22 @@
 FILES = main.c \
-		display.c \
 		read_cfg.c \
 		parse_objs.c \
 		cfg_default.c \
 		init.c \
-		hit_equations.c \
 		gen_matricies.c \
-		normal.c \
 		loop_hook.c \
 		key_hooks.c \
 		mouse_hooks.c \
-		hooks.c
+		hooks.c \
+		load_opencl.c \
+		display_opencl.c \
+		buf_handler.c
 
-ALT_FILE = load_opencl.c \
-		   display_opencl.c \
-		   buf_handler.c
+CFLAGS = -Llibgxns -lgxns -framework OpenGL -framework AppKit -framework OpenCL
 
-CFLAGS = -Llibgxns -lgxns -framework OpenGL -framework AppKit
-
-ifndef KEYBOARD
-KEYBOARD = AZERTY
-endif
+KEYBOARD = QWERTY
 
 MACROS = -D $(KEYBOARD)
-
-ifndef OPENCL
-OPENCL = TRUE
-endif
-
-ifeq ($(OPENCL), TRUE)
-MACROS += -D OPENCL
-FILES += load_opencl.c display_opencl.c buf_handler.c
-CFLAGS += -framework OpenCL
-else
-endif
 
 SRC_DIR = src
 SRC = $(FILES:%=$(SRC_DIR)/%)
@@ -56,7 +39,7 @@ force:
 	@true
 
 libgxns/libgxns.a: force
-	make -C libgxns/ OPENCL=$(OPENCL)
+	make -C libgxns/
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c inc/rt.h
 	@mkdir $(OBJ_DIR) &> /dev/null || true
@@ -70,12 +53,12 @@ soft_clean:
 	@echo "Cleaning target:"
 	$(RM) $(NAME)
 	@echo "Cleaning objects:"
-	$(RM) $(OBJ) $(ALT_FILE:%=$(OBJ_DIR)/%.o)
+	$(RM) $(OBJ)
 
 clean:
 	@echo "Cleaning objects:"
 	$(MAKE) -C libgxns/ fclean
-	$(RM) $(OBJ) $(ALT_FILE:%=$(OBJ_DIR)/%.o)
+	$(RM) $(OBJ)
 
 fclean: clean
 	@echo "Cleaning target:"

@@ -6,7 +6,7 @@
 /*   By: njaber <neyl.jaber@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/20 15:19:13 by njaber            #+#    #+#             */
-/*   Updated: 2018/06/19 01:30:44 by njaber           ###   ########.fr       */
+/*   Updated: 2018/10/11 19:20:38 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,8 +65,6 @@ typedef struct	s_spot {
 	float			lum;
 }				t_spot;
 
-#ifdef OPENCL
-
 typedef struct	s_ptr {
 	t_win		*win;
 	void		*mlx;
@@ -103,36 +101,6 @@ void			process_image_opencl(t_ptr *p);
 void			create_spot_memobjs(t_ptr *p);
 void			create_obj_memobjs(t_ptr *p);
 t_kernel		*create_kernel(t_ptr *p);
-
-#else
-
-typedef struct	s_ptr {
-	t_win		*win;
-	void		*mlx;
-	char		keys[512];
-	int			button;
-	t_ivec		mouse_pos;
-	t_ivec		tmp_mouse_pos;
-	int			update;
-	int			timer;
-	float		fov;
-	float		near;
-	float		far;
-	int			res;
-	int			nobjs;
-	int			nspots;
-	t_vec3		pos;
-	t_vec3		rot;
-	t_vec3		origin_rot;
-	t_mat4		cam_mat;
-	t_mat4		cam_mat_rot;
-	t_obj		*objs;
-	t_spot		*spots;
-	char		brilliance;
-	char		shadows;
-}				t_ptr;
-
-#endif
 
 void			init_struct(t_ptr *p);
 void			set_hooks(t_ptr *p);

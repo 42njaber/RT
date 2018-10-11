@@ -19,8 +19,6 @@
 ** Initializes the structure's value and creates the buffer for the computed
 ** image */
 
-#ifdef OPENCL
-
 void			init_struct(t_ptr *p)
 {
 	if ((p->win = (t_win*)ft_memalloc(sizeof(t_win))) == NULL)
@@ -43,18 +41,3 @@ void			init_struct(t_ptr *p)
 		create_spot_memobjs(p);
 	}
 }
-
-#else
-
-void			init_struct(t_ptr *p)
-{
-	if ((p->win = (t_win*)ft_memalloc(sizeof(t_win))) == NULL)
-		ft_error("[Erreur] Failed to allocate memory\n");
-	init_new_image(p->mlx, &p->win->img, (t_ivec){1200, 800});
-	generate_cam_matricies(p);
-	generate_obj_matricies(p);
-	p->near = 0.1;
-	p->far = 400;
-}
-
-#endif

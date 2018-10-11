@@ -6,13 +6,11 @@
 /*   By: njaber <neyl.jaber@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/03/15 01:57:02 by njaber            #+#    #+#             */
-/*   Updated: 2018/06/22 02:34:11 by njaber           ###   ########.fr       */
+/*   Updated: 2018/10/11 19:15:37 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libgxns.h"
-
-#ifdef OPENCL
 
 char			*join_free(char *s1, char *s2, size_t src_len)
 {
@@ -91,5 +89,3 @@ t_ocl			*init_opencl(void)
 			opencl->gpus[0], 0, NULL);
 	return (opencl);
 }
-
-#endif

@@ -6,7 +6,7 @@
 /*   By: njaber <neyl.jaber@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/01/25 23:56:43 by njaber            #+#    #+#             */
-/*   Updated: 2018/06/22 01:20:48 by njaber           ###   ########.fr       */
+/*   Updated: 2018/10/11 19:16:38 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,14 +18,9 @@
 # include "ft_printf.h"
 # include "libft.h"
 
-# if AZERTY
-#  include "azerty.h"
-# else
 #  include "qwerty.h"
-# endif
 
-# ifdef OPENCL
-#  include <OpenCL/opencl.h>
+# include <OpenCL/opencl.h>
 
 typedef struct	s_ocl {
 	cl_context			gpu_context;
@@ -46,13 +41,6 @@ typedef struct	s_kernel {
 
 t_ocl			*init_opencl(void);
 cl_program		create_program_from_file(cl_context context, const char *file);
-
-# else
-
-typedef void	*t_kernel;
-typedef void	*t_ocl;
-
-# endif
 
 typedef struct	s_vec2 {
 	float	x;

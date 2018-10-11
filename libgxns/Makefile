@@ -8,18 +8,8 @@ SRC = draw_fig.c \
 	  vectors.c \
 	  colors.c \
 	  util.c \
-	  gnl/get_next_line.c
-
-ALT_SRC = init_opencl.c
-
-ifndef OPENCL
-OPENCL = TRUE
-endif
-
-ifeq ($(OPENCL), TRUE)
-SRC += init_opencl.c
-MACROS += -D OPENCL
-endif
+	  gnl/get_next_line.c \
+	  init_opencl.c
 
 NAME = libgxns.a
 MLX = ../minilibx_macos/libmlx.a
@@ -68,12 +58,12 @@ soft_clean:
 	@echo "Cleaning library:"
 	$(RM) $(NAME)
 	@echo "Cleaning objects:"
-	$(RM) $(OBJ) $(ALT_SRC:.c=.o)
+	$(RM) $(OBJ)
 
 clean:
 	@echo 			"_________________"
 	@echo 			"Cleaning objects:"$(RED)
-	$(RM) $(OBJ) $(ALT_SRC:.c=.o)
+	$(RM) $(OBJ)
 	@echo $(DEFAULT)"_________________"
 	$(MAKE) -C ../minilibx_macos/ clean
 	$(MAKE) -C ../libft/ fclean
