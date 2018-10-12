@@ -106,15 +106,19 @@ __kernel void			process_image(
 						   int				nspots,
 						   int				max_rays,
 						   float			far,
-						   float			fov
+						   float			fov,
+						   int				iter,
+						   int2				iter_pos
 						  )
 {
 	int2			id;
 	int				buf_pos;
 	float			s;
 
-	if ((id.x = get_global_id(0)) >= img_size.x
-			|| (id.y = get_global_id(1)) >= img_size.y)
+	id.x = get_global_id(0);
+	id.y = get_global_id(1);
+	id = id * 16 + iter_pos;
+	if (id.x >= img_size.x || id.y >= img_size.y)
 		return ;
 	buf_pos = id.x + img_size.x * id.y;
 	s = 1 / tan((float)(fov * 0.5 * M_PI_F / 180));
@@ -213,59 +217,68 @@ __kernel void			process_image(
 __kernel void	sampler(
 				  __global uchar4	*dest_buf,
 				  __global uchar4	*origin_buf,
-				  int2				dest_size,
-				  int2				origin_size
+				  int2				size,
+				  int				iter
 				 )
 {
 	int2			id;
+	int2			pos;
 	int				buf_pos;
+	int				bits;
 	uchar4			color;
-	uchar4			tmp_colors[2];
-	float4			tmp_color_mix;
-	float2			ratio;
-	float			total_ratio;
-	float2			sampler_coord;
-	float2			sampler_fract;
-	int2			origin_pos;
-	int				origin_buf_pos;
-	int				i;
-	int				j;
+	int				extra_px[16];
+	int				line = size.x * 4;
 
-	if ((id.x = get_global_id(0)) >= dest_size.x
-			|| (id.y = get_global_id(1)) >= dest_size.y)
+	if ((id.x = get_global_id(0)) >= size.x
+			|| (id.y = get_global_id(1)) >= size.y)
 		return ;
-	buf_pos = id.x + dest_size.x * id.y;
-	ratio = (float2)((float)origin_size.x / dest_size.x, (float)origin_size.y / dest_size.y);
-	sampler_coord = (float2)(id.x * ratio.x, id.y * ratio.y);
-	if (ratio.x < 0.99)
+	buf_pos = id.x + size.x * id.y;
+	bits = (id.x & 2 ? 1 : 0) | (id.y & 2 ? 2 : 0) | (id.x & 1 ? 4 : 0) | (id.y & 1 ? 8 : 0);
+	if (iter >= 15)
 	{
-		sampler_fract = fmod(sampler_coord, 1);
-		origin_pos = (int2)floor(sampler_coord);
-		origin_buf_pos = (int)sampler_coord.x + origin_size.x * (int)sampler_coord.y;
-		tmp_colors[0] = mix(origin_buf[origin_buf_pos], origin_buf[origin_buf_pos + 1], sampler_fract.x);
-		tmp_colors[1] = mix(origin_buf[origin_buf_pos + origin_size.x], origin_buf[origin_buf_pos + origin_size.x + 1], sampler_fract.x);
-		color = mix(tmp_colors[0], tmp_colors[1], sampler_fract.y);
-	}
-	else if (ratio.x > 1.01)
-	{
-		origin_pos = (int2)floor(sampler_coord);
-		origin_buf_pos = (int)sampler_coord.x + origin_size.x * (int)sampler_coord.y;
-		total_ratio = round(ratio.x) * round(ratio.y);
-		tmp_color_mix = (float4)0;
-		i = 0;
-		j = 0;
-		while (j < round(ratio.y))
-		{
-			tmp_colors[0] = origin_buf[origin_buf_pos + i + j * origin_size.x];
-			tmp_color_mix += (float4)(tmp_colors[0].r / total_ratio, tmp_colors[0].g / total_ratio, tmp_colors[0].b / total_ratio, tmp_colors[0].a / total_ratio);
-			i = (i + 1) % (int)round(ratio.x);
-			if (i == 0)
-				j++;
-		}
-		color = (uchar4)(tmp_color_mix.r, tmp_color_mix.g, tmp_color_mix.b, tmp_color_mix.a);
+		int		pxnb;
+		int		i;
+		int4	tmp;
+
+		pos = id * 4;
+		pxnb = (iter - bits) / 16 + 1;
+		tmp = (int4)(0, 0, 0, 0);
+		extra_px[0] = 0;
+		extra_px[1] = 2;
+		extra_px[2] = 2 * line;
+		extra_px[3] = 2 + 2 * line;
+		extra_px[4] = 1;
+		extra_px[5] = 3;
+		extra_px[6] = 1 + 2 * line;
+		extra_px[7] = 3 + 2 * line;
+		extra_px[8] = line;
+		extra_px[9] = 2 + line;
+		extra_px[10] = 3 * line;
+		extra_px[11] = 2 + 3 * line;
+		extra_px[12] = 1 + line;
+		extra_px[13] = 3 + line;
+		extra_px[14] = 1 + 3 * line;
+		extra_px[15] = 3 + 3 * line;
+		i = -1;
+		while (++i < pxnb)
+			tmp += convert_int4(origin_buf[pos.x + line * pos.y + extra_px[i]]);
+		color = convert_uchar4(tmp / pxnb);
 	}
 	else
-		color = origin_buf[buf_pos];
+	{
+		int2		cpos = (int2)(0, 0);
+
+		if (iter >= 1 && bits & 1)
+			cpos.x |= 2;
+		if (iter >= 2 + (bits & (1 << 1) - 1) && bits & 2)
+			cpos.y |= 2;
+		if (iter >= 4 + (bits & (1 << 2) - 1) && bits & 4)
+			cpos.x |= 1;
+		if (iter >= 8 + (bits & (1 << 3) - 1) && bits & 8)
+			cpos.y |= 1;
+		pos = ((id / 4) * 4 + cpos) * 4;
+		color = origin_buf[pos.x + line * pos.y];
+	}
 	dest_buf[buf_pos] = (uchar4)(color.rgb, 0x4F);
 }
 

@@ -27,7 +27,7 @@ OBJ_DIR = obj
 OBJ = $(FILES:%.c=$(OBJ_DIR)/%.o)
 
 LIB = libgxns/libgxns.a
-FLAGS = -Wall -Wextra -Werror -Iinc/ 
+FLAGS = -Wall -Wextra -Werror -Iinc/
 CC = gcc
 RM = @rm -fv
 TEST_FILE = test.out

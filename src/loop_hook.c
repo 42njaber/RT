@@ -6,7 +6,7 @@
 /*   By: njaber <neyl.jaber@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/20 16:00:11 by njaber            #+#    #+#             */
-/*   Updated: 2018/10/11 19:18:31 by njaber           ###   ########.fr       */
+/*   Updated: 2018/10/12 03:43:02 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,9 +14,11 @@
 
 static void		print_data(t_ptr *p)
 {
-	display_data_float(p->win, "FPS:", p->win->fps, 10);
+	display_data_scal(p->win, "FPS:", p->win->fps, 10);
 	display_data_vec3(p->win, "Positon:", p->pos, 30);
 	display_data_vec3(p->win, "Rotation:", p->rot, 50);
+	display_data_scal(p->win, "Resolution:", (float)p->res / 2.55, 70);
+	display_data_scal(p->win, "Reflections:", (float)p->max_reflections, 90);
 }
 
 static void		update_tranform(t_ptr *p)
@@ -25,32 +27,31 @@ static void		update_tranform(t_ptr *p)
 	generate_cam_matricies(p);
 }
 
-void			update_image(t_ptr *p)
+static void		read_buffer(t_ptr *p)
 {
 	cl_int		err;
 
+	clFinish(p->opencl->gpu_command_queue);
+	if ((err = clEnqueueReadBuffer(p->opencl->gpu_command_queue,
+			p->kernel->memobjs[0], CL_TRUE, 0,
+			p->win->img.line * p->win->img.size.v[1],
+			p->win->img.buf, 0, NULL, NULL)) != CL_SUCCESS)
+		ft_error("[Erreur] Echec durant la lecture du buffer"
+				"%<R>  (Error code: %<i>%2d)%<0>\n", err);
+}
+
+void			update_image(t_ptr *p)
+{
     clFinish(p->opencl->gpu_command_queue);
 	if (p->update)
 	{
+		p->res = 0;
 		p->update = 0;
-		p->timer = 0;
-		p->res = p->res_min - 1;
+		process_image_opencl(p);
 	}
-	if (p->tmp == 0)
-	{
-		if ((err = clEnqueueReadBuffer(p->opencl->gpu_command_queue,
-				p->kernel->memobjs[0], CL_TRUE, 0,
-				p->win->img.line * p->win->img.size.y,
-				p->win->img.buf, 0, NULL, NULL)) != CL_SUCCESS)
-			ft_error("[Erreur] Echec durant la lecture du buffer"
-					"%<R>  (Error code: %<i>%2d)%<0>\n", err);
-		clFinish(p->opencl->gpu_command_queue);
-		p->tmp = -1;
-	}
-	if (p->timer-- <= 0 && p->tmp == -1 && p->res < p->res_max)
+	else if (p->res < 255)
 	{
 		p->res++;
-		p->timer = 30;
 		process_image_opencl(p);
 	}
 }
@@ -62,6 +63,7 @@ int				loop_hook(void *parm)
 	p = (t_ptr*)parm;
 	move(p);
 	update_tranform(p);
+	read_buffer(p);
 	paint_window(p->win, p->kernel, 0);
 	update_image(p);
 	print_data(p);

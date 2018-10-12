@@ -6,7 +6,7 @@
 /*   By: njaber <neyl.jaber@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/18 17:01:19 by njaber            #+#    #+#             */
-/*   Updated: 2018/10/11 19:19:38 by njaber           ###   ########.fr       */
+/*   Updated: 2018/10/12 01:21:27 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,10 +47,6 @@ static void		parse_arguments(t_ptr *p, int argc, char **argv)
 			p->shadows = 1;
 		else if (ft_strncmp(argv[i], "-fov=", 5) == 0)
 			p->fov = ft_atoi(argv[i] + 5);
-		else if (ft_strncmp(argv[i], "-res-min=", 9) == 0)
-			p->res_min = ft_atoi(argv[i] + 9);
-		else if (ft_strncmp(argv[i], "-res-max=", 9) == 0)
-			p->res_max = ft_atoi(argv[i] + 9);
 	}
 	if (p->fov < 10 || p->fov > 170)
 		ft_error("[Error] Please enter an fov value between 10 and 170\n");
@@ -67,7 +63,7 @@ static void		launch_window(t_ptr *p)
 {
 	if (p->kernel == NULL)
 		process_image_opencl(p);
-	if ((init_new_win(p->mlx, p->win, (t_ivec){1200, 800}, "RT")) == 0)
+	if ((init_new_win(p->mlx, p->win, ivec(1200, 800), "RT")) == 0)
 		ft_error("[Erreur] Failed to initialize window\n");
 	set_hooks(p);
 	mlx_loop(p->mlx);

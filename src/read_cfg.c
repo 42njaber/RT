@@ -6,7 +6,7 @@
 /*   By: njaber <neyl.jaber@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/25 11:20:41 by njaber            #+#    #+#             */
-/*   Updated: 2018/05/26 21:35:32 by njaber           ###   ########.fr       */
+/*   Updated: 2018/10/12 00:58:38 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,16 +22,16 @@ static void		parse_cam(t_ptr *p, int fd)
 	if (get_next_line(fd, &line) != 1)
 		ft_error("[Error] Error in the camera parameters\n");
 	i = 0;
-	p->pos.x = ft_parse_float(line, &i);
-	p->pos.y = ft_parse_float(line, &i);
-	p->pos.z = ft_parse_float(line, &i);
+	p->pos.v[0] = ft_parse_float(line, &i);
+	p->pos.v[1] = ft_parse_float(line, &i);
+	p->pos.v[2] = ft_parse_float(line, &i);
 	free(line);
 	if (get_next_line(fd, &line) != 1)
 		ft_error("[Error] Error in the camera parameters\n");
 	i = 0;
-	p->rot.x = ft_parse_float(line, &i);
-	p->rot.y = ft_parse_float(line, &i);
-	p->rot.z = ft_parse_float(line, &i);
+	p->rot.v[0] = ft_parse_float(line, &i);
+	p->rot.v[1] = ft_parse_float(line, &i);
+	p->rot.v[2] = ft_parse_float(line, &i);
 	free(line);
 }
 
@@ -57,9 +57,9 @@ static void		parse_spots(t_ptr *p, int fd)
 		free(line);
 		if (((i = 0) == 0) && get_next_line(fd, &line) != 1)
 			ft_error("[Error] Error in the camera parameters\n");
-		p->spots[j].pos.x = ft_parse_float(line, &i);
-		p->spots[j].pos.y = ft_parse_float(line, &i);
-		p->spots[j].pos.z = ft_parse_float(line, &i);
+		p->spots[j].pos.v[0] = ft_parse_float(line, &i);
+		p->spots[j].pos.v[1] = ft_parse_float(line, &i);
+		p->spots[j].pos.v[2] = ft_parse_float(line, &i);
 		free(line);
 	}
 }

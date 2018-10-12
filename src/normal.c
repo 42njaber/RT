@@ -6,7 +6,7 @@
 /*   By: njaber <neyl.jaber@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/16 20:35:52 by njaber            #+#    #+#             */
-/*   Updated: 2018/05/29 02:41:18 by njaber           ###   ########.fr       */
+/*   Updated: 2018/10/12 01:06:56 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,15 +31,15 @@ t_vec3		get_normal(t_obj *obj, t_vec3 v)
 
 	v = apply_mat_vec3(v, obj->transform);
 	if (obj->type == 0)
-		ret = (t_vec3){-v.x, -v.y, -v.z};
+		ret = vec3(-v.v[0], -v.v[1], -v.v[2]);
 	else if (obj->type == 1)
-		ret = (t_vec3){0, 0, copysign(1, -v.z)};
+		ret = vec3(0, 0, copysign(1, -v.v[2]));
 	else if (obj->type == 2)
-		ret = (t_vec3){-v.x, 0, -v.z};
+		ret = vec3(-v.v[0], 0, -v.v[2]);
 	else if (obj->type == 3)
-		ret = (t_vec3){-v.x, v.y, -v.z};
+		ret = vec3(-v.v[0], v.v[1], -v.v[2]);
 	else
-		ret = (t_vec3){0, 0, 1};
+		ret = vec3(0, 0, 1);
 	ret = apply_mat_vec3(ret, obj->rev_rot);
 	return (ret);
 }

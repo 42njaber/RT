@@ -6,7 +6,7 @@
 /*   By: njaber <neyl.jaber@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/16 05:31:19 by njaber            #+#    #+#             */
-/*   Updated: 2018/05/30 01:00:30 by njaber           ###   ########.fr       */
+/*   Updated: 2018/10/12 01:06:56 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,7 +42,7 @@ static int			can_trace(t_ptr *p, t_vec3 v1, t_vec3 v2)
 
 	dir = vec_sub(v2, v1);
 	len = length(dir);
-	dir = (t_vec3){dir.x / len, dir.y / len, dir.z / len};
+	dir = vec3(dir.v[0] / len, dir.v[1] / len, dir.v[2] / len);
 	i = -1;
 	while (++i < p->nobjs)
 		if (does_intersect(&p->objs[i], v1, dir, &t) && t < len)
@@ -146,7 +146,7 @@ static unsigned int	get_color(t_ptr *p, t_obj *obj, t_vec3 v, t_vec3 ray)
 	float	lum;
 
 	lum = get_luminance(p, v, get_normal(obj, v),
-			(t_vec3){-ray.x, -ray.y, -ray.z});
+			vec3(-ray.v[0], -ray.v[1], -ray.v[2]));
 	if (lum <= 1)
 		return (color_gradiant((unsigned int[2])
 				{0x00000000, obj->color}, lum));
@@ -222,19 +222,19 @@ void				process_image(t_ptr *p)
 
 	px = (t_ivec){0, 0};
 	s = 1 / tan(p->fov * 0.5 * M_PI / 180);
-	while (px.y < p->win->img.size.y)
+	while (px.v[1] < p->win->img.size.v[1])
 	{
 		color = trace(p, (t_vec3){
-				(float)(px.x - p->win->img.size.x / 2) /
-				(ft_max(p->win->img.size.x, p->win->img.size.y) / 2) / s * 1,
-				(float)(px.y - p->win->img.size.y / 2) /
-				(ft_max(p->win->img.size.x, p->win->img.size.y) / 2) / s * 1,
+				(float)(px.v[0] - p->win->img.size.v[0] / 2) /
+				(ft_max(p->win->img.size.v[0], p->win->img.size.v[1]) / 2) / s * 1,
+				(float)(px.v[1] - p->win->img.size.v[1] / 2) /
+				(ft_max(p->win->img.size.v[0], p->win->img.size.v[1]) / 2) / s * 1,
 				1});
 		img_px(&p->win->img, color, px);
-		px.x = (px.x + 1) % p->win->img.size.x;
-		if (px.x == 0)
+		px.v[0] = (px.v[0] + 1) % p->win->img.size.v[0];
+		if (px.v[0] == 0)
 			ft_printf("\rComputing image... %.1f%%",
-					(float)px.y++ / p->win->img.size.y * 100);
+					(float)px.v[1]++ / p->win->img.size.v[1] * 100);
 	}
 	ft_printf("\nFinished\n");
 }

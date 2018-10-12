@@ -6,7 +6,7 @@
 /*   By: njaber <neyl.jaber@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/23 01:35:36 by njaber            #+#    #+#             */
-/*   Updated: 2018/05/16 17:22:10 by njaber           ###   ########.fr       */
+/*   Updated: 2018/10/12 01:20:39 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,8 @@ float			sqr(float n)
 
 t_vec2			c_mult(t_vec2 z1, t_vec2 z2)
 {
-	return ((t_vec2){z1.x * z2.x - z1.y * z2.y, z1.x * z2.y + z1.y * z2.x});
+	return (vec2(z1.v[0] * z2.v[0] - z1.v[1] * z2.v[1],
+			z1.v[0] * z2.v[1] + z1.v[1] * z2.v[0]));
 }
 
 t_vec2			c_pow(t_vec2 z1, int pow)
@@ -34,5 +35,5 @@ t_vec2			c_pow(t_vec2 z1, int pow)
 
 t_vec2			c_add(t_vec2 z1, t_vec2 z2)
 {
-	return ((t_vec2){z1.x + z2.x, z1.y + z2.y});
+	return (vec2(z1.v[0] + z2.v[0], z1.v[1] + z2.v[1]));
 }

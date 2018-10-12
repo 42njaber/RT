@@ -6,11 +6,11 @@
 /*   By: njaber <neyl.jaber@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/15 08:35:05 by njaber            #+#    #+#             */
-/*   Updated: 2018/10/11 19:20:08 by njaber           ###   ########.fr       */
+/*   Updated: 2018/10/12 00:50:11 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "qwerty.h"
+#include "rt.h"
 
 int			get_key_digit(int key_code)
 {

@@ -6,7 +6,7 @@
 /*   By: njaber <neyl.jaber@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/30 01:22:13 by njaber            #+#    #+#             */
-/*   Updated: 2018/06/01 18:34:34 by njaber           ###   ########.fr       */
+/*   Updated: 2018/10/12 01:10:13 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,12 +21,12 @@
 void		generate_cam_matricies(t_ptr *p)
 {
 	identity(p->cam_mat);
-	rotate(p->cam_mat, (t_vec3){p->rot.x, 0, 0});
-	rotate(p->cam_mat, (t_vec3){0, p->rot.y, 0});
-	translate(p->cam_mat, (t_vec3){p->pos.x, p->pos.y, p->pos.z});
+	rotate(p->cam_mat, vec3(p->rot.v[0], 0, 0));
+	rotate(p->cam_mat, vec3(0, p->rot.v[1], 0));
+	translate(p->cam_mat, vec3(p->pos.v[0], p->pos.v[1], p->pos.v[2]));
 	identity(p->cam_mat_rot);
-	rotate(p->cam_mat_rot, (t_vec3){p->rot.x, 0, 0});
-	rotate(p->cam_mat_rot, (t_vec3){0, p->rot.y, 0});
+	rotate(p->cam_mat_rot, vec3(p->rot.v[0], 0, 0));
+	rotate(p->cam_mat_rot, vec3(0, p->rot.v[1], 0));
 }
 
 /*
@@ -43,19 +43,19 @@ void		generate_obj_matricies(t_ptr *p)
 	while (++i < p->nobjs)
 	{
 		identity(p->objs[i].transform);
-		translate(p->objs[i].transform, (t_vec3){-p->objs[i].pos.x,
-				-p->objs[i].pos.y, -p->objs[i].pos.z});
-		rotate(p->objs[i].transform, (t_vec3){-p->objs[i].rot.x,
-				-p->objs[i].rot.y, -p->objs[i].rot.z});
-		scale(p->objs[i].transform, (t_vec3){1 / p->objs[i].size.x,
-				1 / p->objs[i].size.y, 1 / p->objs[i].size.z});
+		translate(p->objs[i].transform, vec3(-p->objs[i].pos.v[0],
+				-p->objs[i].pos.v[1], -p->objs[i].pos.v[2]));
+		rotate(p->objs[i].transform, vec3(-p->objs[i].rot.v[0],
+				-p->objs[i].rot.v[1], -p->objs[i].rot.v[2]));
+		scale(p->objs[i].transform, vec3(1 / p->objs[i].size.v[0],
+				1 / p->objs[i].size.v[1], 1 / p->objs[i].size.v[2]));
 		identity(p->objs[i].rot_mat);
-		rotate(p->objs[i].rot_mat, (t_vec3){-p->objs[i].rot.x,
-				-p->objs[i].rot.y, -p->objs[i].rot.z});
-		scale(p->objs[i].rot_mat, (t_vec3){1 / p->objs[i].size.x,
-				1 / p->objs[i].size.y, 1 / p->objs[i].size.z});
+		rotate(p->objs[i].rot_mat, vec3(-p->objs[i].rot.v[0],
+				-p->objs[i].rot.v[1], -p->objs[i].rot.v[2]));
+		scale(p->objs[i].rot_mat, vec3(1 / p->objs[i].size.v[0],
+				1 / p->objs[i].size.v[1], 1 / p->objs[i].size.v[2]));
 		identity(p->objs[i].rev_rot);
-		rotate(p->objs[i].rev_rot, (t_vec3){p->objs[i].rot.x,
-				p->objs[i].rot.y, p->objs[i].rot.z});
+		rotate(p->objs[i].rev_rot, vec3(p->objs[i].rot.v[0],
+				p->objs[i].rot.v[1], p->objs[i].rot.v[2]));
 	}
 }

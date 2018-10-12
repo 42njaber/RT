@@ -6,7 +6,7 @@
 /*   By: njaber <neyl.jaber@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/03/16 20:23:49 by njaber            #+#    #+#             */
-/*   Updated: 2018/06/22 02:20:58 by njaber           ###   ########.fr       */
+/*   Updated: 2018/10/12 01:49:36 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,11 +21,13 @@ static int		set_init_args(t_ptr *p, t_ocl *opencl,
 	if ((kernel->memobjs = (cl_mem*)ft_memalloc(sizeof(cl_mem) * 16)) == NULL)
 		ft_error("[Erreur] Echec d'allocation mémoire.");
 	kernel->memobjs[0] = clCreateBuffer(opencl->gpu_context, CL_MEM_READ_WRITE,
-			img->line * img->size.y, NULL, &err);
+			img->line * img->size.v[1], NULL, &err);
 	kernel->memobjs[15] = clCreateBuffer(opencl->gpu_context, CL_MEM_READ_WRITE,
-			img->line * img->size.y * 16, NULL, &err);
+			img->line * img->size.v[1] * 16, NULL, &err);
 	err |= clSetKernelArg(kernel->cores[0], 0,
 			sizeof(cl_mem), (void*)&kernel->memobjs[15]);
+	err |= clSetKernelArg(kernel->cores[0], 9, sizeof(int[2]),
+			(int[2]){img->size.v[0] * 4, img->size.v[1] * 4});
 	err |= clSetKernelArg(kernel->cores[1], 0,
 			sizeof(cl_mem), (void*)&kernel->memobjs[0]);
 	err |= clSetKernelArg(kernel->cores[2], 0,

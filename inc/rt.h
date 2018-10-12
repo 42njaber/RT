@@ -6,7 +6,7 @@
 /*   By: njaber <neyl.jaber@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/20 15:19:13 by njaber            #+#    #+#             */
-/*   Updated: 2018/10/11 19:20:38 by njaber           ###   ########.fr       */
+/*   Updated: 2018/10/12 03:41:37 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,7 @@ enum e_shape
 ** type: the shape of the object
 ** pos: position of the object
 ** rot: rotation of the object subsquently around the x, y, and z axis
-** size: size of the object, can mean deiffrent things depending on the shape
+** size: scaling of the object along the 3 different axis
 ** color: RBG color of the object
 ** transform: matrix that transforms a point into the object's coordinate
 **            system
@@ -75,13 +75,10 @@ typedef struct	s_ptr {
 	t_ivec		mouse_pos;
 	t_ivec		tmp_mouse_pos;
 	int			update;
-	int			timer;
 	float		fov;
 	float		near;
 	float		far;
 	int			res;
-	int			res_min;
-	int			res_max;
 	int			nobjs;
 	int			nspots;
 	t_vec3		pos;
@@ -93,7 +90,7 @@ typedef struct	s_ptr {
 	t_spot		*spots;
 	char		brilliance;
 	char		shadows;
-	int			tmp;
+	char		max_reflections;
 }				t_ptr;
 
 void			process_image_opencl(t_ptr *p);

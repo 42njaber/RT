@@ -57,7 +57,7 @@ int					write_nb(int nb, int x, int y)
 int					logger(float16 data, int len)
 {
 	int		i;
-	int		ret;
+	int		ret = 0;
 	float	num;
 
 	i = -1;

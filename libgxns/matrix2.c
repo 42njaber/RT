@@ -6,7 +6,7 @@
 /*   By: njaber <neyl.jaber@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/03/12 17:34:43 by njaber            #+#    #+#             */
-/*   Updated: 2018/03/14 02:07:58 by njaber           ###   ########.fr       */
+/*   Updated: 2018/10/12 01:19:39 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,10 +17,10 @@ t_vec3		apply_mat_vec3(t_vec3 v, t_mat4 m)
 	t_vec3	ret;
 	float	w;
 
-	w = m[12] * v.x + m[13] * v.y + m[14] * v.z + m[15];
-	ret.x = (m[0] * v.x + m[1] * v.y + m[2] * v.z + m[3]) / w;
-	ret.y = (m[4] * v.x + m[5] * v.y + m[6] * v.z + m[7]) / w;
-	ret.z = (m[8] * v.x + m[9] * v.y + m[10] * v.z + m[11]) / w;
+	w = m[12] * v.v[0] + m[13] * v.v[1] + m[14] * v.v[2] + m[15];
+	ret.v[0] = (m[0] * v.v[0] + m[1] * v.v[1] + m[2] * v.v[2] + m[3]) / w;
+	ret.v[1] = (m[4] * v.v[0] + m[5] * v.v[1] + m[6] * v.v[2] + m[7]) / w;
+	ret.v[2] = (m[8] * v.v[0] + m[9] * v.v[1] + m[10] * v.v[2] + m[11]) / w;
 	return (ret);
 }
 

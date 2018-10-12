@@ -6,7 +6,7 @@
 /*   By: njaber <neyl.jaber@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/03/12 18:12:18 by njaber            #+#    #+#             */
-/*   Updated: 2018/05/17 02:22:56 by njaber           ###   ########.fr       */
+/*   Updated: 2018/10/12 01:19:18 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,40 +42,40 @@ void	identity(t_mat4 m)
 
 void	translate(t_mat4 m, t_vec3 v)
 {
-	m[3] += v.x * m[15];
-	m[7] += v.y * m[15];
-	m[11] += v.z * m[15];
+	m[3] += v.v[0] * m[15];
+	m[7] += v.v[1] * m[15];
+	m[11] += v.v[2] * m[15];
 }
 
 void	scale(t_mat4 m, t_vec3 v)
 {
-	m[0] *= v.x;
-	m[1] *= v.x;
-	m[2] *= v.x;
-	m[3] *= v.x;
-	m[4] *= v.y;
-	m[5] *= v.y;
-	m[6] *= v.y;
-	m[7] *= v.y;
-	m[8] *= v.z;
-	m[9] *= v.z;
-	m[10] *= v.z;
-	m[11] *= v.z;
+	m[0] *= v.v[0];
+	m[1] *= v.v[0];
+	m[2] *= v.v[0];
+	m[3] *= v.v[0];
+	m[4] *= v.v[1];
+	m[5] *= v.v[1];
+	m[6] *= v.v[1];
+	m[7] *= v.v[1];
+	m[8] *= v.v[2];
+	m[9] *= v.v[2];
+	m[10] *= v.v[2];
+	m[11] *= v.v[2];
 }
 
 void	rotate(t_mat4 m, t_vec3 v)
 {
-	v = (t_vec3){v.x / 180 * M_PI, v.y / 180 * M_PI, v.z / 180 * M_PI};
-	multiply((t_mat4){cos(v.z), -sin(v.z), 0, 0,
-						sin(v.z), cos(v.z), 0, 0,
+	v = vec3(v.v[0] / 180 * M_PI, v.v[1] / 180 * M_PI, v.v[2] / 180 * M_PI);
+	multiply((t_mat4){cos(v.v[2]), -sin(v.v[2]), 0, 0,
+						sin(v.v[2]), cos(v.v[2]), 0, 0,
 						0, 0, 1, 0,
 						0, 0, 0, 1}, m, 1);
-	multiply((t_mat4){cos(v.y), 0, -sin(v.y), 0,
+	multiply((t_mat4){cos(v.v[1]), 0, -sin(v.v[1]), 0,
 						0, 1, 0, 0,
-						sin(v.y), 0, cos(v.y), 0,
+						sin(v.v[1]), 0, cos(v.v[1]), 0,
 						0, 0, 0, 1}, m, 1);
 	multiply((t_mat4){1, 0, 0, 0,
-						0, cos(v.x), -sin(v.x), 0,
-						0, sin(v.x), cos(v.x), 0,
+						0, cos(v.v[0]), -sin(v.v[0]), 0,
+						0, sin(v.v[0]), cos(v.v[0]), 0,
 						0, 0, 0, 1}, m, 1);
 }

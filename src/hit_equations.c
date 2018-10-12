@@ -6,7 +6,7 @@
 /*   By: njaber <neyl.jaber@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/16 20:35:52 by njaber            #+#    #+#             */
-/*   Updated: 2018/05/29 02:40:11 by njaber           ###   ########.fr       */
+/*   Updated: 2018/10/12 00:58:38 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,9 +41,9 @@ static int	sphere_hit(t_vec3 ori, t_vec3 dir, float *t)
 	float	c;
 	float	d;
 
-	a = sqr(dir.x) + sqr(dir.y) + sqr(dir.z);
-	b = 2 * (ori.x * dir.x + ori.y * dir.y + ori.z * dir.z);
-	c = sqr(ori.x) + sqr(ori.y) + sqr(ori.z) - 1;
+	a = sqr(dir.v[0]) + sqr(dir.v[1]) + sqr(dir.v[2]);
+	b = 2 * (ori.v[0] * dir.v[0] + ori.v[1] * dir.v[1] + ori.v[2] * dir.v[2]);
+	c = sqr(ori.v[0]) + sqr(ori.v[1]) + sqr(ori.v[2]) - 1;
 	d = sqr(b) - 4 * a * c;
 	if (d < 0)
 		return (0);
@@ -78,14 +78,14 @@ static int	plane_hit(t_vec3 ori, t_vec3 dir, float *t)
 {
 	float	a;
 
-	if (ori.z == 0)
+	if (ori.v[2] == 0)
 	{
 		*t = 0;
 		return (1);
 	}
-	if (dir.z == 0)
+	if (dir.v[2] == 0)
 		return (0);
-	a = -ori.z / dir.z;
+	a = -ori.v[2] / dir.v[2];
 	if (a < 0)
 		return (0);
 	*t = a;
@@ -120,9 +120,9 @@ static int	cylindre_hit(t_vec3 ori, t_vec3 dir, float *t)
 	float	c;
 	float	d;
 
-	a = sqr(dir.x) + sqr(dir.z);
-	b = 2 * (ori.x * dir.x + ori.z * dir.z);
-	c = sqr(ori.x) + sqr(ori.z) - 1;
+	a = sqr(dir.v[0]) + sqr(dir.v[2]);
+	b = 2 * (ori.v[0] * dir.v[0] + ori.v[2] * dir.v[2]);
+	c = sqr(ori.v[0]) + sqr(ori.v[2]) - 1;
 	d = sqr(b) - 4 * a * c;
 	if (d < 0)
 		return (0);
@@ -165,9 +165,9 @@ static int	cone_hit(t_vec3 ori, t_vec3 dir, float *t)
 	float	c;
 	float	d;
 
-	a = sqr(dir.x) + sqr(dir.z) - sqr(dir.y);
-	b = 2 * (ori.x * dir.x + ori.z * dir.z - ori.y * dir.y);
-	c = sqr(ori.x) + sqr(ori.z) - sqr(ori.y);
+	a = sqr(dir.v[0]) + sqr(dir.v[2]) - sqr(dir.v[1]);
+	b = 2 * (ori.v[0] * dir.v[0] + ori.v[2] * dir.v[2] - ori.v[1] * dir.v[1]);
+	c = sqr(ori.v[0]) + sqr(ori.v[2]) - sqr(ori.v[1]);
 	d = sqr(b) - 4 * a * c;
 	if (d < 0)
 		return (0);

@@ -6,7 +6,7 @@
 /*   By: njaber <neyl.jaber@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/25 19:22:52 by njaber            #+#    #+#             */
-/*   Updated: 2018/06/19 02:07:11 by njaber           ###   ########.fr       */
+/*   Updated: 2018/10/12 00:58:38 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,9 +21,9 @@ static void		parse_single_obj2(t_ptr *p, int fd, int j)
 	line = NULL;
 	if ((i = 0) == 0 && get_next_line(fd, &line) != 1)
 		ft_error("[Error] Error in the camera parameters\n");
-	p->objs[j].rot.x = ft_parse_float(line, &i);
-	p->objs[j].rot.y = ft_parse_float(line, &i);
-	p->objs[j].rot.z = ft_parse_float(line, &i);
+	p->objs[j].rot.v[0] = ft_parse_float(line, &i);
+	p->objs[j].rot.v[1] = ft_parse_float(line, &i);
+	p->objs[j].rot.v[2] = ft_parse_float(line, &i);
 	free(line);
 	if ((i = 0) == 0 && get_next_line(fd, &line) != 1)
 		ft_error("[Error] Error in the camera parameters\n");
@@ -31,9 +31,9 @@ static void		parse_single_obj2(t_ptr *p, int fd, int j)
 	free(line);
 	if ((i = 0) == 0 && get_next_line(fd, &line) != 1)
 		ft_error("[Error] Error in the camera parameters\n");
-	p->objs[j].size.x = ft_parse_float(line, &i);
-	p->objs[j].size.y = ft_parse_float(line, &i);
-	p->objs[j].size.z = ft_parse_float(line, &i);
+	p->objs[j].size.v[0] = ft_parse_float(line, &i);
+	p->objs[j].size.v[1] = ft_parse_float(line, &i);
+	p->objs[j].size.v[2] = ft_parse_float(line, &i);
 	free(line);
 	if ((i = 0) == 0 && get_next_line(fd, &line) != 1)
 		ft_error("[Error] Error in the camera parameters\n");
@@ -76,9 +76,9 @@ static void		parse_single_obj1(t_ptr *p, int fd, int j)
 	i = 0;
 	if (get_next_line(fd, &line) != 1)
 		ft_error("[Error] Error in the camera parameters\n");
-	p->objs[j].pos.x = ft_parse_float(line, &i);
-	p->objs[j].pos.y = ft_parse_float(line, &i);
-	p->objs[j].pos.z = ft_parse_float(line, &i);
+	p->objs[j].pos.v[0] = ft_parse_float(line, &i);
+	p->objs[j].pos.v[1] = ft_parse_float(line, &i);
+	p->objs[j].pos.v[2] = ft_parse_float(line, &i);
 	free(line);
 	parse_single_obj2(p, fd, j);
 }

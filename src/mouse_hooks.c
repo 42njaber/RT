@@ -6,7 +6,7 @@
 /*   By: njaber <neyl.jaber@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/01/26 01:32:56 by njaber            #+#    #+#             */
-/*   Updated: 2018/06/04 21:27:44 by njaber           ###   ########.fr       */
+/*   Updated: 2018/10/12 01:12:16 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,8 +20,8 @@ int		button_press_hook(int button, int x, int y, void *parms)
 	p = (t_ptr*)parms;
 	if (button == 1)
 	{
-		p->tmp_mouse_pos = (t_ivec){x, y};
-		p->mouse_pos = (t_ivec){x, y};
+		p->tmp_mouse_pos = ivec(x, y);
+		p->mouse_pos = ivec(x, y);
 		p->origin_rot = p->rot;
 	}
 	if (button == 4 || button == 5)
@@ -46,9 +46,9 @@ int		button_release_hook(int button, int x, int y, void *parms)
 	(void)(button + x + y);
 	if (button == 1)
 	{
-		p->rot = (t_vec3){fmax(-90, fmin(90, p->origin_rot.x + (p->mouse_pos.y
-					- p->tmp_mouse_pos.y) * -0.25)), fmod(p->origin_rot.y +
-					(p->mouse_pos.x - p->tmp_mouse_pos.x) * -0.25, 360), 0};
+		p->rot = vec3(fmax(-90, fmin(90, p->origin_rot.v[0] + (p->mouse_pos.v[1]
+				- p->tmp_mouse_pos.v[1]) * -0.25)), fmod(p->origin_rot.v[1] +
+				(p->mouse_pos.v[0] - p->tmp_mouse_pos.v[0]) * -0.25, 360), 0);
 	}
 	if (button == p->button)
 		p->button = -1;
@@ -60,12 +60,12 @@ int		motion_hook(int x, int y, void *parm)
 	t_ptr	*p;
 
 	p = (t_ptr*)parm;
-	p->mouse_pos = (t_ivec){x, y};
+	p->mouse_pos = ivec(x, y);
 	if (p->button == 1)
 	{
-		p->rot = (t_vec3){fmax(-90, fmin(90, p->origin_rot.x + (p->mouse_pos.y
-					- p->tmp_mouse_pos.y) * -0.25)), fmod(p->origin_rot.y +
-					(p->mouse_pos.x - p->tmp_mouse_pos.x) * -0.25, 360), 0};
+		p->rot = vec3(fmax(-90, fmin(90, p->origin_rot.v[0] + (p->mouse_pos.v[1]
+				- p->tmp_mouse_pos.v[1]) * -0.25)), fmod(p->origin_rot.v[1] +
+				(p->mouse_pos.v[0] - p->tmp_mouse_pos.v[0]) * -0.25, 360), 0);
 		p->update = 1;
 	}
 	return (0);

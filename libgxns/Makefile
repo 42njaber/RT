@@ -1,11 +1,12 @@
-SRC = draw_fig.c \
-	  window.c \
+SRC = window.c \
 	  display_data.c \
 	  images.c \
 	  matrix.c \
 	  matrix2.c \
 	  math.c \
-	  vectors.c \
+	  vector2.c \
+	  vector3.c \
+	  gen_type.c \
 	  colors.c \
 	  util.c \
 	  gnl/get_next_line.c \
