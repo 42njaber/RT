@@ -6,35 +6,38 @@
 /*   By: njaber <neyl.jaber@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/20 14:52:32 by njaber            #+#    #+#             */
-/*   Updated: 2018/10/12 03:48:18 by njaber           ###   ########.fr       */
+/*   Updated: 2018/10/14 05:26:59 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "rt.h"
 #include <math.h>
 
+#define SPEED 20
+
 void			move(t_ptr *p)
 {
-	t_vec3		rot;
+	t_vec2		rot;
+	t_scal		fspeed;
 
-	rot = vec3(p->rot.v[0] * M_PI / 180, p->rot.v[1] * M_PI / 180,
-		p->rot.v[2] * M_PI / 180);
+	fspeed = SPEED * p->win->frame_elapsed;
+	rot = vec2(p->rot.v[0] * M_PI / 180, p->rot.v[1] * M_PI / 180);
 	if (p->keys[KEY_SPACE])
-		p->pos = vec3(p->pos.v[0], p->pos.v[1] - 0.5, p->pos.v[2]);
+		p->pos = vec3(p->pos.v[0], p->pos.v[1] - fspeed, p->pos.v[2]);
 	if (p->keys[KEY_LSHIFT])
-		p->pos = vec3(p->pos.v[0], p->pos.v[1] + 0.5, p->pos.v[2]);
+		p->pos = vec3(p->pos.v[0], p->pos.v[1] + fspeed, p->pos.v[2]);
 	if (p->keys[KEY_UP] || p->keys[KEY_W])
-		p->pos = vec3(p->pos.v[0] - 0.5 * sin(rot.v[1]), p->pos.v[1],
-			p->pos.v[2] + 0.5 * cos(rot.v[1]));
+		p->pos = vec3(p->pos.v[0] - fspeed * sin(rot.v[1]), p->pos.v[1],
+			p->pos.v[2] + fspeed * cos(rot.v[1]));
 	if (p->keys[KEY_DOWN] || p->keys[KEY_S])
-		p->pos = vec3(p->pos.v[0] + 0.5 * sin(rot.v[1]), p->pos.v[1],
-			p->pos.v[2] - 0.5 * cos(rot.v[1]));
+		p->pos = vec3(p->pos.v[0] + fspeed * sin(rot.v[1]), p->pos.v[1],
+			p->pos.v[2] - fspeed * cos(rot.v[1]));
 	if (p->keys[KEY_LEFT] || p->keys[KEY_A])
-		p->pos = vec3(p->pos.v[0] - 0.5 * cos(rot.v[1]), p->pos.v[1],
-			p->pos.v[2] - 0.5 * sin(rot.v[1]));
+		p->pos = vec3(p->pos.v[0] - fspeed * cos(rot.v[1]), p->pos.v[1],
+			p->pos.v[2] - fspeed * sin(rot.v[1]));
 	if (p->keys[KEY_RIGHT] || p->keys[KEY_D])
-		p->pos = vec3(p->pos.v[0] + 0.5 * cos(rot.v[1]), p->pos.v[1],
-			p->pos.v[2] + 0.5 * sin(rot.v[1]));
+		p->pos = vec3(p->pos.v[0] + fspeed * cos(rot.v[1]), p->pos.v[1],
+			p->pos.v[2] + fspeed * sin(rot.v[1]));
 	if (p->keys[KEY_LEFT] || p->keys[KEY_RIGHT] || p->keys[KEY_UP] ||
 			p->keys[KEY_DOWN] || p->keys[KEY_SPACE] || p->keys[KEY_LSHIFT] ||
 			p->keys[KEY_W] || p->keys[KEY_S] || p->keys[KEY_A] ||

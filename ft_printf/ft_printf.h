@@ -6,7 +6,7 @@
 /*   By: njaber <neyl.jaber@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/12/21 21:11:55 by njaber            #+#    #+#             */
-/*   Updated: 2018/05/30 03:04:43 by njaber           ###   ########.fr       */
+/*   Updated: 2018/10/14 10:03:46 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -88,8 +88,10 @@ typedef union	u_ucd {
 	wchar_t		wc;
 }				t_ucd;
 
+char			*convert(char *format, va_list args, va_list arg_t, t_buf *buf);
 int				ft_printf(const char *format, ...);
-char			*ft_printb(const char *format, ...);
+int				ft_printret(int ret, const char *format, ...);
+char			*ft_asprint(const char *format, ...);
 void			ft_error(const char *format, ...);
 char			*ft_mapper(const char *spec, va_list args, t_buf *buf);
 char			*pf_format(const char *parm, t_buf *buf, va_list arg);
@@ -111,5 +113,8 @@ void			pf_int(t_mods mods, t_byte *parm, t_buf *buf, va_list arg);
 void			pf_chr(t_mods mods, t_byte *parm, t_buf *buf, va_list arg);
 void			pf_dbl(t_mods mods, t_byte *parm, t_buf *buf, va_list arg);
 void			pf_len(t_mods mods, t_byte *parm, t_buf *buf, va_list arg);
+
+void			ft_set_error_callback(void (*func)(void *, int), void *param);
+void			ft_error_callback(void);
 
 #endif

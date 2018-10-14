@@ -6,7 +6,7 @@
 /*   By: njaber <neyl.jaber@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/29 00:39:23 by njaber            #+#    #+#             */
-/*   Updated: 2018/10/12 03:41:55 by njaber           ###   ########.fr       */
+/*   Updated: 2018/10/14 05:54:08 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,7 @@ static void			set_arg_iter_pos(t_ptr *p)
 		iter_pos.v[0] += 1;
 	if (p->res & (1 << 7))
 		iter_pos.v[1] += 1;
-	clSetKernelArg(p->kernel->cores[0], 18, sizeof(int[2]), iter_pos.v);
+	clSetKernelArg(p->kernel->cores[0], 12, sizeof(int[2]), iter_pos.v);
 }
 
 static void			set_args(t_ptr *p)
@@ -43,20 +43,14 @@ static void			set_args(t_ptr *p)
 	prog = p->kernel->cores[0];
 	clSetKernelArg(prog, 1, sizeof(cl_mem), &p->kernel->memobjs[1]);
 	clSetKernelArg(prog, 2, sizeof(cl_mem), &p->kernel->memobjs[2]);
-	clSetKernelArg(prog, 3, sizeof(cl_mem), &p->kernel->memobjs[3]);
-	clSetKernelArg(prog, 4, sizeof(cl_mem), &p->kernel->memobjs[4]);
-	clSetKernelArg(prog, 5, sizeof(cl_mem), &p->kernel->memobjs[5]);
-	clSetKernelArg(prog, 6, sizeof(cl_mem), &p->kernel->memobjs[6]);
-	clSetKernelArg(prog, 7, sizeof(cl_mem), &p->kernel->memobjs[7]);
-	clSetKernelArg(prog, 8, sizeof(cl_mem), &p->kernel->memobjs[8]);
-	clSetKernelArg(prog, 10, sizeof(float[16]), &p->cam_mat);
-	clSetKernelArg(prog, 11, sizeof(float[16]), &p->cam_mat_rot);
-	clSetKernelArg(prog, 12, sizeof(int), &p->nobjs);
-	clSetKernelArg(prog, 13, sizeof(int), &p->nspots);
-	clSetKernelArg(prog, 14, sizeof(int), (int[1]){p->max_reflections});
-	clSetKernelArg(prog, 15, sizeof(float), &p->far);
-	clSetKernelArg(prog, 16, sizeof(float), &p->fov);
-	clSetKernelArg(prog, 17, sizeof(int), &p->res);
+	clSetKernelArg(prog, 4, sizeof(float[16]), &p->cam_mat);
+	clSetKernelArg(prog, 5, sizeof(float[16]), &p->cam_mat_rot);
+	clSetKernelArg(prog, 6, sizeof(int), &p->nobjs);
+	clSetKernelArg(prog, 7, sizeof(int), &p->nspots);
+	clSetKernelArg(prog, 8, sizeof(int), (int[1]){p->max_reflections});
+	clSetKernelArg(prog, 9, sizeof(float), &p->fov);
+	clSetKernelArg(prog, 10, sizeof(float), &p->ambiant_light);
+	clSetKernelArg(prog, 11, sizeof(int), &p->res);
 	clSetKernelArg(p->kernel->cores[2], 3, sizeof(int), &p->res);
 	set_arg_iter_pos(p);
 }
@@ -67,7 +61,7 @@ void				process_image_opencl(t_ptr *p)
 	cl_event	event;
 	int			g_sz;
 
-	g_sz = sqrt(p->opencl->gpu_wg_sz);
+	g_sz = sqrt(p->opencl->gpu_wg_sz / 16);
 	if (p->kernel == NULL)
 		ft_error("Could not launch OpenCL kernel, stopping program...\n");
 	set_args(p);

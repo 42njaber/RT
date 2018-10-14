@@ -6,7 +6,7 @@
 /*   By: njaber <neyl.jaber@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/01/25 23:56:43 by njaber            #+#    #+#             */
-/*   Updated: 2018/10/12 00:49:28 by njaber           ###   ########.fr       */
+/*   Updated: 2018/10/14 07:21:19 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,36 +17,11 @@
 # include <math.h>
 # include "ft_printf.h"
 # include "libft.h"
+# include "types.h"
 
 #  include "qwerty.h"
 
 # include <OpenCL/opencl.h>
-
-typedef float			t_scal;
-
-typedef unsigned int	t_uint;
-typedef unsigned char	t_uchar;
-typedef unsigned short	t_ushort;
-
-typedef struct			s_vec2 {
-	t_scal	v[2];
-}						t_vec2;
-
-typedef struct			s_vec3 {
-	t_scal	v[3];
-}						t_vec3;
-
-typedef struct			s_vec4 {
-	t_scal	v[4];
-}						t_vec4;
-
-typedef struct			s_mat2 {
-	t_scal	m[4];
-}						t_mat2;
-
-typedef struct			s_ivec {
-	int		v[2];
-}						t_ivec;
 
 typedef struct	s_ocl {
 	cl_context			gpu_context;
@@ -68,8 +43,6 @@ typedef struct	s_kernel {
 t_ocl			*init_opencl(void);
 cl_program		create_program_from_file(cl_context context, const char *file);
 
-typedef float	t_mat4[16];
-
 typedef struct	s_img {
 	void			*link;
 	unsigned char	*buf;
@@ -87,6 +60,7 @@ typedef struct	s_win {
 	t_ivec				size;
 	int					frame;
 	float				fps;
+	t_scal				frame_elapsed;
 	unsigned long		frames[30];
 }				t_win;
 
@@ -144,5 +118,8 @@ void			draw_line(t_img *img, unsigned int *color, t_vec2 *verticies);
 unsigned int	color_gradiant(unsigned int *colors, float gradiant);
 
 int				get_key_digit(int key_code);
+void			free_and_null(void **mem);
+void			free_content(void *mem, size_t len);
+void			*combine_list(t_list *lst);
 
 #endif

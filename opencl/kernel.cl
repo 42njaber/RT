@@ -2,15 +2,12 @@
 #include "math.clh"
 #include "hit_equations.clh"
 
-int						can_trace(__global int *obj_type, __global float16 *obj_transform, __global float16	*obj_rot_mat, int nobjs, float3 v1, float3 v2);
-float4					get_point_color(__global int *obj_type, __global uchar4 *obj_color, __global float16 *obj_transform, __global float16 *obj_rot_mat,
-										__global float16 *obj_rev_rot, __global float3 *spot_pos, __global float *spot_lum, int nspots, int nobjs, int obj_hit,
-										float3 v, float3 dir);
+int						can_trace(__global t_obj *obj, int nobjs, float3 v1, float3 v2);
+float4					get_point_color(__global t_obj *objs, __global t_spot *spots, int nspots, int nobjs, int obj_hit,
+															float ambiant_light, float3 v, float3 dir);
 
 int						can_trace(
-						   __global int		*obj_type,
-						   __global float16	*obj_transform,
-						   __global float16	*obj_rot_mat,
+						   __global t_obj	*obj,
 						   int				nobjs,
 						   float3			v1,
 						   float3			v2
@@ -28,33 +25,29 @@ int						can_trace(
 	// Iterate throught all the objects to detect the first one hit by the ray
 	while (++i < nobjs)
 	{
-		ori_tmp = vec_mat_mult(obj_transform[i], v1);
-		dir_tmp = vec_mat_mult(obj_rot_mat[i], line);
+		ori_tmp = vec_mat_mult(obj[i].transform, v1);
+		dir_tmp = vec_mat_mult(obj[i].rot_mat, line);
 		len = length(dir_tmp);
 		dir_tmp = normalize(dir_tmp);
-		if (((obj_type[i] == 0 && sphere_hit(ori_tmp, dir_tmp, &tmp) == 1) ||
-			(obj_type[i] == 1 && plane_hit(ori_tmp, dir_tmp, &tmp) == 1) ||
-			(obj_type[i] == 2 && cylinder_hit(ori_tmp, dir_tmp, &tmp) == 1) ||
-			(obj_type[i] == 3 && cone_hit(ori_tmp, dir_tmp, &tmp) == 1) ||
-			(obj_type[i] == 4 && torus_hit(ori_tmp, dir_tmp, &tmp) == 1) ||
-			(obj_type[i] == 5 && moebius_hit(ori_tmp, dir_tmp, &tmp) == 1)) &&
-				tmp < len - 0.0001)
+		if (((obj[i].type == SPHERE && sphere_hit(ori_tmp, dir_tmp, &tmp) == 1) ||
+			(obj[i].type == PLANE && plane_hit(ori_tmp, dir_tmp, &tmp) == 1) ||
+			(obj[i].type == CYLINDER && cylinder_hit(ori_tmp, dir_tmp, &tmp) == 1) ||
+			(obj[i].type == CONE && cone_hit(ori_tmp, dir_tmp, &tmp) == 1) ||
+			(obj[i].type == TORUS && torus_hit(ori_tmp, dir_tmp, &tmp) == 1) ||
+			(obj[i].type == MOEBIUS && moebius_hit(ori_tmp, dir_tmp, &tmp) == 1)) &&
+				tmp < len - 0.01)
 			return (0);
 	}
 	return (1);
 }
 
 float4					get_point_color(
-								   __global int *obj_type,
-								   __global uchar4 *obj_color,
-								   __global float16 *obj_transform,
-								   __global float16 *obj_rot_mat,
-								   __global float16 *obj_rev_rot,
-								   __global float3 *spot_pos,
-								   __global float *spot_lum,
+								   __global t_obj *objs,
+								   __global t_spot *spots,
 								   int nspots,
 								   int nobjs,
 								   int obj_hit,
+								   float ambiant_light,
 								   float3 v,
 								   float3 dir
 								  )
@@ -68,45 +61,41 @@ float4					get_point_color(
 	float4			color;
 	int				i;
 
-	lum = 0.15;
+	lum = ambiant_light;
 	brilliance = 0;
 	i = -1;
-	normal = get_normal(obj_type[obj_hit], obj_transform[obj_hit], obj_rev_rot[obj_hit], v, dir);
+	normal = get_normal(objs + obj_hit, v, dir);
 	while (++i < nspots)
-		if (can_trace(obj_type, obj_transform, obj_rot_mat, nobjs, spot_pos[i], v))
+		if (can_trace(objs, nobjs, spots[i].pos, v))
 		{
-			r_in = v - spot_pos[i];
+			r_in = v - spots[i].pos;
 			a_in = dot(normalize(r_in), normal);
 			//r_out = normalize(normalize(r_in) - (normal * 2 * a_in));
 			//brilliance = pow(dot(normalize(r_in), normal) , (float)400);
 			if (a_in > 0)
-				lum += spot_lum[i] * a_in / pow(length(r_in), (float)2) + brilliance * spot_lum[i];
+				lum += spots[i].lum * a_in / pow(length(r_in), (float)2) + brilliance * spots[i].lum;
 		}
-	color = (float4)(lum * ((float)1 + obj_color[obj_hit].r) / 255, lum * ((float)1 + obj_color[obj_hit].g) / 255,
-					lum * ((float)1 + obj_color[obj_hit].b) / 255, lum * ((float)1 + obj_color[obj_hit].a) / 255);
+	color = (float4)(lum * ((float)1 + objs[obj_hit].color.r) / 255, lum * ((float)1 + objs[obj_hit].color.g) / 255,
+					lum * ((float)1 + objs[obj_hit].color.b) / 255, lum * ((float)1 + objs[obj_hit].color.a) / 255);
 	//if (fabs(fmod(v.x + 0.2, (float)20)) < 0.03 || fabs(fmod(v.y + 0.2, (float)20)) < 0.03 || fabs(fmod(v.z + 0.2, (float)20)) < 0.03)
 		//color = 1 / color;
 	return (color);
 }
 
+#include "debug.clh"
+
 __kernel void			process_image(
 						   __global uchar4	*buf,
-						   __global int		*obj_type,
-						   __global uchar4	*obj_color,
-						   __global float16	*obj_transform,
-						   __global float16	*obj_rot_mat,
-						   __global float16	*obj_rev_rot,
-						   __global float	*obj_reflectivness,
-						   __global float	*spot_lum,
-						   __global float3	*spot_pos,
+						   __global t_obj	*objs,
+						   __global t_spot	*spots,
 						   int2				img_size,
 						   float16			cam_mat,
 						   float16			cam_mat_rot,
 						   int				nobjs,
 						   int				nspots,
 						   int				max_rays,
-						   float			far,
 						   float			fov,
+						   float			ambiant_light,
 						   int				iter,
 						   int2				iter_pos
 						  )
@@ -152,26 +141,26 @@ __kernel void			process_image(
 		float3			v;
 
 		i = -1;
-		hit = far + 1;
+		hit = -1;
 		obj_hit = -1;
 		while (++i < nobjs)
 		{
-			ori_tmp = vec_mat_mult(obj_transform[i], ori);
-			dir_tmp = vec_mat_mult(obj_rot_mat[i], dir);
-			if (((obj_type[i] == 0 && sphere_hit(ori_tmp, dir_tmp, &tmp) == 1) ||
-				(obj_type[i] == 1 && plane_hit(ori_tmp, dir_tmp, &tmp) == 1) ||
-				(obj_type[i] == 2 && cylinder_hit(ori_tmp, dir_tmp, &tmp) == 1) ||
-				(obj_type[i] == 3 && cone_hit(ori_tmp, dir_tmp, &tmp) == 1) ||
-				(obj_type[i] == 4 && torus_hit(ori_tmp, dir_tmp, &tmp) == 1) ||
-				(obj_type[i] == 5 && moebius_hit(ori_tmp, dir_tmp, &tmp) == 1)) &&
-					tmp < hit)
+			ori_tmp = vec_mat_mult(objs[i].transform, ori);
+			dir_tmp = vec_mat_mult(objs[i].rot_mat, dir);
+			if (((objs[i].type == SPHERE && sphere_hit(ori_tmp, dir_tmp, &tmp)) ||
+				(objs[i].type == PLANE && plane_hit(ori_tmp, dir_tmp, &tmp)) ||
+				(objs[i].type == CYLINDER && cylinder_hit(ori_tmp, dir_tmp, &tmp)) ||
+				(objs[i].type == CONE && cone_hit(ori_tmp, dir_tmp, &tmp)) ||
+				(objs[i].type == TORUS && torus_hit(ori_tmp, dir_tmp, &tmp)) ||
+				(objs[i].type == MOEBIUS && moebius_hit(ori_tmp, dir_tmp, &tmp))) &&
+					(hit < 0 || tmp < hit))
 			{
 				hit = tmp;
 				obj_hit = i;
 			}
 		}
 
-		// Creates à halo of light when ray passes close to a spot
+		// Creates à halo of light when ray passes close to a spots
 		float	shine;
 		float	spot_dist;
 		float3	halo_pos;
@@ -179,35 +168,32 @@ __kernel void			process_image(
 		i = -1;
 		while (++i < nspots)
 		{
-			spot_dist = distance(ori, spot_pos[i]);
+			spot_dist = distance(ori, spots[i].pos);
 			if (spot_dist < hit)
 			{
 				halo_pos = ori + dir * spot_dist;
-				shine = spot_lum[i] / pow(distance(halo_pos, spot_pos[i]), 5);
+				shine = spots[i].lum / pow(distance(halo_pos, spots[i].pos), 5);
 				color += (float4)shine;
 			}
 		}
 
 		// If the closest object hit is closer then the far plane, calculate the luminosity add it tu the color value
-		v = ori + dir * hit;
-		if (hit < far)
+		if (obj_hit != -1)
 		{
-			color += get_point_color(obj_type, obj_color, obj_transform, obj_rot_mat, obj_rev_rot, spot_pos, spot_lum,
-					nspots, nobjs, obj_hit, v, dir) * (reflect_amount  * (1 - obj_reflectivness[obj_hit]));
-			reflect_amount *= obj_reflectivness[obj_hit];
+			v = ori + dir * hit;
+			color += get_point_color(objs, spots, nspots, nobjs, obj_hit, ambiant_light, v, dir) * reflect_amount; // * (1 - obj_reflectivness[obj_hit]));
+			reflect_amount *= objs[obj_hit].reflect;
 
 			// Calculates the reflected ray
 			if (reflected < max_rays && reflect_amount > 0.05)
 			{
 				float3		normal;
 
-				normal = get_normal(obj_type[obj_hit], obj_transform[obj_hit], obj_rev_rot[obj_hit], v, dir);
+				normal = get_normal(objs + obj_hit, v, dir);
 				dir = normalize(dir - (normal * 2 * dot(dir, normal)));
 				ori = v;
 			}
 		}
-		else
-			break ;
 	}
 
 	color = color / (color + 1); 

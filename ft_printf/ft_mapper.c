@@ -6,7 +6,7 @@
 /*   By: njaber <neyl.jaber@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/12/21 21:57:49 by njaber            #+#    #+#             */
-/*   Updated: 2018/05/30 02:58:13 by njaber           ###   ########.fr       */
+/*   Updated: 2018/10/02 03:53:07 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -130,8 +130,8 @@ char				*ft_mapper(const char *spec, va_list args, t_buf *buf)
 		else if ((*spec >= '1' && *spec <= '9') || *spec == '*' || *spec == '.')
 			pf_atoi((char**)&spec, args, &mods);
 		else if (g_cast[(int)*spec])
-			mods.cast = *(++spec) != 1 && *spec == g_cast[(int)*(spec - 1)] &&
-				spec++ ? -*(spec - 2) : *(spec - 1);
+			mods.cast = (*(++spec) != 1 && *spec == g_cast[(int)*(spec - 1)] &&
+				spec++) ? -*(spec - 2) : *(spec - 1);
 		else
 			break ;
 	}

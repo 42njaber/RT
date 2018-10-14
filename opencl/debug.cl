@@ -21,9 +21,11 @@ int					write_nb(int nb, int x, int y)
 	int		buf_pos;
 
 	px = (int2)(get_global_id(0), get_global_id(1));
-	if (px.x >= x && px.x < x + 8 && px.y >= y && px.y < y + 8)
+	x /= 2;
+	y /= 2;
+	if (px.x >= x && px.x < x + 4 && px.y >= y && px.y < y + 4)
 	{
-		buf_pos = (px.x - x) / 2 + 4 * ((px.y - y) / 2);
+		buf_pos = (px.x - x) + 4 * (px.y - y);
 		if (nb == -3 && nb_minus[buf_pos] == 'X')
 			return (1);
 		else if (nb == -1 && nb_plus[buf_pos] == 'X')

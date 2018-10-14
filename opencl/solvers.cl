@@ -64,29 +64,26 @@ float3					cubic_solver(float3 parm)
 	float	p;
 	float	q;
 	float	delta;
+	float	sqrdelta;
 	float	root3;
 	float	tmp1;
 	float	tmp2;
 	float	sub;
 
 	root = NAN;
-	p = parm.y - pow(parm.x, 2) / 3;
-	q = 2 * pow(parm.x, 3) / 27 - parm.y * parm.x / 3 + parm.z;
+	p = parm.y - parm.x * parm.x / 3;
+	q = 2 * parm.x * parm.x * parm.x / 27 - parm.y * parm.x / 3 + parm.z;
 	sub = -parm.x / 3;
-	delta = pow(q, 2) / 4 + pow(p, 3) / 27;
+	delta = q * q / 4 + p * p * p / 27;
+	sqrdelta = sqrt(delta);
 	if (delta > 0)
-		root.s0 = cbrt(-q / 2 + sqrt(delta)) + cbrt(-q / 2 - sqrt(delta)) + sub;
-	else if (delta == 0)
-	{
-		root.s0 = -2 * cbrt(q / 2) + sub;
-		root.s1 = cbrt(q / 2) + sub;
-	}
+		root.s0 = cbrt(-q / 2 + sqrdelta) + cbrt(-q / 2 - sqrdelta) + sub;
 	else
 	{
 		root3 = sqrt((float)3);
 		tmp2 = sqrt(-p);
 		tmp1 = (2 / root3) * tmp2;
-		tmp2 = asin((3 * root3 * q) / (2 * pow(tmp2, 3))) / 3;
+		tmp2 = asin((3 * root3 * q) / (2 * tmp2 * tmp2 * tmp2)) / 3;
 		root.s0 = tmp1 * sin(tmp2) + sub;
 		root.s1 = -tmp1 * sin(tmp2 + M_PI_F / 3) + sub;
 		root.s2 = tmp1 * cos(tmp2 + M_PI_F / 6) + sub;
@@ -100,14 +97,9 @@ float2					quadratic_solver(float2 parm)
 	float2	root;
 
 	root = NAN;
-	delta = pow(parm.x, 2) - 4 * parm.y;
+	delta = parm.x * parm.x - 4 * parm.y;
 	if (delta < 0)
 		return (root);
-	else if (delta == 0)
-	{
-		root.s1 = -parm.x / 2;
-		return (root);
-	}
 	root.s0 = (-parm.x - sqrt(delta)) / 2;
 	root.s1 = (-parm.x + sqrt(delta)) / 2;
 	return (order(root));

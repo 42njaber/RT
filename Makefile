@@ -1,8 +1,10 @@
 FILES = main.c \
-		read_cfg.c \
-		parse_objs.c \
-		cfg_default.c \
+		read_scene.c \
+		read_xml.c \
+		parse_nodes.c \
+		parse.c \
 		init.c \
+		util.c \
 		gen_matricies.c \
 		loop_hook.c \
 		key_hooks.c \
@@ -10,12 +12,14 @@ FILES = main.c \
 		hooks.c \
 		load_opencl.c \
 		display_opencl.c \
+		hash_map.c \
+		hash_map2.c \
 		buf_handler.c
 
 CFLAGS = -Llibgxns -lgxns -framework OpenGL -framework AppKit -framework OpenCL
+FLAGS = -Wall -Wextra -Werror -Iinc/
 
 KEYBOARD = QWERTY
-
 MACROS = -D $(KEYBOARD)
 
 SRC_DIR = src
@@ -26,8 +30,13 @@ NAME = rt
 OBJ_DIR = obj
 OBJ = $(FILES:%.c=$(OBJ_DIR)/%.o)
 
+ifdef DEB
+FLAGS += -fsanitize=address -g3
+CFLAGS += -fsanitize=address -g3
+endif
+
+INC = inc/rt.h inc/types.h inc/libgxns.h inc/common.h
 LIB = libgxns/libgxns.a
-FLAGS = -Wall -Wextra -Werror -Iinc/
 CC = gcc
 RM = @rm -fv
 TEST_FILE = test.out
@@ -41,11 +50,11 @@ force:
 libgxns/libgxns.a: force
 	make -C libgxns/
 
-$(OBJ_DIR)/%.o: $(SRC_DIR)/%.c inc/rt.h
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.c $(INC)
 	@mkdir $(OBJ_DIR) &> /dev/null || true
 	$(CC) $(FLAGS) -o $@ -c $< $(MACROS) 
 
-$(NAME): $(LIB) $(OBJ) Makefile inc/rt.h
+$(NAME): $(LIB) $(OBJ) Makefile $(INC)
 	$(CC) $(CFLAGS) -o $@ $(OBJ)
 
 soft_clean:

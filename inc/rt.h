@@ -6,7 +6,7 @@
 /*   By: njaber <neyl.jaber@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/20 15:19:13 by njaber            #+#    #+#             */
-/*   Updated: 2018/10/12 03:41:37 by njaber           ###   ########.fr       */
+/*   Updated: 2018/10/14 11:24:46 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,56 +14,22 @@
 # define RT_H
 
 # include "libgxns.h"
+# include "common.h"
 
-enum e_shape
-{
-	SPHERE,
-	PLANE,
-	CYLINDER,
-	CONE,
-	TORUS,
-	MOEBIUS
-};
+extern const char	*g_nul;
 
-/*
-** A structure defining an object in a scene
-**
-** type: the shape of the object
-** pos: position of the object
-** rot: rotation of the object subsquently around the x, y, and z axis
-** size: scaling of the object along the 3 different axis
-** color: RBG color of the object
-** transform: matrix that transforms a point into the object's coordinate
-**            system
-** rot_mat: matrix that transforms a vector into the object's coordinate
-**          system
-** rev_rot: matrix that transforms a vector back into the mains coordinate
-**          system
-*/
+typedef struct			s_hmap {
+	void	**elements;
+	char	**keys;
+	size_t	prebuf_size;
+	size_t	elem_count;
+}						t_hmap;
 
-typedef struct	s_obj {
-	int				type;
-	t_vec3			pos;
-	t_vec3			rot;
-	t_vec3			size;
-	unsigned int	color;
-	float			reflect;
-	t_mat4			transform;
-	t_mat4			rot_mat;
-	t_mat4			rev_rot;
-}				t_obj;
-
-/*
-** A structure defining a spot in the scene
-**
-** pos: position of the object
-** lum: the amount of light emitted by the spot
-*/
-
-typedef struct	s_spot {
-	t_vec3			pos;
-	float			lum;
-}				t_spot;
+typedef struct			s_node {
+	char	name[32];
+	t_hmap	values;
+	char	type;
+}						t_node;
 
 typedef struct	s_ptr {
 	t_win		*win;
@@ -78,16 +44,19 @@ typedef struct	s_ptr {
 	float		fov;
 	float		near;
 	float		far;
+	float		ambiant_light;
 	int			res;
 	int			nobjs;
 	int			nspots;
-	t_vec3		pos;
-	t_vec3		origin_rot;
-	t_vec3		rot;
-	t_mat4		cam_mat;
-	t_mat4		cam_mat_rot;
+	int			obj_pbufsize;
+	int			spot_pbufsize;
 	t_obj		*objs;
 	t_spot		*spots;
+	t_vec3		pos;
+	t_vec2		origin_rot;
+	t_vec2		rot;
+	t_mat4		cam_mat;
+	t_mat4		cam_mat_rot;
 	char		brilliance;
 	char		shadows;
 	char		max_reflections;
@@ -99,13 +68,34 @@ void			create_spot_memobjs(t_ptr *p);
 void			create_obj_memobjs(t_ptr *p);
 t_kernel		*create_kernel(t_ptr *p);
 
+int				parse_scene_file(t_ptr *p, int fd);
+t_scal			parsef(char **pos);
+t_vec2			parse2f(char **pos);
+t_vec3			parse3f(char **pos);
+t_color			parsecolor(char **pos);
+int				parsetype(char **pos);
+
+int				get_next_xml_node(t_node *tag, char **pos, char strict);
+void			xml_set_read_buf(char *file, int len);
+
+int				default_check_node(t_ptr *p, t_node *onode, char **pos);
+int				parse_config_node(t_ptr *p, t_node *onode, char **pos);
+int				parse_objlist_node(t_ptr *p, t_node *onode, char **pos);
+int				parse_spotlist_node(t_ptr *p, t_node *onode, char **pos);
+
+t_spot			*default_spot(t_ptr *p);
+t_obj			*default_obj(t_ptr *p);
+
 void			init_struct(t_ptr *p);
 void			set_hooks(t_ptr *p);
-void			parse_scene_file(t_ptr *p, int fd);
-void			parse_objs(t_ptr *p, int fd);
-void			set_default_scene(t_ptr *p, char *def);
 
 int				loop_hook(void *parm);
+
+void			destroy_hmap(t_hmap *hmap, void (*del)(void**));
+void			reset_hmap(t_hmap *hmap, void (*del)(void**));
+void			init_hmap(t_hmap *hmap);
+void			*get_helem(t_hmap *hmap, char *key);
+void			add_helem(t_hmap *hmap, char *key, void *data);
 
 int				button_press_hook(int button, int x, int y, void *parms);
 int				button_release_hook(int button, int x, int y, void *parms);

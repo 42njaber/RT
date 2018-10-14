@@ -6,7 +6,7 @@
 /*   By: njaber <neyl.jaber@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/18 17:01:19 by njaber            #+#    #+#             */
-/*   Updated: 2018/10/12 01:21:27 by njaber           ###   ########.fr       */
+/*   Updated: 2018/10/14 09:52:47 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -80,25 +80,29 @@ static void		launch_window(t_ptr *p)
 ** to start the display
 */
 
+static void		error_callback(void *data, int status)
+{
+	(void)data;
+	exit(status);
+}
+
 int				main(int argc, char **argv)
 {
 	t_ptr	p;
 	int		fd;
 
+	ft_set_error_callback(error_callback, &p);
 	if (argc < 2 || ft_strcmp(argv[1], "help") == 0)
 	{
-		ft_printf("Usage : rt <help|default|scene-description-file>"
-				"[-brilliance=off|reflected-camera|incident-normal]"
-				"[-shadows=on|off] [-fov=number]\n");
+		ft_printf("Usage : rt <scene.xml>");
 		return (0);
 	}
-	else if (ft_strcmp(argv[1], "default") == 0)
-		set_default_scene(&p, (char[3]){1, 1, 1});
 	else
 	{
 		if ((fd = open(argv[1], O_RDONLY)) < 0)
 			ft_error("[Error] Could not open the configuration file\n");
-		parse_scene_file(&p, fd);
+		if (parse_scene_file(&p, fd) != EXIT_SUCCESS)
+			ft_error("Failed to read map\n");
 		close(fd);
 	}
 	if ((p.mlx = mlx_init()) == 0)

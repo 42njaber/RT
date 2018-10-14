@@ -1,0 +1,133 @@
+
+<config>
+	<start_pos>0 0 0</start_pos>
+	<start_rotation>0 0</start_rotation>
+	<ambiant_light>0.2</ambiant_light>
+</config>
+
+<spotlist>
+	<spot>
+		<lum>1000</lum>
+		<pos>47 -5 10</pos>
+	</spot>
+	<spot>
+		<lum>1000</lum>
+		<pos>-47 -5 10</pos>
+	</spot>
+</spotlist>
+
+<!-- Test commentaire -->
+<objlist>
+	<obj>
+		<type>plane</type>
+		<pos>0 0 77</pos>
+		<rot>0 0 0</rot>
+		<color>4444FF</color>
+	</obj>
+	<obj>
+		<type>plane</type>
+		<pos>0 -10 0</pos>
+		<rot>90 0 0</rot>
+		<color>BBAA77</color>
+	</obj>
+	<obj>
+		<type>plane</type>
+		<pos>0 20 0</pos>
+		<rot>90 0 0</rot>
+		<color>776655</color>
+	</obj>
+
+	<obj>
+		<type>sphere</type>
+		<pos>0 15 40</pos>
+		<color>771717</color>
+		<scale>5 5 5</scale>
+		<reflect>0.5</reflect>
+	</obj>
+
+	<obj>
+		<type>cylinder</type>
+		<pos>-20 0 35</pos>
+		<color>777777</color>
+		<scale>3.5 1 3.5</scale>
+		<reflect>0.5</reflect>
+	</obj>
+	<obj>
+		<type>cylinder</type>
+		<pos>20 0 35</pos>
+		<color>777777</color>
+		<scale>3.5 1 3.5</scale>
+		<reflect>0.5</reflect>
+	</obj>
+	<obj>
+		<type>cylinder</type>
+		<pos>-20 0 60</pos>
+		<color>777777</color>
+		<scale>3.5 1 3.5</scale>
+		<reflect>0.5</reflect>
+	</obj>
+	<obj>
+		<type>cylinder</type>
+		<pos>20 0 60</pos>
+		<color>777777</color>
+		<scale>3.5 1 3.5</scale>
+		<reflect>0.5</reflect>
+	</obj>
+
+	<obj>
+		<type>sphere</type>
+		<pos>-20 20 35</pos>
+		<color>333333</color>
+		<scale>6 6 6</scale>
+		<reflect>0.75</reflect>
+	</obj>
+	<obj>
+		<type>sphere</type>
+		<pos>20 20 35</pos>
+		<color>333333</color>
+		<scale>6 6 6</scale>
+		<reflect>0.75</reflect>
+	</obj>
+	<obj>
+		<type>sphere</type>
+		<pos>-20 20 60</pos>
+		<color>333333</color>
+		<scale>6 6 6</scale>
+		<reflect>0.75</reflect>
+	</obj>
+	<obj>
+		<type>sphere</type>
+		<pos>20 20 60</pos>
+		<color>333333</color>
+		<scale>6 6 6</scale>
+		<reflect>0.75</reflect>
+	</obj>
+	<obj>
+		<type>sphere</type>
+		<pos>-20 -10 35</pos>
+		<color>333333</color>
+		<scale>6 6 6</scale>
+		<reflect>0.75</reflect>
+	</obj>
+	<obj>
+		<type>sphere</type>
+		<pos>20 -10 35</pos>
+		<color>333333</color>
+		<scale>6 6 6</scale>
+		<reflect>0.75</reflect>
+	</obj>
+	<obj>
+		<type>sphere</type>
+		<pos>-20 -10 60</pos>
+		<color>333333</color>
+		<scale>6 6 6</scale>
+		<reflect>0.75</reflect>
+	</obj>
+	<obj>
+		<type>sphere</type>
+		<pos>20 -10 60</pos>
+		<color>333333</color>
+		<scale>6 6 6</scale>
+		<reflect>0.75</reflect>
+	</obj>
+</objlist>

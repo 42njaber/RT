@@ -6,7 +6,7 @@
 /*   By: njaber <neyl.jaber@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/01/26 01:32:56 by njaber            #+#    #+#             */
-/*   Updated: 2018/10/12 01:12:16 by njaber           ###   ########.fr       */
+/*   Updated: 2018/10/14 05:27:17 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,9 +46,9 @@ int		button_release_hook(int button, int x, int y, void *parms)
 	(void)(button + x + y);
 	if (button == 1)
 	{
-		p->rot = vec3(fmax(-90, fmin(90, p->origin_rot.v[0] + (p->mouse_pos.v[1]
+		p->rot = vec2(fmax(-90, fmin(90, p->origin_rot.v[0] + (p->mouse_pos.v[1]
 				- p->tmp_mouse_pos.v[1]) * -0.25)), fmod(p->origin_rot.v[1] +
-				(p->mouse_pos.v[0] - p->tmp_mouse_pos.v[0]) * -0.25, 360), 0);
+				(p->mouse_pos.v[0] - p->tmp_mouse_pos.v[0]) * -0.25, 360));
 	}
 	if (button == p->button)
 		p->button = -1;
@@ -63,9 +63,9 @@ int		motion_hook(int x, int y, void *parm)
 	p->mouse_pos = ivec(x, y);
 	if (p->button == 1)
 	{
-		p->rot = vec3(fmax(-90, fmin(90, p->origin_rot.v[0] + (p->mouse_pos.v[1]
+		p->rot = vec2(fmax(-90, fmin(90, p->origin_rot.v[0] + (p->mouse_pos.v[1]
 				- p->tmp_mouse_pos.v[1]) * -0.25)), fmod(p->origin_rot.v[1] +
-				(p->mouse_pos.v[0] - p->tmp_mouse_pos.v[0]) * -0.25, 360), 0);
+				(p->mouse_pos.v[0] - p->tmp_mouse_pos.v[0]) * -0.25, 360));
 		p->update = 1;
 	}
 	return (0);

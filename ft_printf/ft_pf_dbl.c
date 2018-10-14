@@ -6,7 +6,7 @@
 /*   By: njaber <neyl.jaber@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/12/26 18:08:23 by njaber            #+#    #+#             */
-/*   Updated: 2018/01/19 12:25:07 by njaber           ###   ########.fr       */
+/*   Updated: 2018/10/02 03:11:00 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,10 +16,8 @@ static void	put_fract_hex(t_dbl d, t_mods mods, t_byte *parm, t_buf *buf)
 {
 	const char		*base;
 	size_t			fract;
-	size_t			exp;
 
 	str_totmpbuf(parm[1] ? "0X" : "0x", 2, buf, 0);
-	exp = 0;
 	fract = (d.l & 0x000fffffffffffff) << 12;
 	base = g_base[16 + parm[1]];
 	if (d.d != 0)
@@ -29,8 +27,9 @@ static void	put_fract_hex(t_dbl d, t_mods mods, t_byte *parm, t_buf *buf)
 		chr_totmpbuf('0', 1, buf, 0);
 	if (mods.prec != 0)
 		chr_totmpbuf('.', 1, buf, 0);
-	fract += (unsigned long)(mods.prec > 0 && ((fract >> (56 - mods.prec * 4))
-		& 0xFF) > 0x80) << (64 - mods.prec * 4);
+	if ((unsigned long)mods.prec > 0)
+		fract += (((fract >> (56 - mods.prec * 4))
+			& 0xFF) > 0x80) << (64 - mods.prec * 4);
 	while ((mods.prec < 0 && fract != 0) || mods.prec-- > 0)
 	{
 		chr_totmpbuf(base[((fract >> 60) & 0xF)], 1, buf, 0);

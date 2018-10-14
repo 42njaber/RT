@@ -6,7 +6,7 @@
 /*   By: njaber <neyl.jaber@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/20 16:00:11 by njaber            #+#    #+#             */
-/*   Updated: 2018/10/12 03:43:02 by njaber           ###   ########.fr       */
+/*   Updated: 2018/10/14 05:26:09 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@ static void		print_data(t_ptr *p)
 {
 	display_data_scal(p->win, "FPS:", p->win->fps, 10);
 	display_data_vec3(p->win, "Positon:", p->pos, 30);
-	display_data_vec3(p->win, "Rotation:", p->rot, 50);
+	display_data_vec2(p->win, "Rotation:", p->rot, 50);
 	display_data_scal(p->win, "Resolution:", (float)p->res / 2.55, 70);
 	display_data_scal(p->win, "Reflections:", (float)p->max_reflections, 90);
 }
@@ -42,7 +42,7 @@ static void		read_buffer(t_ptr *p)
 
 void			update_image(t_ptr *p)
 {
-    clFinish(p->opencl->gpu_command_queue);
+	clFinish(p->opencl->gpu_command_queue);
 	if (p->update)
 	{
 		p->res = 0;

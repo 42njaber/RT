@@ -1,0 +1,16 @@
+
+#ifndef COMMON_CLH
+# define COMMON_CLH
+
+# define t_scal float
+# define t_vec3 float3
+# define t_mat4 float16
+# define t_color uchar4
+
+# include "../inc/common.h"
+
+# undef t_scal
+# undef t_vec3
+# undef t_mat4
+
+#endif

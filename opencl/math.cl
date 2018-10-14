@@ -43,16 +43,10 @@ float3 __OVERLOAD__		order(float3 in)
 {
 	float3	out;
 
-	if (in.x < in.y || isnan(in.y))
-		out.xy = in.xy;
-	else
-		out.xy = in.yx;
-	if (in.z < out.x || isnan(out.x))
-		out = (float3)(in.z, out.xy);
-	else if (in.z < out.y || isnan(out.y))
-		out = (float3)(out.x, in.z, out.y);
-	else
-		out.z = in.z;
+	out.x = fmin(fmin(in.x, in.y), in.z);
+	out.y = in.x < in.y ? (in.y < in.z ? in.y : in.x < in.z ? in.z : in.z) :
+							(in.x < in.z ? in.x : in.y < in.z ? in.z : in.y);
+	out.z = fmax(fmax(in.x, in.y), in.z);
 	return (out);
 }
 
