@@ -1,20 +1,22 @@
 FILES = main.c \
 		read_scene.c \
 		read_xml.c \
+		read_path.c \
 		parse_nodes.c \
 		parse.c \
 		init.c \
+		scenes.c \
+		setup_view.c \
+		switch_scene.c \
+		gen_thumbnails.c \
 		util.c \
-		gen_matricies.c \
+		gen_matrices.c \
 		loop_hook.c \
 		key_hooks.c \
 		mouse_hooks.c \
 		hooks.c \
 		load_opencl.c \
-		display_opencl.c \
-		hash_map.c \
-		hash_map2.c \
-		buf_handler.c
+		display_opencl.c
 
 CFLAGS = -Llibgxns -lgxns -framework OpenGL -framework AppKit -framework OpenCL
 FLAGS = -Wall -Wextra -Werror -Iinc/

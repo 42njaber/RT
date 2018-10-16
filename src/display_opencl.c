@@ -6,78 +6,105 @@
 /*   By: njaber <neyl.jaber@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/29 00:39:23 by njaber            #+#    #+#             */
-/*   Updated: 2018/10/14 05:54:08 by njaber           ###   ########.fr       */
+/*   Updated: 2018/10/16 14:56:22 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "rt.h"
 
-static void			set_arg_iter_pos(t_ptr *p)
+static void			set_arg_iter_pos(t_view *view)
 {
 	t_ivec	iter_pos;
 
 	iter_pos = ivec(0, 0);
-	if (p->res & (1 << 0))
+	if (view->set.iter & (1 << 0))
 		iter_pos.v[0] += 8;
-	if (p->res & (1 << 1))
+	if (view->set.iter & (1 << 1))
 		iter_pos.v[1] += 8;
-	if (p->res & (1 << 2))
+	if (view->set.iter & (1 << 2))
 		iter_pos.v[0] += 4;
-	if (p->res & (1 << 3))
+	if (view->set.iter & (1 << 3))
 		iter_pos.v[1] += 4;
-	if (p->res & (1 << 4))
+	if (view->set.iter & (1 << 4))
 		iter_pos.v[0] += 2;
-	if (p->res & (1 << 5))
+	if (view->set.iter & (1 << 5))
 		iter_pos.v[1] += 2;
-	if (p->res & (1 << 6))
+	if (view->set.iter & (1 << 6))
 		iter_pos.v[0] += 1;
-	if (p->res & (1 << 7))
+	if (view->set.iter & (1 << 7))
 		iter_pos.v[1] += 1;
-	clSetKernelArg(p->kernel->cores[0], 12, sizeof(int[2]), iter_pos.v);
+	view->set.iter_pos = iter_pos;
 }
 
-static void			set_args(t_ptr *p)
+static void			set_args(t_view *view, t_kernel *kernel)
 {
-	cl_kernel	prog;
+	cl_kernel	process;
 
-	prog = p->kernel->cores[0];
-	clSetKernelArg(prog, 1, sizeof(cl_mem), &p->kernel->memobjs[1]);
-	clSetKernelArg(prog, 2, sizeof(cl_mem), &p->kernel->memobjs[2]);
-	clSetKernelArg(prog, 4, sizeof(float[16]), &p->cam_mat);
-	clSetKernelArg(prog, 5, sizeof(float[16]), &p->cam_mat_rot);
-	clSetKernelArg(prog, 6, sizeof(int), &p->nobjs);
-	clSetKernelArg(prog, 7, sizeof(int), &p->nspots);
-	clSetKernelArg(prog, 8, sizeof(int), (int[1]){p->max_reflections});
-	clSetKernelArg(prog, 9, sizeof(float), &p->fov);
-	clSetKernelArg(prog, 10, sizeof(float), &p->ambiant_light);
-	clSetKernelArg(prog, 11, sizeof(int), &p->res);
-	clSetKernelArg(p->kernel->cores[2], 3, sizeof(int), &p->res);
-	set_arg_iter_pos(p);
+	process = get_helem(&kernel->cores, "process_image");
+	set_arg_iter_pos(view);
+	clSetKernelArg(process, 0, sizeof(cl_mem), &view->scene_buf);
+	clSetKernelArg(process, 1, sizeof(cl_mem), &view->objbuf);
+	clSetKernelArg(process, 2, sizeof(cl_mem), &view->spotbuf);
+	clSetKernelArg(process, 3, sizeof(int), &view->nobjs);
+	clSetKernelArg(process, 4, sizeof(int), &view->nspots);
+	clSetKernelArg(process, 5, sizeof(t_set), &view->set);
 }
 
-void				process_image_opencl(t_ptr *p)
+static void			sample_image(t_view *view, t_kernel *kernel,
+										t_climg dest)
 {
 	cl_int		err;
-	cl_event	event;
 	int			g_sz;
+	cl_kernel	sampler;
 
-	g_sz = sqrt(p->opencl->gpu_wg_sz / 16);
-	if (p->kernel == NULL)
-		ft_error("Could not launch OpenCL kernel, stopping program...\n");
-	set_args(p);
-	if ((err = clEnqueueNDRangeKernel(p->opencl->gpu_command_queue,
-			p->kernel->cores[0], 2, NULL, (size_t[2]){
-			(int)ceil((int)(p->win->size.v[0] / 4.) / g_sz + 1) * g_sz,
-			(int)ceil((int)(p->win->size.v[1] / 4.) / g_sz + 1) * g_sz},
-			(size_t[2]){g_sz, g_sz}, 0, NULL, &event)) != CL_SUCCESS)
-		ft_error("[Erreur] Echec d'execution du kernel"
-				"%<R>  (Error code: %<i>%2d)%<0>\n", err);
-	if ((err = clEnqueueNDRangeKernel(p->opencl->gpu_command_queue,
-			p->kernel->cores[2], 2, NULL, (size_t[2]){(p->win->size.v[0] / g_sz
-				+ 1) * g_sz, (p->win->size.v[1] / g_sz + 1) * g_sz},
-			(size_t[2]){g_sz, g_sz}, 1, &event, NULL)) != CL_SUCCESS)
+	g_sz = sqrt(kernel->opencl->gpu_wg_sz / 16);
+	sampler = get_helem(&kernel->cores, "sampler");
+	clSetKernelArg(sampler, 0, sizeof(cl_mem), &dest);
+	clSetKernelArg(sampler, 1, sizeof(cl_mem), &view->scene_buf);
+	clSetKernelArg(sampler, 2, sizeof(int[2]), &view->size);
+	clSetKernelArg(sampler, 3, sizeof(int), &view->set.iter);
+	if ((err = clEnqueueNDRangeKernel(kernel->opencl->gpu_command_queue,
+			sampler, 2, NULL,
+			(size_t[2]){(view->size.v[0] / g_sz + 1) * g_sz,
+			(view->size.v[1] / g_sz + 1) * g_sz},
+			(size_t[2]){g_sz, g_sz}, 0, NULL, NULL)) != CL_SUCCESS)
 		ft_error("[Erreur] Echec d'execution du sampler"
-				"%<R>  (Error code: %<i>%2d)%<0>\n", err);
-	clFlush(p->opencl->gpu_command_queue);
-	clReleaseEvent(event);
+				"%<R> (Error code: %<i>%2d)%<0>\n", err);
+}
+
+void				process_scene_opencl(t_view *view, t_kernel *kernel)
+{
+	cl_int		err;
+	int			g_sz;
+	size_t		sdown;
+
+	g_sz = sqrt(kernel->opencl->gpu_wg_sz / 16);
+	sdown = view->set.progressive ? 4 : 1;
+	set_args(view, kernel);
+	if ((err = clEnqueueNDRangeKernel(kernel->opencl->gpu_command_queue,
+			get_helem(&kernel->cores, "process_image"), 2, NULL, (size_t[2]){
+			(int)ceil((int)(view->size.v[0] / sdown) / g_sz + 1) * g_sz,
+			(int)ceil((int)(view->size.v[1] / sdown) / g_sz + 1) * g_sz},
+			(size_t[2]){g_sz, g_sz}, 0, NULL, NULL)) != CL_SUCCESS)
+		ft_error("[Erreur] Echec d'execution du kernel"
+				"%<R> (Error code: %<i>%2d)%<0>\n", err);
+}
+
+void				update_scene(t_ptr *p)
+{
+	clFinish(p->opencl->gpu_command_queue);
+	if (p->update)
+	{
+		generate_cam_matrices(&p->view);
+		p->view.set.iter = 0;
+		p->update = 0;
+		process_scene_opencl(&p->view, p->kernel);
+		sample_image(&p->view, p->kernel, p->scene);
+	}
+	else if (p->view.set.iter < 255)
+	{
+		p->view.set.iter++;
+		process_scene_opencl(&p->view, p->kernel);
+		sample_image(&p->view, p->kernel, p->scene);
+	}
 }

@@ -6,7 +6,7 @@
 /*   By: njaber <neyl.jaber@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/03/15 01:57:02 by njaber            #+#    #+#             */
-/*   Updated: 2018/10/11 19:15:37 by njaber           ###   ########.fr       */
+/*   Updated: 2018/10/16 09:13:56 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,7 +78,8 @@ void			get_configs(t_ocl *opencl)
 
 t_ocl			*init_opencl(void)
 {
-	t_ocl	*opencl;
+	t_ocl			*opencl;
+	int				err;
 
 	if ((opencl = (t_ocl*)ft_memalloc(sizeof(t_ocl))) == NULL)
 		ft_error("[Erreur] Echec d'allocation mémoire.\n");
@@ -86,6 +87,8 @@ t_ocl			*init_opencl(void)
 			NULL, NULL, NULL);
 	get_configs(opencl);
 	opencl->gpu_command_queue = clCreateCommandQueue(opencl->gpu_context,
-			opencl->gpus[0], 0, NULL);
+			opencl->gpus[0], 0, &err);
+	if (err != CL_SUCCESS)
+		ft_error("Could not create command queue\n", err);
 	return (opencl);
 }

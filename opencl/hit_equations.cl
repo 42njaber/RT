@@ -99,7 +99,7 @@ bool					torus_hit(float3 ori, float3 dir, float *t)
 	b = 4 * dir_sqr_sum * dir_ori_sum;
 	c = 2 * dir_sqr_sum * (ori_sqr_sum - r_sqr_sum) + 4 * dir_ori_sum * dir_ori_sum + 4 * TORUS_RADIUS * TORUS_RADIUS * dir.z * dir.z;
 	d = 4 * (ori_sqr_sum - r_sqr_sum) * dir_ori_sum + 8 * TORUS_RADIUS * TORUS_RADIUS * ori.z * dir.z;
-	e = ori_sqr_sum - r_sqr_sum * ori_sqr_sum - r_sqr_sum - 4 * TORUS_RADIUS * TORUS_RADIUS * (TORUS_WIDTH * TORUS_WIDTH - ori.z * ori.z);
+	e = (ori_sqr_sum - r_sqr_sum) * (ori_sqr_sum - r_sqr_sum) - 4 * TORUS_RADIUS * TORUS_RADIUS * (TORUS_WIDTH * TORUS_WIDTH - ori.z * ori.z);
 	inter = quartic_solver((float4)(b, c, d, e) / a);
 	*t = NAN;
 	if (inter.x >= 0.01)
@@ -178,7 +178,7 @@ float3					get_normal(__global t_obj *obj, float3 v, float3 dir)
 	}
 	else
 		ret = (float3){0, 0, 1};
-	ret = vec_mat_mult(obj->rev_rot, ret);
+	ret = vec_mat_mult(obj->rev_norm, ret);
 	if (dot(dir, ret) < 0)
 		ret *= -1;
 	return (normalize(ret));

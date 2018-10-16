@@ -6,7 +6,7 @@
 /*   By: njaber <njaber@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/10/14 10:26:26 by njaber            #+#    #+#             */
-/*   Updated: 2018/10/14 12:16:22 by njaber           ###   ########.fr       */
+/*   Updated: 2018/10/16 12:06:36 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,6 +59,7 @@ int			parsetype(char **pos)
 {
 	int		i;
 	char	*type;
+	int		ret;
 
 	while (ft_isinvis(**pos))
 		(*pos)++;
@@ -69,18 +70,19 @@ int			parsetype(char **pos)
 		i--;
 	if ((type = ft_strldup(*pos, i)) == NULL)
 		ft_error("Malloc error\n");
+	ret = UNKOWN;
 	if (ft_strcmp(type, "sphere") == 0)
-		return (SPHERE);
+		ret = SPHERE;
 	else if (ft_strcmp(type, "plane") == 0)
-		return (PLANE);
+		ret = PLANE;
 	else if (ft_strcmp(type, "cylinder") == 0)
-		return (CYLINDER);
+		ret = CYLINDER;
 	else if (ft_strcmp(type, "cone") == 0)
-		return (CONE);
+		ret = CONE;
 	else if (ft_strcmp(type, "torus") == 0)
-		return (TORUS);
+		ret = TORUS;
 	else if (ft_strcmp(type, "moebius") == 0)
-		return (MOEBIUS);
-	ft_printf("Warning: unkown object \"%s\"\n", type);
-	return (UNKOWN);
+		ret = MOEBIUS;
+	free(type);
+	return (ret);
 }

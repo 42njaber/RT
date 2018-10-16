@@ -9,6 +9,8 @@ SRC = window.c \
 	  gen_type.c \
 	  colors.c \
 	  util.c \
+	  hash_map.c \
+	  hash_map2.c \
 	  gnl/get_next_line.c \
 	  init_opencl.c
 

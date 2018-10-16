@@ -1,0 +1,65 @@
+
+<config>
+	<start_pos>0 10 0</start_pos>
+	<start_rotation>0 -90</start_rotation>
+	<ambiant_light>0.3</ambiant_light>
+	<sky_color>002255</sky_color>
+</config>
+
+<spotlist>
+	<spot>
+		<lum>30000</lum>
+		<pos>0 200 0</pos>
+	</spot>
+	<spot>
+		<lum>5000000000000</lum>
+		<pos>1000000 2000000 0</pos>
+	</spot>
+</spotlist>
+
+<!-- Test commentaire -->
+<objlist>
+	<obj>
+		<type>plane</type>
+		<pos>0 0 0</pos>
+		<rot>90 0 0</rot>
+		<color>777777</color>
+	</obj>
+
+	<obj>
+		<type>sphere</type>
+		<pos>30 10 40</pos>
+		<color>771717</color>
+		<scale>15 10 15</scale>
+	</obj>
+
+	<obj>
+		<type>cylinder</type>
+		<pos>35 0 -20</pos>
+		<color>00AAFF</color>
+		<scale>2 1 2</scale>
+	</obj>
+	<obj>
+		<type>torus</type>
+		<pos>35 10 -20</pos>
+		<color>FF0000</color>
+		<scale>2 2 2</scale>
+		<rot>90 0 0</rot>
+	</obj>
+
+	<obj>
+		<type>cone</type>
+		<pos>30 50 50</pos>
+		<rot>90 0 0</rot>
+		<color>FF00FF</color>
+		<scale>0.1 1 0.1</scale>
+	</obj>
+	<obj>
+		<type>moebius</type>
+		<pos>30 50 50</pos>
+		<rot>0 180 0</rot>
+		<color>00AAFF</color>
+		<scale>5 5 5</scale>
+		<reflect>0.75</reflect>
+	</obj>
+</objlist>

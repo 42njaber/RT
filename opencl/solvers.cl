@@ -101,6 +101,6 @@ float2					quadratic_solver(float2 parm)
 	if (delta < 0)
 		return (root);
 	root.s0 = (-parm.x - sqrt(delta)) / 2;
-	root.s1 = (-parm.x + sqrt(delta)) / 2;
+	root.s1 = parm.y / root.s0;
 	return (order(root));
 }

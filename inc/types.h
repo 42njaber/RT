@@ -6,13 +6,16 @@
 /*   By: njaber <njaber@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/10/14 01:31:08 by njaber            #+#    #+#             */
-/*   Updated: 2018/10/14 03:49:46 by njaber           ###   ########.fr       */
+/*   Updated: 2018/10/16 04:08:45 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 
 #ifndef TYPES_H
 # define TYPES_H
+# ifndef __OPENCL_VERSION__
+#  include <OpenCL/opencl.h>
+# endif
 
 typedef float			t_scal;
 
@@ -20,6 +23,8 @@ typedef unsigned int	t_uint;
 typedef unsigned char	t_uchar;
 typedef unsigned short	t_ushort;
 typedef unsigned int	t_color;
+typedef unsigned int	t_color;
+typedef cl_mem			t_climg;
 
 typedef struct			s_vec2 {
 	t_scal	v[2];
@@ -41,6 +46,6 @@ typedef struct			s_ivec {
 	int		v[2];
 }						t_ivec;
 
-typedef float			t_mat4[16];
+typedef t_scal			t_mat4[16];
 
 #endif

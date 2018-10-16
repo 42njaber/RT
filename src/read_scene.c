@@ -6,14 +6,14 @@
 /*   By: njaber <neyl.jaber@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/25 11:20:41 by njaber            #+#    #+#             */
-/*   Updated: 2018/10/14 11:58:57 by njaber           ###   ########.fr       */
+/*   Updated: 2018/10/16 07:47:20 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "rt.h"
 #include "libft.h"
 
-int			read_all_file(int fd, char **stock)
+static int	read_all_file(int fd, char **stock)
 {
 	char	buf[4096];
 	t_list	*list;
@@ -42,7 +42,7 @@ int			read_all_file(int fd, char **stock)
 	return (ret);
 }
 
-int			default_check_node(t_ptr *p, t_node *onode, char **pos)
+int			default_check_node(t_scene *scene, t_node *onode, char **pos)
 {
 	t_node	node;
 
@@ -56,7 +56,7 @@ int			default_check_node(t_ptr *p, t_node *onode, char **pos)
 		if (node.type == 2)
 			continue ;
 		else if (node.type == 0)
-			default_check_node(p, &node, pos);
+			default_check_node(scene, &node, pos);
 		else if (node.type == 1)
 			break ;
 	}
@@ -66,7 +66,7 @@ int			default_check_node(t_ptr *p, t_node *onode, char **pos)
 	return (EXIT_FAILURE);
 }
 
-static int	parse_node(t_ptr *p, t_node *onode, char **pos, int *config)
+static int	parse_node(t_scene *scene, t_node *onode, char **pos, int *config)
 {
 	if (onode->type == 1)
 		return (EXIT_FAILURE);
@@ -79,17 +79,17 @@ static int	parse_node(t_ptr *p, t_node *onode, char **pos, int *config)
 			return (EXIT_FAILURE);
 		}
 		*config = 1;
-		return (parse_config_node(p, onode, pos));
+		return (parse_config_node(scene, onode, pos));
 	}
 	else if (ft_strcmp(onode->name, "objlist") == 0)
-		return (parse_objlist_node(p, onode, pos));
+		return (parse_objlist_node(scene, onode, pos));
 	else if (ft_strcmp(onode->name, "spotlist") == 0)
-		return (parse_spotlist_node(p, onode, pos));
+		return (parse_spotlist_node(scene, onode, pos));
 	else
-		return (default_check_node(p, onode, pos));
+		return (default_check_node(scene, onode, pos));
 }
 
-int			parse_scene_file(t_ptr *p, int fd)
+int			parse_scene_file(t_scene *scene, int fd)
 {
 	int			ret;
 	int			config;
@@ -97,7 +97,7 @@ int			parse_scene_file(t_ptr *p, int fd)
 	char		*file;
 	char		*pos;
 
-	(void)p;
+	(void)scene;
 	if (read_all_file(fd, &file) != EXIT_SUCCESS)
 		return (EXIT_FAILURE);
 	pos = file;
@@ -105,7 +105,7 @@ int			parse_scene_file(t_ptr *p, int fd)
 	config = 0;
 	ret = 1;
 	while (ret > 0 && (ret = get_next_xml_node(&node, &pos, 1)) > 0)
-		if (parse_node(p, &node, &pos, &config) != EXIT_SUCCESS)
+		if (parse_node(scene, &node, &pos, &config) != EXIT_SUCCESS)
 			ret = -1;
 	destroy_hmap(&node.values, free_and_null);
 	free(file);

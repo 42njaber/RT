@@ -6,7 +6,7 @@
 /*   By: njaber <neyl.jaber@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/20 15:19:13 by njaber            #+#    #+#             */
-/*   Updated: 2018/10/14 11:24:46 by njaber           ###   ########.fr       */
+/*   Updated: 2018/10/16 17:31:57 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,59 +16,71 @@
 # include "libgxns.h"
 # include "common.h"
 
+# define DEFAULT_WIDTH 1920
+# define DEFAULT_HEIGHT 1080
+
 extern const char	*g_nul;
 
-typedef struct			s_hmap {
-	void	**elements;
-	char	**keys;
-	size_t	prebuf_size;
-	size_t	elem_count;
-}						t_hmap;
-
-typedef struct			s_node {
+typedef struct		s_node {
 	char	name[32];
 	t_hmap	values;
 	char	type;
-}						t_node;
+}					t_node;
+
+typedef struct		s_scene {
+	t_vec3		start_pos;
+	t_vec2		start_rot;
+	int			obj_pbufsize;
+	int			spot_pbufsize;
+	int			nobjs;
+	int			nspots;
+	t_obj		*objs;
+	t_spot		*spots;
+	float		ambiant_light;
+	t_color		sky_color;
+}					t_scene;
+
+typedef struct		s_view {
+	t_vec3		pos;
+	t_vec2		rot;
+	t_ivec		size;
+	t_climg		scene_buf;
+	cl_mem		objbuf;
+	cl_mem		spotbuf;
+	int			nobjs;
+	int			nspots;
+	t_obj		*objs;
+	t_spot		*spots;
+	t_set		set;
+}					t_view;
 
 typedef struct	s_ptr {
 	t_win		*win;
 	void		*mlx;
 	t_ocl		*opencl;
 	t_kernel	*kernel;
+	t_climg		scene;
 	char		keys[512];
 	int			button;
 	t_ivec		mouse_pos;
-	t_ivec		tmp_mouse_pos;
 	int			update;
-	float		fov;
-	float		near;
-	float		far;
-	float		ambiant_light;
-	int			res;
-	int			nobjs;
-	int			nspots;
-	int			obj_pbufsize;
-	int			spot_pbufsize;
-	t_obj		*objs;
-	t_spot		*spots;
-	t_vec3		pos;
-	t_vec2		origin_rot;
-	t_vec2		rot;
-	t_mat4		cam_mat;
-	t_mat4		cam_mat_rot;
-	char		brilliance;
-	char		shadows;
-	char		max_reflections;
+	t_gui		gui;
+	t_scene		*current_scene;
+	t_hmap		scenes;
+	t_view		view;
 }				t_ptr;
 
-void			process_image_opencl(t_ptr *p);
-
-void			create_spot_memobjs(t_ptr *p);
-void			create_obj_memobjs(t_ptr *p);
+void			create_obj_memobjs(t_view *view, cl_context context);
+void			create_spot_memobjs(t_view *view, cl_context context);
 t_kernel		*create_kernel(t_ptr *p);
+cl_mem			cl_img2d(t_ocl *opencl, cl_mem_flags flags,
+														t_ivec size, int *err);
 
-int				parse_scene_file(t_ptr *p, int fd);
+void			free_scene(void **data);
+t_scene			*new_scene(t_ptr *p, char *name);
+
+int				read_path(t_ptr *p, char *path);
+int				parse_scene_file(t_scene *scene, int fd);
 t_scal			parsef(char **pos);
 t_vec2			parse2f(char **pos);
 t_vec3			parse3f(char **pos);
@@ -78,24 +90,25 @@ int				parsetype(char **pos);
 int				get_next_xml_node(t_node *tag, char **pos, char strict);
 void			xml_set_read_buf(char *file, int len);
 
-int				default_check_node(t_ptr *p, t_node *onode, char **pos);
-int				parse_config_node(t_ptr *p, t_node *onode, char **pos);
-int				parse_objlist_node(t_ptr *p, t_node *onode, char **pos);
-int				parse_spotlist_node(t_ptr *p, t_node *onode, char **pos);
+int				default_check_node(t_scene *scene, t_node *onode, char **pos);
+int				parse_config_node(t_scene *scene, t_node *onode, char **pos);
+int				parse_objlist_node(t_scene *scene, t_node *onode, char **pos);
+int				parse_spotlist_node(t_scene *scene, t_node *onode, char **pos);
 
-t_spot			*default_spot(t_ptr *p);
-t_obj			*default_obj(t_ptr *p);
+t_spot			*default_spot(t_scene *scene);
+t_obj			*default_obj(t_scene *scene);
+int				get_elem_id(t_ptr *p, const char *type, void *elem);
+
+void			copy_scene_data(t_view *view, t_scene *scene);
+void			cleanup_view(t_view *view);
+void			init_scene(t_ptr *p);
 
 void			init_struct(t_ptr *p);
+void			init_guielems(t_ptr *p);
+void			gen_thumbnails(t_ptr *p);
 void			set_hooks(t_ptr *p);
 
 int				loop_hook(void *parm);
-
-void			destroy_hmap(t_hmap *hmap, void (*del)(void**));
-void			reset_hmap(t_hmap *hmap, void (*del)(void**));
-void			init_hmap(t_hmap *hmap);
-void			*get_helem(t_hmap *hmap, char *key);
-void			add_helem(t_hmap *hmap, char *key, void *data);
 
 int				button_press_hook(int button, int x, int y, void *parms);
 int				button_release_hook(int button, int x, int y, void *parms);
@@ -105,11 +118,13 @@ int				key_release_hook(int key_code, void *parm);
 void			move(t_ptr *p);
 
 void			process_image(t_ptr *p);
+void			update_scene(t_ptr *p);
+void			process_scene_opencl(t_view *view, t_kernel *kernel);
 
 int				does_intersect(t_obj *obj, t_vec3 origin, t_vec3 dir, float *t);
 t_vec3			get_normal(t_obj *obj, t_vec3 v);
 
-void			generate_cam_matricies(t_ptr *p);
-void			generate_obj_matricies(t_ptr *p);
+void			generate_cam_matrices(t_view *view);
+void			generate_obj_matrices(t_view *view);
 
 #endif

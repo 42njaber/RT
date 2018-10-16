@@ -3,9 +3,12 @@
 # define COMMON_CLH
 
 # define t_scal float
+# define t_vec2 float2
 # define t_vec3 float3
 # define t_mat4 float16
 # define t_color uchar4
+# define t_ivec int2
+# define t_climg int
 
 # include "../inc/common.h"
 

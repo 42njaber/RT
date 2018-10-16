@@ -6,7 +6,7 @@
 /*   By: njaber <neyl.jaber@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/01/25 23:56:43 by njaber            #+#    #+#             */
-/*   Updated: 2018/10/14 07:21:19 by njaber           ###   ########.fr       */
+/*   Updated: 2018/10/16 07:17:20 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,13 @@
 
 # include <OpenCL/opencl.h>
 
+typedef struct			s_hmap {
+	void	**elements;
+	char	**keys;
+	size_t	prebuf_size;
+	size_t	elem_count;
+}						t_hmap;
+
 typedef struct	s_ocl {
 	cl_context			gpu_context;
 	size_t				gpu_nbr;
@@ -34,14 +41,11 @@ typedef struct	s_ocl {
 
 typedef struct	s_kernel {
 	cl_program		program;
-	cl_mem			*memobjs;
+	cl_mem			memobjs[16];
 	size_t			memobjs_nbr;
-	cl_kernel		cores[8];
+	t_hmap			cores;
 	t_ocl			*opencl;
 }				t_kernel;
-
-t_ocl			*init_opencl(void);
-cl_program		create_program_from_file(cl_context context, const char *file);
 
 typedef struct	s_img {
 	void			*link;
@@ -63,6 +67,13 @@ typedef struct	s_win {
 	t_scal				frame_elapsed;
 	unsigned long		frames[30];
 }				t_win;
+
+void			destroy_hmap(t_hmap *hmap, void (*del)(void**));
+void			del_helem(t_hmap *hmap, const char *key, void (*del)(void**));
+void			reset_hmap(t_hmap *hmap, void (*del)(void**));
+void			init_hmap(t_hmap *hmap);
+void			*get_helem(t_hmap *hmap, char *key);
+void			add_helem(t_hmap *hmap, char *key, void *data);
 
 t_vec3			apply_mat_vec3(t_vec3 v, t_mat4 m);
 void			print_mat(t_mat4 m);
@@ -113,6 +124,9 @@ void			display_data_str(t_win *win, char *name, char *data, int y);
 void			init_new_image(void *mlx, t_img *img, t_ivec size);
 void			img_px(t_img *img, unsigned int color, t_ivec pixel);
 void			clear_img(t_img *img);
+
+t_ocl			*init_opencl(void);
+cl_program		create_program_from_file(cl_context context, const char *file);
 
 void			draw_line(t_img *img, unsigned int *color, t_vec2 *verticies);
 unsigned int	color_gradiant(unsigned int *colors, float gradiant);

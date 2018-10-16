@@ -29,13 +29,13 @@ int						can_trace(
 		dir_tmp = vec_mat_mult(obj[i].rot_mat, line);
 		len = length(dir_tmp);
 		dir_tmp = normalize(dir_tmp);
-		if (((obj[i].type == SPHERE && sphere_hit(ori_tmp, dir_tmp, &tmp) == 1) ||
-			(obj[i].type == PLANE && plane_hit(ori_tmp, dir_tmp, &tmp) == 1) ||
-			(obj[i].type == CYLINDER && cylinder_hit(ori_tmp, dir_tmp, &tmp) == 1) ||
-			(obj[i].type == CONE && cone_hit(ori_tmp, dir_tmp, &tmp) == 1) ||
-			(obj[i].type == TORUS && torus_hit(ori_tmp, dir_tmp, &tmp) == 1) ||
-			(obj[i].type == MOEBIUS && moebius_hit(ori_tmp, dir_tmp, &tmp) == 1)) &&
-				tmp < len - 0.01)
+		if (((obj[i].type == SPHERE && sphere_hit(ori_tmp, dir_tmp, &tmp)) ||
+			(obj[i].type == PLANE && plane_hit(ori_tmp, dir_tmp, &tmp)) ||
+			(obj[i].type == CYLINDER && cylinder_hit(ori_tmp, dir_tmp, &tmp)) ||
+			(obj[i].type == CONE && cone_hit(ori_tmp, dir_tmp, &tmp)) ||
+			(obj[i].type == TORUS && torus_hit(ori_tmp, dir_tmp, &tmp)) ||
+			(obj[i].type == MOEBIUS && moebius_hit(ori_tmp, dir_tmp, &tmp))) &&
+				tmp + 0.0001 < len)
 			return (0);
 	}
 	return (1);
@@ -66,7 +66,7 @@ float4					get_point_color(
 	i = -1;
 	normal = get_normal(objs + obj_hit, v, dir);
 	while (++i < nspots)
-		if (can_trace(objs, nobjs, spots[i].pos, v))
+		if (can_trace(objs, nobjs, v, spots[i].pos))
 		{
 			r_in = v - spots[i].pos;
 			a_in = dot(normalize(r_in), normal);
@@ -85,42 +85,36 @@ float4					get_point_color(
 #include "debug.clh"
 
 __kernel void			process_image(
-						   __global uchar4	*buf,
-						   __global t_obj	*objs,
-						   __global t_spot	*spots,
-						   int2				img_size,
-						   float16			cam_mat,
-						   float16			cam_mat_rot,
-						   int				nobjs,
-						   int				nspots,
-						   int				max_rays,
-						   float			fov,
-						   float			ambiant_light,
-						   int				iter,
-						   int2				iter_pos
+						   __write_only image2d_t		image,
+						   __global t_obj				*objs,
+						   __global t_spot				*spots,
+						   int							nobjs,
+						   int							nspots,
+						   t_set						set
 						  )
 {
 	int2			id;
-	int				buf_pos;
 	float			s;
+	int2			img_size;
 
 	id.x = get_global_id(0);
 	id.y = get_global_id(1);
-	id = id * 16 + iter_pos;
+	if (set.progressive)
+		id = id * 16 + set.iter_pos;
+	img_size = (int2)(get_image_width(image), get_image_height(image));
 	if (id.x >= img_size.x || id.y >= img_size.y)
 		return ;
-	buf_pos = id.x + img_size.x * id.y;
-	s = 1 / tan((float)(fov * 0.5 * M_PI_F / 180));
+	s = 1 / tan((float)(set.fov * 0.5 * M_PI_F / 180));
 
 	// Creation of origin and direction vectors of the ray
 	float3			ori;
 	float3			dir;
 
 	ori = (float3)((float)(id.x - img_size.x / 2) / (max(img_size.x, img_size.y) / 2) / s,
-				   (float)(id.y - img_size.y / 2) / (max(img_size.x, img_size.y) / 2) / s, 1);
-	dir = normalize(ori);
-	ori = vec_mat_mult(cam_mat, ori);
-	dir = vec_mat_mult(cam_mat_rot, dir);
+				   (float)(img_size.y / 2 - id.y) / (max(img_size.x, img_size.y) / 2) / s, 1);
+	dir = ori;
+	ori = vec_mat_mult(set.cam_mat, ori);
+	dir = normalize(vec_mat_mult(set.cam_mat_rot, dir));
 
 	int				reflected;
 	float			reflect_amount;
@@ -129,7 +123,7 @@ __kernel void			process_image(
 	color = (float4)0;
 	reflected = 0;
 	reflect_amount = 1;
-	while (reflected++ < max_rays && reflect_amount > 0.05)
+	while (reflected++ < set.max_rays && reflect_amount > 0.05)
 	{
 		// Iterate throught all the objects to detect the first one hit by the ray
 		float3			ori_tmp;
@@ -153,7 +147,7 @@ __kernel void			process_image(
 				(objs[i].type == CONE && cone_hit(ori_tmp, dir_tmp, &tmp)) ||
 				(objs[i].type == TORUS && torus_hit(ori_tmp, dir_tmp, &tmp)) ||
 				(objs[i].type == MOEBIUS && moebius_hit(ori_tmp, dir_tmp, &tmp))) &&
-					(hit < 0 || tmp < hit))
+					((tmp > 0 && hit < 0) || tmp < hit))
 			{
 				hit = tmp;
 				obj_hit = i;
@@ -163,29 +157,33 @@ __kernel void			process_image(
 		// Creates à halo of light when ray passes close to a spots
 		float	shine;
 		float	spot_dist;
-		float3	halo_pos;
+		float3	ray_diff;
+		float3	spot_ray;
 
 		i = -1;
 		while (++i < nspots)
 		{
-			spot_dist = distance(ori, spots[i].pos);
-			if (spot_dist < hit)
+			spot_ray = spots[i].pos - ori;
+			spot_dist = length(spot_ray);
+			spot_ray = normalize(spot_ray);
+			if (dot(dir, spot_ray) > 0.5 && (hit < 0 || spot_dist < hit))
 			{
-				halo_pos = ori + dir * spot_dist;
-				shine = spots[i].lum / pow(distance(halo_pos, spots[i].pos), 5);
-				color += (float4)shine;
+				ray_diff = spot_ray - dir;
+				shine = spots[i].lum / powr(spot_dist, 2) *
+					(length(ray_diff) < 0.001 ? 1 : powr((1 - sqrt(powr(length(ray_diff), 2) - powr(dot(ray_diff, spot_ray), 2))), 12));
+				color += (float4)shine * reflect_amount;
 			}
 		}
 
-		// If the closest object hit is closer then the far plane, calculate the luminosity add it tu the color value
-		if (obj_hit != -1)
+		// If the closest object hit is closer then the far plane, calculate the luminosity add it too the color value
+		if (hit > 0)
 		{
 			v = ori + dir * hit;
-			color += get_point_color(objs, spots, nspots, nobjs, obj_hit, ambiant_light, v, dir) * reflect_amount; // * (1 - obj_reflectivness[obj_hit]));
+			color += get_point_color(objs, spots, nspots, nobjs, obj_hit, set.ambiant_light, v, dir) * reflect_amount * (1 - objs[obj_hit].reflect);
 			reflect_amount *= objs[obj_hit].reflect;
 
 			// Calculates the reflected ray
-			if (reflected < max_rays && reflect_amount > 0.05)
+			if (reflected < set.max_rays && reflect_amount > 0.05)
 			{
 				float3		normal;
 
@@ -194,61 +192,70 @@ __kernel void			process_image(
 				ori = v;
 			}
 		}
+		else
+		{
+			color += ((1 / (1 - (convert_float4(set.sky_color) / 255))) - 1) * reflect_amount;
+			break ;
+		}
 	}
 
 	color = color / (color + 1); 
-	buf[buf_pos] = (uchar4)(255 * color.r, 255 * color.g, 255 * color.b, 255 * color.a);
+	write_imageui(image, id, (uint4)(255 * color.r, 255 * color.g, 255 * color.b, 0));
 }
 
-__kernel void	sampler(
-				  __global uchar4	*dest_buf,
-				  __global uchar4	*origin_buf,
-				  int2				size,
-				  int				iter
+__const sampler_t near_sampler = CLK_NORMALIZED_COORDS_FALSE |
+								 CLK_ADDRESS_REPEAT |
+								 CLK_FILTER_NEAREST;
+
+__kernel void	sampler256(
+				  __write_only image2d_t	dest_image,
+				  __read_only image2d_t		src_image,
+				  int2						size,
+				  int						iter
 				 )
 {
 	int2			id;
 	int2			pos;
-	int				buf_pos;
 	int				bits;
-	uchar4			color;
-	int				extra_px[16];
-	int				line = size.x * 4;
+	uint4			color;
+	int2			extra_px[16];
 
+	if (size.x * 4 > get_image_width(src_image) ||
+			size.y * 4 > get_image_height(src_image))
+		return ;
 	if ((id.x = get_global_id(0)) >= size.x
 			|| (id.y = get_global_id(1)) >= size.y)
 		return ;
-	buf_pos = id.x + size.x * id.y;
 	bits = (id.x & 2 ? 1 : 0) | (id.y & 2 ? 2 : 0) | (id.x & 1 ? 4 : 0) | (id.y & 1 ? 8 : 0);
 	if (iter >= 15)
 	{
 		int		pxnb;
 		int		i;
-		int4	tmp;
+		uint4	tmp;
 
 		pos = id * 4;
 		pxnb = (iter - bits) / 16 + 1;
-		tmp = (int4)(0, 0, 0, 0);
-		extra_px[0] = 0;
-		extra_px[1] = 2;
-		extra_px[2] = 2 * line;
-		extra_px[3] = 2 + 2 * line;
-		extra_px[4] = 1;
-		extra_px[5] = 3;
-		extra_px[6] = 1 + 2 * line;
-		extra_px[7] = 3 + 2 * line;
-		extra_px[8] = line;
-		extra_px[9] = 2 + line;
-		extra_px[10] = 3 * line;
-		extra_px[11] = 2 + 3 * line;
-		extra_px[12] = 1 + line;
-		extra_px[13] = 3 + line;
-		extra_px[14] = 1 + 3 * line;
-		extra_px[15] = 3 + 3 * line;
+		tmp = (uint4)(0, 0, 0, 0);
+		extra_px[0]  = (int2)(0, 0);
+		extra_px[1]  = (int2)(2, 0);
+		extra_px[2]  = (int2)(0, 2);
+		extra_px[3]  = (int2)(2, 2);
+		extra_px[4]  = (int2)(1, 0);
+		extra_px[5]  = (int2)(3, 0);
+		extra_px[6]  = (int2)(1, 2);
+		extra_px[7]  = (int2)(3, 2);
+		extra_px[8]  = (int2)(0, 1);
+		extra_px[9]  = (int2)(2, 1);
+		extra_px[10] = (int2)(0, 3);
+		extra_px[11] = (int2)(2, 3);
+		extra_px[12] = (int2)(1, 1);
+		extra_px[13] = (int2)(3, 1);
+		extra_px[14] = (int2)(1, 3);
+		extra_px[15] = (int2)(3, 3);
 		i = -1;
 		while (++i < pxnb)
-			tmp += convert_int4(origin_buf[pos.x + line * pos.y + extra_px[i]]);
-		color = convert_uchar4(tmp / pxnb);
+			tmp += read_imageui(src_image, pos + extra_px[i]);
+		color = tmp / pxnb;
 	}
 	else
 	{
@@ -263,9 +270,108 @@ __kernel void	sampler(
 		if (iter >= 8 + (bits & (1 << 3) - 1) && bits & 8)
 			cpos.y |= 1;
 		pos = ((id / 4) * 4 + cpos) * 4;
-		color = origin_buf[pos.x + line * pos.y];
+		color = read_imageui(src_image, pos);
 	}
-	dest_buf[buf_pos] = (uchar4)(color.rgb, 0x4F);
+	write_imageui(dest_image, id, (uint4)(color.rgb, 0x00));
+}
+
+__kernel void	sampler1(
+				  __write_only image2d_array_t	dest_image,
+				  __read_only image2d_t			src_image,
+				  int2							size,
+				  int							thumbnail_id
+				 )
+{
+	int2			id;
+	uint4			color;
+
+	if ((id.x = get_global_id(0)) >= size.x
+			|| (id.y = get_global_id(1)) >= size.y)
+		return ;
+	color = read_imageui(src_image, id);
+	write_imageui(dest_image, (int4)(id, thumbnail_id, 0), (uint4)(color.rgb, 0x00));
+}
+
+__const sampler_t normal_sampler = CLK_NORMALIZED_COORDS_TRUE |
+								   CLK_ADDRESS_MIRRORED_REPEAT |
+								   CLK_FILTER_NEAREST;
+
+__kernel void	paint_gui(
+						 __global uchar4				*buf,
+						 t_gui							gui,
+						 int2							size,
+						 __read_only image2d_t			scene,
+						 __read_only image2d_array_t	thumbnails
+						)
+{
+	int2			id;
+	float2			npos;
+	uint4			color;
+	int				buf_pos;
+
+	if ((id.x = get_global_id(0)) >= size.x 
+			|| (id.y = get_global_id(1)) >= size.y)
+		return ;
+	npos = (float2)id / (float2)size * 100;
+	buf_pos = id.x + size.x * id.y;
+	color = (uint4)(0x22, 0x77, 0xbb, 0x00);
+	if (gui.state == SCENE)
+		color = read_imageui(scene, near_sampler, id);
+	else
+	{
+		float2	center_dist;
+		float2	container_pos;
+		float2	mouse_dist;
+		float2	tbn_center;
+
+		center_dist = (float2)id / (float2)size - (float2)0.5  - ((float2)(-0.3 + 0.2 * (gui.scene_id), -0.3) * ((float)1 - gui.zoom));
+		if ((gui.state == ZOOM_SCENE || gui.state == UNZOOM_SCENE) &&
+				fabs(center_dist.x) < 0.075 + (0.425 * gui.zoom) &&
+				fabs(center_dist.y) < 0.075 + (0.425 * gui.zoom))
+		{
+			container_pos = center_dist / (float)(0.075 + (0.425 * gui.zoom)) / 2 + (float2)0.5;
+			color = read_imageui(scene, normal_sampler, container_pos);
+		}
+		else
+		{
+			center_dist = (float2)((float2)id - (float2)(size / 2)) / (float2)size;
+			mouse_dist = (float2)((float2)gui.mouse_pos - (float2)(size / 2)) / (float2)size;
+			if (fabs(center_dist.x) < 0.4 && fabs(center_dist.y) < 0.4)
+			{
+				int		tbnnb = get_image_array_size(thumbnails);
+				int		i;
+
+				color = (uint4)(0x77, 0x77, 0x77, 0x00);
+				i = -1;
+				while (++i <  tbnnb)
+				{
+					tbn_center = (float2)(0.2 * (i + 1), 0.2);
+					center_dist = (float2)id / (float2)size - (float2)(tbn_center);
+					mouse_dist = (float2)gui.mouse_pos / (float2)size - (float2)(tbn_center);
+					if (fabs(center_dist.x) < 0.075 && fabs(center_dist.y) < 0.075)
+					{
+						container_pos = center_dist / 3 * 20 + (float2)0.5;
+						color = read_imageui(thumbnails, normal_sampler, (float4)(container_pos, i, 0));
+					}
+					else if (fabs(center_dist.x) < 0.075 + 4 / (float)size.x && fabs(center_dist.y) < 0.075 + 4 / (float)size.y)
+					{
+						if (fabs(mouse_dist.x) < 0.075 && fabs(mouse_dist.y) < 0.075)
+							color = (uint4)(0xaf, 0x00, 0x00, 0x00);
+						else
+							color = (uint4)(0x66, 0x66, 0x66, 0x00);
+					}
+				}
+			}
+			else if (fabs(center_dist.x) < 0.4 + 10 / (float)size.x && fabs(center_dist.y) < 0.4 + 10 / (float)size.y)
+			{
+				if (fabs(mouse_dist.x) < 0.4 && fabs(mouse_dist.y) < 0.4)
+					color = (uint4)(0x22, 0x00, 0x00, 0x00);
+				else
+					color = (uint4)(0x22, 0x22, 0x22, 0x00);
+			}
+		}
+	}
+	buf[buf_pos] = (uchar4)(convert_uchar3(clamp(0, 255, color.rgb)), 0x0);
 }
 
 __kernel void	clear_buf(__global uchar4 *buf,

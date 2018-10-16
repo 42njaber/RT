@@ -8,11 +8,11 @@
 <spotlist>
 	<spot>
 		<lum>1000</lum>
-		<pos>47 -5 10</pos>
+		<pos>47 17 10</pos>
 	</spot>
 	<spot>
 		<lum>1000</lum>
-		<pos>-47 -5 10</pos>
+		<pos>-47 17 10</pos>
 	</spot>
 </spotlist>
 
@@ -39,8 +39,8 @@
 
 	<obj>
 		<type>sphere</type>
-		<pos>0 15 40</pos>
-		<color>771717</color>
+		<pos>0 -5 40</pos>
+		<color>FF2222</color>
 		<scale>5 5 5</scale>
 		<reflect>0.5</reflect>
 	</obj>

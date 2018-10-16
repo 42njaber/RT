@@ -6,31 +6,34 @@
 /*   By: njaber <njaber@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/10/14 09:20:31 by njaber            #+#    #+#             */
-/*   Updated: 2018/10/14 11:46:11 by njaber           ###   ########.fr       */
+/*   Updated: 2018/10/16 08:08:37 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "rt.h"
 
-int				parse_config_node(t_ptr *p, t_node *onode, char **pos)
+int				parse_config_node(t_scene *scene, t_node *onode, char **pos)
 {
 	t_node	node;
 
 	init_hmap(&node.values);
-	p->pos = vec3(0, 0, 0);
-	p->rot = vec2(0, 0);
-	p->ambiant_light = 0.15;
+	scene->start_pos = vec3(0, 0, 0);
+	scene->start_rot = vec2(0, 0);
+	scene->ambiant_light = 0.15;
+	scene->sky_color = 0x000000;
 	while (get_next_xml_node(&node, pos, 0) > 0)
 	{
 		if (node.type == 1 && ft_strcmp(node.name, onode->name) == 0)
 			break ;
 		else if (ft_strcmp(node.name, "start_pos") == 0)
-			p->pos = parse3f(pos);
+			scene->start_pos = parse3f(pos);
 		else if (ft_strcmp(node.name, "start_rotation") == 0)
-			p->rot = parse2f(pos);
+			scene->start_rot = parse2f(pos);
 		else if (ft_strcmp(node.name, "ambiant_light") == 0)
-			p->ambiant_light = parsef(pos);
-		default_check_node(p, &node, pos);
+			scene->ambiant_light = parsef(pos);
+		else if (ft_strcmp(node.name, "sky_color") == 0)
+			scene->sky_color = parsecolor(pos);
+		default_check_node(scene, &node, pos);
 	}
 	destroy_hmap(&node.values, free_and_null);
 	if (ft_strcmp(node.name, onode->name) == 0)
@@ -38,12 +41,12 @@ int				parse_config_node(t_ptr *p, t_node *onode, char **pos)
 	return (EXIT_FAILURE);
 }
 
-static int		parse_obj_node(t_ptr *p, t_node *onode, char **pos)
+static int		parse_obj_node(t_scene *scene, t_node *onode, char **pos)
 {
 	t_node	node;
 	t_obj	*obj;
 
-	obj = default_obj(p);
+	obj = default_obj(scene);
 	init_hmap(&node.values);
 	while (get_next_xml_node(&node, pos, 0) > 0)
 	{
@@ -61,7 +64,7 @@ static int		parse_obj_node(t_ptr *p, t_node *onode, char **pos)
 			obj->color = parsecolor(pos);
 		else if (ft_strcmp(node.name, "reflect") == 0)
 			obj->reflect = parsef(pos);
-		default_check_node(p, &node, pos);
+		default_check_node(scene, &node, pos);
 	}
 	destroy_hmap(&node.values, free_and_null);
 	if (ft_strcmp(node.name, onode->name) == 0)
@@ -69,14 +72,14 @@ static int		parse_obj_node(t_ptr *p, t_node *onode, char **pos)
 	return (EXIT_FAILURE);
 }
 
-int				parse_objlist_node(t_ptr *p, t_node *onode, char **pos)
+int				parse_objlist_node(t_scene *scene, t_node *onode, char **pos)
 {
 	t_node	node;
 
-	p->obj_pbufsize = 8;
-	p->nobjs = 0;
-	if ((p->objs = (t_obj*)ft_memalloc(sizeof(t_obj)
-										* p->obj_pbufsize)) == NULL)
+	scene->obj_pbufsize = 8;
+	scene->nobjs = 0;
+	if ((scene->objs = (t_obj*)ft_memalloc(sizeof(t_obj)
+										* scene->obj_pbufsize)) == NULL)
 		ft_error("Malloc error\n");
 	init_hmap(&node.values);
 	while (get_next_xml_node(&node, pos, 0) > 0)
@@ -84,9 +87,9 @@ int				parse_objlist_node(t_ptr *p, t_node *onode, char **pos)
 		if (node.type == 1 && ft_strcmp(node.name, onode->name) == 0)
 			break ;
 		else if (ft_strcmp(node.name, "obj") == 0)
-			parse_obj_node(p, &node, pos);
+			parse_obj_node(scene, &node, pos);
 		else
-			default_check_node(p, &node, pos);
+			default_check_node(scene, &node, pos);
 	}
 	destroy_hmap(&node.values, free_and_null);
 	if (ft_strcmp(node.name, onode->name) == 0)
@@ -94,12 +97,12 @@ int				parse_objlist_node(t_ptr *p, t_node *onode, char **pos)
 	return (EXIT_FAILURE);
 }
 
-static int		parse_spot_node(t_ptr *p, t_node *onode, char **pos)
+static int		parse_spot_node(t_scene *scene, t_node *onode, char **pos)
 {
 	t_node	node;
 	t_spot	*spot;
 
-	spot = default_spot(p);
+	spot = default_spot(scene);
 	init_hmap(&node.values);
 	while (get_next_xml_node(&node, pos, 0) > 0)
 	{
@@ -109,7 +112,7 @@ static int		parse_spot_node(t_ptr *p, t_node *onode, char **pos)
 			spot->lum = parsef(pos);
 		else if (ft_strcmp(node.name, "pos") == 0)
 			spot->pos = parse3f(pos);
-		default_check_node(p, &node, pos);
+		default_check_node(scene, &node, pos);
 	}
 	destroy_hmap(&node.values, free_and_null);
 	if (ft_strcmp(node.name, onode->name) == 0)
@@ -117,14 +120,14 @@ static int		parse_spot_node(t_ptr *p, t_node *onode, char **pos)
 	return (EXIT_FAILURE);
 }
 
-int				parse_spotlist_node(t_ptr *p, t_node *onode, char **pos)
+int				parse_spotlist_node(t_scene *scene, t_node *onode, char **pos)
 {
 	t_node	node;
 
-	p->spot_pbufsize = 8;
-	p->nspots = 0;
-	if ((p->spots = (t_spot*)ft_memalloc(sizeof(t_spot)
-										* p->spot_pbufsize)) == NULL)
+	scene->spot_pbufsize = 8;
+	scene->nspots = 0;
+	if ((scene->spots = (t_spot*)ft_memalloc(sizeof(t_spot)
+										* scene->spot_pbufsize)) == NULL)
 		ft_error("Malloc error\n");
 	init_hmap(&node.values);
 	while (get_next_xml_node(&node, pos, 0) > 0)
@@ -132,9 +135,9 @@ int				parse_spotlist_node(t_ptr *p, t_node *onode, char **pos)
 		if (node.type == 1 && ft_strcmp(node.name, onode->name) == 0)
 			break ;
 		else if (ft_strcmp(node.name, "spot") == 0)
-			parse_spot_node(p, &node, pos);
+			parse_spot_node(scene, &node, pos);
 		else
-			default_check_node(p, &node, pos);
+			default_check_node(scene, &node, pos);
 	}
 	destroy_hmap(&node.values, free_and_null);
 	if (ft_strcmp(node.name, onode->name) == 0)
