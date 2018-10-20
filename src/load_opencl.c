@@ -6,7 +6,7 @@
 /*   By: njaber <neyl.jaber@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/03/16 20:23:49 by njaber            #+#    #+#             */
-/*   Updated: 2018/10/16 14:38:10 by njaber           ###   ########.fr       */
+/*   Updated: 2018/10/19 05:40:47 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,19 +27,6 @@ cl_mem			cl_img2d(t_ocl *opencl, cl_mem_flags flags,
 	desc.image_height = (size_t)size.v[1];
 	return (clCreateImage(opencl->gpu_context, flags, &format,
 												&desc, NULL, err));
-}
-
-static int		set_init_args(t_ptr *p, t_ocl *opencl,
-											t_kernel *kernel, t_img *img)
-{
-	int err;
-
-	(void)p;
-	kernel->memobjs[0] = clCreateBuffer(opencl->gpu_context, CL_MEM_WRITE_ONLY,
-			img->line * img->size.v[1], NULL, &err);
-	err |= clSetKernelArg(get_helem(&kernel->cores, "clear_buf"), 0,
-			sizeof(cl_mem), (void*)&kernel->memobjs[0]);
-	return (err);
 }
 
 static int		make_kernels(t_kernel *kernel)
@@ -87,7 +74,7 @@ static int		compile_files(t_ocl *opencl, cl_program *objects)
 			err = -100;
 		else
 		{
-			err = clCompileProgram(objects[i], opencl->gpu_nbr, opencl->gpus,
+			err = clCompileProgram(objects[i], 1, &opencl->gpu,
 				NULL , 0, NULL, NULL, NULL, NULL);
 		}
 		if (err != CL_SUCCESS)
@@ -112,8 +99,8 @@ static int		build_program(t_ocl *opencl, t_kernel *kernel)
 	if (err != CL_SUCCESS)
 		return (err);
 	ft_putendl("Linking program...");
-	kernel->program = clLinkProgram(opencl->gpu_context, opencl->gpu_nbr,
-			opencl->gpus, "", FILE_NUMBER, objects, NULL, NULL, &err);
+	kernel->program = clLinkProgram(opencl->gpu_context, 1,
+			&opencl->gpu, "", FILE_NUMBER, objects, NULL, NULL, &err);
 	ft_printf("%<i>OpenCL leaks here...%<0>\n");
 	i = -1;
 	while (++i < FILE_NUMBER)
@@ -139,8 +126,7 @@ t_kernel		*create_kernel(t_ptr *p)
 	img = &p->win->img;
 	kernel->opencl = p->opencl;
 	if ((err = build_program(p->opencl, kernel)) != CL_SUCCESS ||
-		(err = make_kernels(kernel)) != CL_SUCCESS ||
-		(err = set_init_args(p, p->opencl, kernel, img)) != CL_SUCCESS)
+		(err = make_kernels(kernel)) != CL_SUCCESS)
 	{
 		ft_printf("[Error] Could not build kernel program"
 				"%<R>  (Error code: %<i>%2d)%<0>\n", err);

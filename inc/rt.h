@@ -6,18 +6,21 @@
 /*   By: njaber <neyl.jaber@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/20 15:19:13 by njaber            #+#    #+#             */
-/*   Updated: 2018/10/16 17:31:57 by njaber           ###   ########.fr       */
+/*   Updated: 2018/10/20 10:31:00 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef RT_H
 # define RT_H
 
+# include <pthread.h>
 # include "libgxns.h"
 # include "common.h"
 
 # define DEFAULT_WIDTH 1920
 # define DEFAULT_HEIGHT 1080
+
+# define WG_SIZE 256
 
 extern const char	*g_nul;
 
@@ -55,20 +58,21 @@ typedef struct		s_view {
 }					t_view;
 
 typedef struct	s_ptr {
-	t_win		*win;
-	void		*mlx;
-	t_ocl		*opencl;
-	t_kernel	*kernel;
-	t_climg		scene;
-	char		keys[512];
-	int			button;
-	t_ivec		mouse_pos;
-	int			update;
-	t_gui		gui;
-	t_scene		*current_scene;
-	t_hmap		scenes;
-	t_view		view;
+	t_win			*win;
+	t_ocl			*opencl;
+	t_kernel		*kernel;
+	t_climg			scene;
+	char			keys[512];
+	int				button;
+	t_ivec			mouse_pos;
+	int				update;
+	t_gui			gui;
+	t_scene			*current_scene;
+	t_hmap			scenes;
+	t_view			view;
 }				t_ptr;
+
+t_ptr			*get_p(void);
 
 void			create_obj_memobjs(t_view *view, cl_context context);
 void			create_spot_memobjs(t_view *view, cl_context context);
@@ -108,13 +112,13 @@ void			init_guielems(t_ptr *p);
 void			gen_thumbnails(t_ptr *p);
 void			set_hooks(t_ptr *p);
 
-int				loop_hook(void *parm);
-
-int				button_press_hook(int button, int x, int y, void *parms);
-int				button_release_hook(int button, int x, int y, void *parms);
-int				motion_hook(int x, int y, void *parm);
-int				key_press_hook(int key_code, void *parm);
-int				key_release_hook(int key_code, void *parm);
+void			key_callback(GLFWwindow *win, int key,
+										int scancode, int action);
+void			mouse_callback(GLFWwindow *win,
+								int button, int action, int mods);
+void			motion_callback(GLFWwindow *win, double xpos, double ypos);
+void			*loop_hook(t_ptr *p);
+void			events_loop(t_ptr *p);
 void			move(t_ptr *p);
 
 void			process_image(t_ptr *p);

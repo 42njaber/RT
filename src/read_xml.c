@@ -6,7 +6,7 @@
 /*   By: njaber <neyl.jaber@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/25 11:20:41 by njaber            #+#    #+#             */
-/*   Updated: 2018/10/14 11:56:30 by njaber           ###   ########.fr       */
+/*   Updated: 2018/10/17 16:44:15 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -80,7 +80,7 @@ static int		read_node(t_node *node, char **pos)
 		return (EXIT_FAILURE);
 	if (read_node_vals(node, pos) != EXIT_SUCCESS)
 		return (EXIT_FAILURE);
-	if ((*pos)[-1] == '/')
+	if (*(*pos) == '/')
 	{
 		if (node->type == 1)
 			return (ft_printret(EXIT_FAILURE, "Extraneous '/'\n"));

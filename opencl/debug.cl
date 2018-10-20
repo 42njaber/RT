@@ -21,9 +21,9 @@ int					write_nb(int nb, int x, int y)
 	int		buf_pos;
 
 	px = (int2)(get_global_id(0), get_global_id(1));
-	if (px.x >= x && px.x < x + 8 && px.y >= y && px.y < y + 8)
+	if (px.x >= x && px.x < x + 16 && px.y >= y && px.y < y + 16)
 	{
-		buf_pos = (px.x - x) / 2 + 4 * ((px.y - y) / 2);
+		buf_pos = (px.x - x) / 4 + 4 * ((px.y - y) / 4);
 		if (nb == -3 && nb_minus[buf_pos] == 'X')
 			return (1);
 		else if (nb == -1 && nb_plus[buf_pos] == 'X')
@@ -65,28 +65,28 @@ int					logger(float16 data, int len)
 	{
 		num = data[i];
 		if (isinf(num))
-			ret |= write_nb(-sign(num) - 2					, 10, 70 + i * 10);
+			ret |= write_nb(-sign(num) - 2						, 20 , 170 + i * 20);
 		else if (isnan(num))
-			ret |= write_nb(-4									, 10, 70 + i * 10);
+			ret |= write_nb(-4									, 20 , 170 + i * 20);
 		else
 		{
-			ret |= write_nb(copysign(1, num) - 2				, 10, 70 + i * 10);
-			ret |= write_nb((int)fabs(num) / 100000000		, 20, 70 + i * 10);
-			ret |= write_nb(((int)fabs(num) / 10000000) % 10	, 30, 70 + i * 10);
-			ret |= write_nb(((int)fabs(num) / 1000000) % 10	, 40, 70 + i * 10);
-			ret |= write_nb(((int)fabs(num) / 100000) % 10	, 50, 70 + i * 10);
-			ret |= write_nb(((int)fabs(num) / 10000) % 10		, 60, 70 + i * 10);
-			ret |= write_nb(((int)fabs(num) / 1000) % 10		, 70, 70 + i * 10);
-			ret |= write_nb(((int)fabs(num) / 100) % 10		, 80, 70 + i * 10);
-			ret |= write_nb(((int)fabs(num) / 10) % 10		, 90, 70 + i * 10);
-			ret |= write_nb((int)fabs(num) % 10				, 100, 70 + i * 10);
-			ret |= write_nb(-2									, 110, 70 + i * 10);
-			ret |= write_nb((int)(fabs(num) * 10) % 10		, 120, 70 + i * 10);
-			ret |= write_nb((int)(fabs(num) * 100) % 10		, 130, 70 + i * 10);
-			ret |= write_nb((int)(fabs(num) * 1000) % 10		, 140, 70 + i * 10);
-			ret |= write_nb((int)(fabs(num) * 10000) % 10		, 150, 70 + i * 10);
-			ret |= write_nb((int)(fabs(num) * 100000) % 10	, 160, 70 + i * 10);
-			ret |= write_nb((int)(fabs(num) * 1000000) % 10	, 170, 70 + i * 10);
+			ret |= write_nb(copysign(1, num) - 2				, 20 , 170 + i * 20);
+			ret |= write_nb((int)fabs(num) / 100000000			, 40 , 170 + i * 20);
+			ret |= write_nb(((int)fabs(num) / 10000000) % 10	, 60 , 170 + i * 20);
+			ret |= write_nb(((int)fabs(num) / 1000000) % 10		, 80 , 170 + i * 20);
+			ret |= write_nb(((int)fabs(num) / 100000) % 10		, 100, 170 + i * 20);
+			ret |= write_nb(((int)fabs(num) / 10000) % 10		, 120, 170 + i * 20);
+			ret |= write_nb(((int)fabs(num) / 1000) % 10		, 140, 170 + i * 20);
+			ret |= write_nb(((int)fabs(num) / 100) % 10			, 160, 170 + i * 20);
+			ret |= write_nb(((int)fabs(num) / 10) % 10			, 180, 170 + i * 20);
+			ret |= write_nb((int)fabs(num) % 10					, 200, 170 + i * 20);
+			ret |= write_nb(-2									, 220, 170 + i * 20);
+			ret |= write_nb((int)(fabs(num) * 10) % 10			, 240, 170 + i * 20);
+			ret |= write_nb((int)(fabs(num) * 100) % 10			, 260, 170 + i * 20);
+			ret |= write_nb((int)(fabs(num) * 1000) % 10		, 280, 170 + i * 20);
+			ret |= write_nb((int)(fabs(num) * 10000) % 10		, 300, 170 + i * 20);
+			ret |= write_nb((int)(fabs(num) * 100000) % 10		, 320, 170 + i * 20);
+			ret |= write_nb((int)(fabs(num) * 1000000) % 10		, 340, 170 + i * 20);
 		}
 	}
 	return (ret);

@@ -6,7 +6,7 @@
 /*   By: njaber <neyl.jaber@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/29 00:39:23 by njaber            #+#    #+#             */
-/*   Updated: 2018/10/16 14:56:22 by njaber           ###   ########.fr       */
+/*   Updated: 2018/10/19 06:51:38 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,7 +57,7 @@ static void			sample_image(t_view *view, t_kernel *kernel,
 	int			g_sz;
 	cl_kernel	sampler;
 
-	g_sz = sqrt(kernel->opencl->gpu_wg_sz / 16);
+	g_sz = sqrt(WG_SIZE);
 	sampler = get_helem(&kernel->cores, "sampler");
 	clSetKernelArg(sampler, 0, sizeof(cl_mem), &dest);
 	clSetKernelArg(sampler, 1, sizeof(cl_mem), &view->scene_buf);
@@ -78,7 +78,7 @@ void				process_scene_opencl(t_view *view, t_kernel *kernel)
 	int			g_sz;
 	size_t		sdown;
 
-	g_sz = sqrt(kernel->opencl->gpu_wg_sz / 16);
+	g_sz = sqrt(WG_SIZE);
 	sdown = view->set.progressive ? 4 : 1;
 	set_args(view, kernel);
 	if ((err = clEnqueueNDRangeKernel(kernel->opencl->gpu_command_queue,

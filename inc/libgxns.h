@@ -6,7 +6,7 @@
 /*   By: njaber <neyl.jaber@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/01/25 23:56:43 by njaber            #+#    #+#             */
-/*   Updated: 2018/10/16 07:17:20 by njaber           ###   ########.fr       */
+/*   Updated: 2018/10/19 05:43:10 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,10 +18,12 @@
 # include "ft_printf.h"
 # include "libft.h"
 # include "types.h"
-
-#  include "qwerty.h"
+# include "glfw3.h"
 
 # include <OpenCL/opencl.h>
+# include <OpenGL/opengl.h>
+# include <OpenGL/gl.h>
+# include <CoreGraphics/CoreGraphics.h>
 
 typedef struct			s_hmap {
 	void	**elements;
@@ -32,34 +34,29 @@ typedef struct			s_hmap {
 
 typedef struct	s_ocl {
 	cl_context			gpu_context;
-	size_t				gpu_nbr;
-	cl_device_id		gpus[16];
+	cl_device_id		gpu;
 	cl_command_queue	gpu_command_queue;
 	size_t				gpu_wg_sz;
 	size_t				gpu_double;
+	CGLContextObj		gl_context;
+	CGLPixelFormatObj	gl_pix;
 }				t_ocl;
 
 typedef struct	s_kernel {
 	cl_program		program;
-	cl_mem			memobjs[16];
 	size_t			memobjs_nbr;
 	t_hmap			cores;
 	t_ocl			*opencl;
 }				t_kernel;
 
 typedef struct	s_img {
-	void			*link;
-	unsigned char	*buf;
+	GLuint			id;
+	cl_mem			cl_obj;
 	t_ivec			size;
-	int				px_size;
-	int				line;
-	int				endian;
-	int				line_draw_mode;
 }				t_img;
 
 typedef struct	s_win {
-	void				*mlx;
-	void				*win;
+	GLFWwindow			*win;
 	t_img				img;
 	t_ivec				size;
 	int					frame;
@@ -113,22 +110,18 @@ t_vec2			vec2_mult(t_vec2 v1, t_scal d);
 t_scal			vec2_length(t_vec2 v1);
 t_scal			vec2_scalar(t_vec2 v1, t_vec2 v2);
 
-int				init_new_win(void *mlx, t_win *win, t_ivec size, char *title);
-void			paint_window(t_win *win, t_kernel *opencl_kernel, int clear);
+int				init_new_win(t_win *win, t_ivec size, char *title);
+void			paint_window(t_win *win, t_ocl *opencl);
 
 void			display_data_scal(t_win *win, char *name, t_scal data, int y);
 void			display_data_vec2(t_win *win, char *name, t_vec2 data, int y);
 void			display_data_vec3(t_win *win, char *name, t_vec3 data, int y);
 void			display_data_str(t_win *win, char *name, char *data, int y);
 
-void			init_new_image(void *mlx, t_img *img, t_ivec size);
-void			img_px(t_img *img, unsigned int color, t_ivec pixel);
-void			clear_img(t_img *img);
-
 t_ocl			*init_opencl(void);
 cl_program		create_program_from_file(cl_context context, const char *file);
 
-void			draw_line(t_img *img, unsigned int *color, t_vec2 *verticies);
+int				init_new_image(t_img *img, t_ivec size, t_ocl *opencl);
 unsigned int	color_gradiant(unsigned int *colors, float gradiant);
 
 int				get_key_digit(int key_code);

@@ -34,8 +34,8 @@ float2 __OVERLOAD__		order(float2 in)
 {
 	float2	out;
 
-	out.x = fmin(in.x, in.y);
-	out.y = fmax(in.x, in.y);
+	out.x = (isnan(in.y) || in.x < in.y) ? in.x : in.y;
+	out.y = (isnan(in.y) || in.x < in.y) ? in.y : in.x;
 	return (out);
 }
 
@@ -43,10 +43,9 @@ float3 __OVERLOAD__		order(float3 in)
 {
 	float3	out;
 
-	out.x = fmin(fmin(in.x, in.y), in.z);
-	out.y = in.x < in.y ? (in.y < in.z ? in.y : in.x < in.z ? in.z : in.z) :
-							(in.x < in.z ? in.x : in.y < in.z ? in.z : in.y);
-	out.z = fmax(fmax(in.x, in.y), in.z);
+	out.x = (isnan(in.z) || in.x < in.z) ? ((isnan(in.y) || in.x < in.y) ? in.x : in.y) : ((isnan(in.y) || in.z < in.y) ? in.z : in.y);
+	out.y = in.x < in.y ? (in.y < in.z ? in.y : in.x < in.z ? in.z : in.z) : (in.x < in.z ? in.x : in.y < in.z ? in.z : in.y);
+	out.z = (isnan(in.z) || in.x < in.z) ? ((isnan(in.y) || in.z < in.y) ? in.y : in.z) : ((isnan(in.y) || in.x < in.y) ? in.y : in.x);
 	return (out);
 }
 

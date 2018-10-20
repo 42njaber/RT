@@ -6,13 +6,13 @@
 /*   By: njaber <njaber@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/10/16 00:33:51 by njaber            #+#    #+#             */
-/*   Updated: 2018/10/16 17:46:25 by njaber           ###   ########.fr       */
+/*   Updated: 2018/10/17 17:03:21 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "rt.h"
 #include <dirent.h>
 #include <sys/stat.h>
+#include "rt.h"
 
 static int		read_file(t_ptr *p, char *path)
 {

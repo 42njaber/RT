@@ -6,13 +6,28 @@
 /*   By: njaber <neyl.jaber@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/18 17:01:19 by njaber            #+#    #+#             */
-/*   Updated: 2018/10/16 17:43:42 by njaber           ###   ########.fr       */
+/*   Updated: 2018/10/20 10:47:02 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <fcntl.h>
 #include "rt.h"
-#include "mlx.h"
+
+static void		end_environement(void *data, int status)
+{
+	t_ptr	*p;
+
+	p = (t_ptr*)data;
+	glfwDestroyWindow(p->win->win);
+	glfwTerminate();
+	exit(status);
+}
+
+static void		glfw_error_callback(int err, const char *strerr)
+{
+	(void)err;
+	ft_printf("GLFW Error: %s\n", strerr);
+}
 
 /*
 ** p: the program's main structure
@@ -23,11 +38,26 @@
 
 static void		launch_window(t_ptr *p)
 {
-	if ((init_new_win(p->mlx, p->win,
-					ivec(DEFAULT_WIDTH, DEFAULT_HEIGHT), "RT")) == 0)
-		ft_error("[Erreur] Failed to initialize window\n");
+	glfwShowWindow(p->win->win);
+	glfwFocusWindow(p->win->win);
+	glViewport(0, 0, p->win->size.v[0], p->win->size.v[1]);
+	glfwSwapInterval(1);
 	set_hooks(p);
-	mlx_loop(p->mlx);
+	loop_hook(p);
+	end_environement(p, 0);
+}
+
+t_ptr			*get_p(void)
+{
+	static t_ptr	p;
+	static int		init;
+
+	if (!init)
+	{
+		init = 1;
+		ft_bzero(&p, sizeof(p));
+	}
+	return (&p);
 }
 
 /*
@@ -41,31 +71,28 @@ static void		launch_window(t_ptr *p)
 ** to start the display
 */
 
-static void		error_callback(void *data, int status)
-{
-	(void)data;
-	exit(status);
-}
-
 int				main(int argc, char **argv)
 {
-	t_ptr	p;
 	int		i;
+	t_ptr	*p;
 
-	ft_set_error_callback(error_callback, &p);
+	p = get_p();
+	ft_set_error_callback(end_environement, p);
 	if (argc < 2 || ft_strcmp(argv[1], "help") == 0)
 	{
 		ft_printf("Usage : rt <scene.xml>");
 		return (0);
 	}
-	if ((p.mlx = mlx_init()) == 0)
-		ft_error("[Error] Failed to initialize mlx\n");
-	init_hmap(&p.scenes);
+	init_hmap(&p->scenes);
 	i = 0;
 	while (++i < argc)
-		read_path(&p, argv[i]);
-	if (p.scenes.elem_count < 1)
+		read_path(p, argv[i]);
+	if (p->scenes.elem_count < 1)
 		ft_error("%<R,!>[Error]%<0> Could not read any map, qutting...\n");
-	init_struct(&p);
-	launch_window(&p);
+	argc = 1;
+	glfwSetErrorCallback(glfw_error_callback);
+	if (!glfwInit())
+		ft_error("Failed to initialize glut\n");
+	init_struct(p);
+	launch_window(p);
 }

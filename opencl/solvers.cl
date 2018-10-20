@@ -78,7 +78,7 @@ float3					cubic_solver(float3 parm)
 	sqrdelta = sqrt(delta);
 	if (delta > 0)
 		root.s0 = cbrt(-q / 2 + sqrdelta) + cbrt(-q / 2 - sqrdelta) + sub;
-	else
+	if (delta < 0)
 	{
 		root3 = sqrt((float)3);
 		tmp2 = sqrt(-p);
@@ -100,7 +100,7 @@ float2					quadratic_solver(float2 parm)
 	delta = parm.x * parm.x - 4 * parm.y;
 	if (delta < 0)
 		return (root);
-	root.s0 = (-parm.x - sqrt(delta)) / 2;
+	root.s0 = (-parm.x + sqrt(delta) * (parm.x < 0 ? 1 : -1)) / 2;
 	root.s1 = parm.y / root.s0;
 	return (order(root));
 }

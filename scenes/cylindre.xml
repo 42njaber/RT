@@ -1,0 +1,35 @@
+
+<config>
+	<start_pos>0 0 0</start_pos>
+	<start_rotation>0 0</start_rotation>
+	<ambiant_light>0.2</ambiant_light>
+</config>
+
+<spotlist>
+	<spot>
+		<lum>1000</lum>
+		<pos>47 17 10</pos>
+		<test/>
+	</spot>
+	<spot>
+		<lum>1000</lum>
+		<pos>-47 17 10</pos>
+	</spot>
+</spotlist>
+
+<objlist>
+	<obj>
+		<type>plane</type>
+		<pos>0 0 77</pos>
+		<rot>0 0 0</rot>
+		<color>4444FF</color>
+	</obj>
+
+	<obj>
+		<type>moebius</type>
+		<pos>0 -5 40</pos>
+		<rot>90 0 0</rot>
+		<color>FF2222</color>
+		<scale>5 5 5</scale>
+	</obj>
+</objlist>

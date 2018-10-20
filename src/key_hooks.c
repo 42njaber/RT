@@ -6,7 +6,7 @@
 /*   By: njaber <neyl.jaber@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/20 14:52:32 by njaber            #+#    #+#             */
-/*   Updated: 2018/10/16 16:36:38 by njaber           ###   ########.fr       */
+/*   Updated: 2018/10/20 10:34:00 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,54 +24,52 @@ void			move(t_ptr *p)
 	{
 		fspeed = SPEED * p->win->frame_elapsed;
 		rot = vec2(p->view.rot.v[0] * M_PI / 180, p->view.rot.v[1] * M_PI / 180);
-		if (p->keys[KEY_SPACE])
+		if (p->keys[GLFW_KEY_SPACE])
 			p->view.pos = vec3(p->view.pos.v[0], p->view.pos.v[1] + fspeed,
 					p->view.pos.v[2]);
-		if (p->keys[KEY_LSHIFT])
+		if (p->keys[GLFW_KEY_LEFT_SHIFT])
 			p->view.pos = vec3(p->view.pos.v[0], p->view.pos.v[1] - fspeed,
 					p->view.pos.v[2]);
-		if (p->keys[KEY_UP] || p->keys[KEY_W])
+		if (p->keys[GLFW_KEY_UP] || p->keys[GLFW_KEY_W])
 			p->view.pos = vec3(p->view.pos.v[0] - fspeed * sin(rot.v[1]),
-					p->view.pos.v[1], p->view.pos.v[2] + fspeed * cos(rot.v[1]));
-		if (p->keys[KEY_DOWN] || p->keys[KEY_S])
+				p->view.pos.v[1], p->view.pos.v[2] + fspeed * cos(rot.v[1]));
+		if (p->keys[GLFW_KEY_DOWN] || p->keys[GLFW_KEY_S])
 			p->view.pos = vec3(p->view.pos.v[0] + fspeed * sin(rot.v[1]),
-					p->view.pos.v[1], p->view.pos.v[2] - fspeed * cos(rot.v[1]));
-		if (p->keys[KEY_LEFT] || p->keys[KEY_A])
+				p->view.pos.v[1], p->view.pos.v[2] - fspeed * cos(rot.v[1]));
+		if (p->keys[GLFW_KEY_LEFT] || p->keys[GLFW_KEY_A])
 			p->view.pos = vec3(p->view.pos.v[0] - fspeed * cos(rot.v[1]),
-					p->view.pos.v[1], p->view.pos.v[2] - fspeed * sin(rot.v[1]));
-		if (p->keys[KEY_RIGHT] || p->keys[KEY_D])
+				p->view.pos.v[1], p->view.pos.v[2] - fspeed * sin(rot.v[1]));
+		if (p->keys[GLFW_KEY_RIGHT] || p->keys[GLFW_KEY_D])
 			p->view.pos = vec3(p->view.pos.v[0] + fspeed * cos(rot.v[1]),
-					p->view.pos.v[1], p->view.pos.v[2] + fspeed * sin(rot.v[1]));
-		if (p->keys[KEY_LEFT] || p->keys[KEY_RIGHT] || p->keys[KEY_UP] ||
-				p->keys[KEY_DOWN] || p->keys[KEY_SPACE] || p->keys[KEY_LSHIFT] ||
-				p->keys[KEY_W] || p->keys[KEY_S] || p->keys[KEY_A] ||
-				p->keys[KEY_D])
+				p->view.pos.v[1], p->view.pos.v[2] + fspeed * sin(rot.v[1]));
+		if (p->keys[GLFW_KEY_LEFT] || p->keys[GLFW_KEY_RIGHT] ||
+				p->keys[GLFW_KEY_UP] || p->keys[GLFW_KEY_DOWN] ||
+				p->keys[GLFW_KEY_SPACE] || p->keys[GLFW_KEY_LEFT_SHIFT] ||
+				p->keys[GLFW_KEY_W] || p->keys[GLFW_KEY_S] ||
+				p->keys[GLFW_KEY_A] || p->keys[GLFW_KEY_D])
 			p->update = 1;
 	}
 }
 
-int				key_press_hook(int key_code, void *parm)
+static int		key_press_hook(GLFWwindow *win, int key_code, t_ptr *p)
 {
-	t_ptr	*p;
-
-	p = (t_ptr*)parm;
 	p->keys[key_code] = 1;
-	if (key_code == KEY_ESCAPE)
+	if (key_code == GLFW_KEY_ESCAPE)
 	{
 		if (p->gui.state == MENU)
-			exit(0);
+			glfwSetWindowShouldClose(win, GLFW_TRUE);
 		else if (p->gui.state == SCENE)
 		{
 			p->gui.zoom = 1;
 			p->gui.state = UNZOOM_SCENE;
 		}
 	}
-	if (key_code == KEY_PAGEUP && p->view.set.max_rays < 10)
+	if (key_code == GLFW_KEY_PAGE_UP && p->view.set.max_rays < 10)
 	{
 		p->view.set.max_rays++;
 		p->update = 1;
 	}
-	if (key_code == KEY_PAGEDOWN && p->view.set.max_rays > 1)
+	if (key_code == GLFW_KEY_PAGE_DOWN && p->view.set.max_rays > 1)
 	{
 		p->view.set.max_rays--;
 		p->update = 1;
@@ -80,11 +78,21 @@ int				key_press_hook(int key_code, void *parm)
 	return (0);
 }
 
-int				key_release_hook(int key_code, void *parm)
+int				key_release_hook(int key_code, t_ptr *p)
 {
-	t_ptr	*p;
-
-	p = (t_ptr*)parm;
 	p->keys[key_code] = 0;
 	return (0);
+}
+
+void			key_callback(GLFWwindow *win, int key, int scancode, int action)
+{
+	t_ptr	*p;
+	(void)win;
+	(void)scancode;
+
+	p = get_p();
+	if (action == GLFW_PRESS)
+		key_press_hook(win, key, p);
+	else if (action == GLFW_RELEASE)
+		key_release_hook(key, p);
 }

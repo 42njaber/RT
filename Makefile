@@ -18,8 +18,8 @@ FILES = main.c \
 		load_opencl.c \
 		display_opencl.c
 
-CFLAGS = -Llibgxns -lgxns -framework OpenGL -framework AppKit -framework OpenCL
-FLAGS = -Wall -Wextra -Werror -Iinc/
+CFLAGS = -Llibgxns -lgxns -framework OpenGL -framework OpenCL -framework IOKit -framework Cocoa -framework CoreVideo
+FLAGS =  -Iinc/ -Wall -Wextra -Werror
 
 KEYBOARD = QWERTY
 MACROS = -D $(KEYBOARD)
@@ -50,7 +50,9 @@ force:
 	@true
 
 libgxns/libgxns.a: force
+	@echo "Entering libgxns/"
 	make -C libgxns/
+	@echo "Leaving libgxns/"
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c $(INC)
 	@mkdir $(OBJ_DIR) &> /dev/null || true
@@ -59,7 +61,7 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c $(INC)
 $(NAME): $(LIB) $(OBJ) Makefile $(INC)
 	$(CC) $(CFLAGS) -o $@ $(OBJ)
 
-soft_clean:
+sclean:
 	make -C libgxns/ soft_clean
 	@echo "Cleaning target:"
 	$(RM) $(NAME)
@@ -77,4 +79,4 @@ fclean: clean
 
 re: fclean all
 
-soft_re: soft_clean all
+sre: sclean all

@@ -296,12 +296,106 @@ __const sampler_t normal_sampler = CLK_NORMALIZED_COORDS_TRUE |
 								   CLK_ADDRESS_MIRRORED_REPEAT |
 								   CLK_FILTER_NEAREST;
 
+static float3				test_solver(float3 parm)
+{
+	float3	root;
+	float	p;
+	float	q;
+	float	delta;
+	float	sqrdelta;
+	float	root3;
+	float	tmp1;
+	float	tmp2;
+	float	sub;
+
+	root = NAN;
+	p = parm.y - parm.x * parm.x / 3;
+	q = 2 * parm.x * parm.x * parm.x / 27 - parm.y * parm.x / 3 + parm.z;
+	sub = -parm.x / 3;
+	delta = q * q / 4 + p * p * p / 27;
+	sqrdelta = sqrt(delta);
+	if (delta > 0)
+		root.s0 = cbrt(-q / 2 + sqrdelta) + cbrt(-q / 2 - sqrdelta) + sub;
+	else
+	{
+		root3 = sqrt((float)3);
+		tmp2 = sqrt(-p);
+		tmp1 = (2 / root3) * tmp2;
+		tmp2 = asin((3 * root3 * q) / (2 * tmp2 * tmp2 * tmp2)) / 3;
+		root.s0 = tmp1 * sin(tmp2) + sub;
+		root.s1 = -tmp1 * sin(tmp2 + M_PI_F / 3) + sub;
+		root.s2 = tmp1 * cos(tmp2 + M_PI_F / 6) + sub;
+	}
+	return (order(root));
+}
+
+static bool				moebius_in_band(float3 hit)
+{
+	float2	band_pos;
+	float	tmp;
+
+	band_pos = (float2)(length((float2)(hit.x, hit.y)) - 2, hit.z);
+	tmp = angle(hit.xy) / 2;
+	if (length(band_pos) < 1 && fabs(dot(band_pos, (float2)(cos(tmp), sin(tmp)))) < 0.01)
+		return (1);
+	return (0);
+}
+
+static bool					test_moebius(__global uchar4 *buf, int2 size, int2 pos, int2 id, t_set set)
+{
+	float	a;
+	float	b;
+	float	c;
+	float	d;
+	float3	inter;
+	float3			ori;
+	float3			dir;
+	float			s;
+
+	s = 1 / tan((float)(set.fov * 0.5 * M_PI_F / 180));
+	ori = (float3)((float)(pos.x - size.x / 2) / (max(size.x, size.y) / 2) / s,
+				   (float)(size.y / 2 - pos.y) / (max(size.x, size.y) / 2) / s, 1);
+	dir = ori;
+	ori = vec_mat_mult(set.cam_mat, ori);
+	dir = normalize(vec_mat_mult(set.cam_mat_rot, dir));
+	ori = ori - (float3)(0, -5, 40);
+	ori.yz = ori.zy * (float2)(1, -1);
+	dir.yz = dir.zy * (float2)(1, -1);
+	ori /= 5;
+	dir /= 5;
+
+	a = dir.x * dir.x * dir.y + dir.y * dir.y * dir.y - 2 * dir.x * dir.x * dir.z - 2 * dir.y * dir.y * dir.z + dir.y * dir.z * dir.z;
+	b = -4 * dir.x * dir.z + 2 * dir.x * dir.y * ori.x - 4 * dir.x * dir.z * ori.x + dir.x * dir.x * ori.y + 3 * dir.y * dir.y * ori.y
+			- 4 * dir.y * dir.z * ori.y + dir.z * dir.z * ori.y - 2 * dir.x * dir.x * ori.z - 2 * dir.y * dir.y * ori.z + 2 * dir.y * dir.z * ori.z;
+	c = -4 * dir.y - 4 * dir.z * ori.x + dir.y * ori.x * ori.x - 2 * dir.z * ori.x * ori.x + 2 * dir.x * ori.x * ori.y + 3 * dir.y * ori.y * ori.y
+			- 2 * dir.z * ori.y * ori.y - 4 * dir.x * ori.z - 4 * dir.x * ori.x * ori.z - 4 * dir.y * ori.y * ori.z + 2 * dir.z * ori.y * ori.z + dir.y * ori.z * ori.z;
+	d = -4 * ori.y + ori.x * ori.x * ori.y + ori.y * ori.y * ori.y - 4 * ori.x * ori.z - 2 * ori.x * ori.x * ori.z - 2 * ori.y * ori.y * ori.z + ori.y * ori.z * ori.z;
+	inter = NAN;
+	inter = test_solver((float3)(b, c, d) / a);
+
+	float16		test;
+	test = NAN;
+
+	if (inter.x >= 0.01 && moebius_in_band(ori + dir * inter.x))
+		test.s0 = inter.x;
+	else if (inter.y >= 0.01 && moebius_in_band(ori + dir * inter.y))
+		test.s0 = inter.y;
+	else if (moebius_in_band(ori + dir * inter.z))
+		test.s0 = inter.z;
+
+	test.s012 = inter;
+	if (logger(test, 4))
+		buf[id.x + size.x * id.y] = (uchar4)(0x00, 0xff, 0xff, 0x00);
+	return (0);
+}
+
 __kernel void	paint_gui(
-						 __global uchar4				*buf,
+						__write_only image2d_t			screen,
 						 t_gui							gui,
 						 int2							size,
 						 __read_only image2d_t			scene,
-						 __read_only image2d_array_t	thumbnails
+						 __read_only image2d_array_t	thumbnails,
+						 t_set							set
 						)
 {
 	int2			id;
@@ -324,7 +418,7 @@ __kernel void	paint_gui(
 		float2	mouse_dist;
 		float2	tbn_center;
 
-		center_dist = (float2)id / (float2)size - (float2)0.5  - ((float2)(-0.3 + 0.2 * (gui.scene_id), -0.3) * ((float)1 - gui.zoom));
+		center_dist = (float2)id / (float2)size - (float2)0.5  - ((float2)(-0.3 + 0.2 * (gui.scene_id % 4), -0.3 + 0.2 * (gui.scene_id / 4)) * ((float)1 - gui.zoom));
 		if ((gui.state == ZOOM_SCENE || gui.state == UNZOOM_SCENE) &&
 				fabs(center_dist.x) < 0.075 + (0.425 * gui.zoom) &&
 				fabs(center_dist.y) < 0.075 + (0.425 * gui.zoom))
@@ -345,7 +439,7 @@ __kernel void	paint_gui(
 				i = -1;
 				while (++i <  tbnnb)
 				{
-					tbn_center = (float2)(0.2 * (i + 1), 0.2);
+					tbn_center = (float2)(0.2 * (i % 4 + 1), 0.2 * (i / 4 + 1));
 					center_dist = (float2)id / (float2)size - (float2)(tbn_center);
 					mouse_dist = (float2)gui.mouse_pos / (float2)size - (float2)(tbn_center);
 					if (fabs(center_dist.x) < 0.075 && fabs(center_dist.y) < 0.075)
@@ -371,14 +465,16 @@ __kernel void	paint_gui(
 			}
 		}
 	}
-	buf[buf_pos] = (uchar4)(convert_uchar3(clamp(0, 255, color.rgb)), 0x0);
+	write_imagef(screen, id, (float4)(convert_float3(clamp(0, 255, color.bgr)) / 255, 0.));
+	//test_moebius(buf, size, gui.mouse_pos, id, set);
 }
 
-__kernel void	clear_buf(__global uchar4 *buf,
+__kernel void	clear_buf(__write_only image2d_t buf,
 							uchar4 val)
 {
-	int		id;
+	int2		id;
 
-	id = get_global_id(0);
-	buf[id] = (uchar4)(val.r, val.g, val.b, 0x00);
+	id.x = get_global_id(0);
+	id.y = get_global_id(1);
+	write_imageui(buf, id, (uint4)(val.r, val.g, val.b, 0x00));
 }

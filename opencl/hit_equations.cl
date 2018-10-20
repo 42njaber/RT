@@ -118,9 +118,11 @@ bool					torus_hit(float3 ori, float3 dir, float *t)
 static bool				moebius_in_band(float3 hit)
 {
 	float2	band_pos;
+	float	tmp;
 
 	band_pos = (float2)(length((float2)(hit.x, hit.y)) - 2, hit.z);
-	if (length(band_pos) < 1 && fabs(fmod(angle(band_pos) + M_PI_F / 2, M_PI_F) - angle(hit.xy) / 2) < 0.01)
+	tmp = angle(hit.xy) / 2;
+	if (length(band_pos) < 1 && fabs(dot(band_pos, (float2)(cos(tmp), sin(tmp)))) < 0.01)
 		return (1);
 	return (0);
 }
@@ -139,7 +141,10 @@ bool					moebius_hit(float3 ori, float3 dir, float *t)
 	c = -4 * dir.y - 4 * dir.z * ori.x + dir.y * ori.x * ori.x - 2 * dir.z * ori.x * ori.x + 2 * dir.x * ori.x * ori.y + 3 * dir.y * ori.y * ori.y
 			- 2 * dir.z * ori.y * ori.y - 4 * dir.x * ori.z - 4 * dir.x * ori.x * ori.z - 4 * dir.y * ori.y * ori.z + 2 * dir.z * ori.y * ori.z + dir.y * ori.z * ori.z;
 	d = -4 * ori.y + ori.x * ori.x * ori.y + ori.y * ori.y * ori.y - 4 * ori.x * ori.z - 2 * ori.x * ori.x * ori.z - 2 * ori.y * ori.y * ori.z + ori.y * ori.z * ori.z;
-	inter = cubic_solver((float3)(b, c, d) / a);
+//	if (fabs(a) < 1e-6)
+//		inter.xy = quadratic_solver((float2)(c, d) / b);
+//	else
+		inter = cubic_solver((float3)(b, c, d) / a);
 	*t = NAN;
 	if (inter.x >= 0.01 && moebius_in_band(ori + dir * inter.x))
 		*t = inter.x;

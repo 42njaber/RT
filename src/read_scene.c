@@ -6,7 +6,7 @@
 /*   By: njaber <neyl.jaber@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/25 11:20:41 by njaber            #+#    #+#             */
-/*   Updated: 2018/10/16 07:47:20 by njaber           ###   ########.fr       */
+/*   Updated: 2018/10/17 16:48:32 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,6 +49,8 @@ int			default_check_node(t_scene *scene, t_node *onode, char **pos)
 	init_hmap(&node.values);
 	if (onode->type == 1)
 		return (EXIT_FAILURE);
+	if (onode->type == 2)
+		return (EXIT_SUCCESS);
 	while (1)
 	{
 		if (get_next_xml_node(&node, pos, 0) < 1)

@@ -12,12 +12,13 @@ SRC = window.c \
 	  hash_map.c \
 	  hash_map2.c \
 	  gnl/get_next_line.c \
+	  create_clprogram.c \
 	  init_opencl.c
 
 NAME = libgxns.a
-MLX = ../minilibx_macos/libmlx.a
 LFT = ../libft/libft.a
 LPF = ../ft_printf/libftprintf.a
+GLFW = ../glfw/src/libglfw3.a
 FLAGS = -Wall -Wextra -Werror
 
 OBJ = $(SRC:.c=.o)
@@ -39,19 +40,20 @@ all: $(NAME)
 force:
 	@true
 
-$(MLX): force
-	@$(MAKE) -C ../minilibx_macos/
-
 $(LFT): force
 	@$(MAKE) -C ../libft/
 
 $(LPF): force
 	@$(MAKE) -C ../ft_printf/
 
-$(NAME): $(MLX) $(LFT) $(LPF) $(OBJ) ../inc/libgxns.h Makefile
+$(GLFW):
+	sh -c "cd ../glfw/; cmake ."
+	@$(MAKE) -C ../glfw/
+
+$(NAME): $(MLX) $(LFT) $(LPF) $(GLFW) $(OBJ) ../inc/libgxns.h Makefile
 	@rm -f $@
 	ar -rc $@ $(OBJ)
-	libtool -static -o $@ $@ $(MLX) $(LFT) $(LPF) 2> /dev/null
+	libtool -static -o $@ $@ $(LFT) $(LPF) $(GLFW)
 	ranlib $@
 
 %.o:%.c
@@ -68,7 +70,6 @@ clean:
 	@echo 			"Cleaning objects:"$(RED)
 	$(RM) $(OBJ)
 	@echo $(DEFAULT)"_________________"
-	$(MAKE) -C ../minilibx_macos/ clean
 	$(MAKE) -C ../libft/ fclean
 	$(MAKE) -C ../ft_printf/ fclean
 
