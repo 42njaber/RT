@@ -6,7 +6,7 @@
 /*   By: njaber <njaber@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/10/16 11:51:56 by njaber            #+#    #+#             */
-/*   Updated: 2018/10/19 06:51:22 by njaber           ###   ########.fr       */
+/*   Updated: 2018/10/23 00:42:49 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,7 @@ static void		init_thumbnails_view(t_view *view, t_ivec size, t_ocl *ocl)
 	if (err != CL_SUCCESS)
 		ft_error("Error while creating thumbnail buffer\n");
 	view->set.progressive = 0;
-	view->set.max_rays = 2;
+	view->set.max_rays = 4;
 	view->set.fov = 90;
 }
 
@@ -85,6 +85,7 @@ void			gen_thumbnails(t_ptr *p)
 	t_ivec	size;
 	t_view	view;
 
+	glFinish();
 	size = ivec(p->win->img.size.v[0] / 4, p->win->img.size.v[1] / 4);
 	p->gui.thumbnails =
 		create_image_array(p->opencl, p->scenes.elem_count, size, &err);

@@ -6,7 +6,7 @@
 /*   By: njaber <neyl.jaber@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/03/16 20:23:49 by njaber            #+#    #+#             */
-/*   Updated: 2018/10/19 05:40:47 by njaber           ###   ########.fr       */
+/*   Updated: 2018/10/20 13:15:59 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -96,6 +96,7 @@ static int		build_program(t_ocl *opencl, t_kernel *kernel)
 
 	chdir("opencl/");
 	err = compile_files(opencl, objects);
+	chdir("../");
 	if (err != CL_SUCCESS)
 		return (err);
 	ft_putendl("Linking program...");

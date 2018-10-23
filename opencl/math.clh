@@ -10,8 +10,8 @@ float					angle(float2 v);
 float2 __OVERLOAD__		order(float2 in);
 float3 __OVERLOAD__		order(float3 in);
 float4 __OVERLOAD__		order(float4 in);
-float2					quadratic_solver(float2 parm);
-float3					cubic_solver(float3 parm);
+float2					quadratic_solver(float3 parm);
+float3					cubic_solver(float4 parm);
 float4					quartic_solver(float4 parm);
 
 #endif

@@ -26,7 +26,7 @@ float4					quartic_solver(float4 parm)
 	cub_eq.x = p;
 	cub_eq.y = pow(p, 2) / 4 - r;
 	cub_eq.z = -pow(q, 2) / 8;
-	cub_res = cubic_solver(cub_eq);
+	cub_res = cubic_solver((float4)(1.f, cub_eq));
 	if (fabs(cub_res.x) > fmax(fabs(cub_res.y), fabs(cub_res.z)) && !isinf(cub_res.x))
 		m = cub_res.x;
 	else
@@ -41,8 +41,8 @@ float4					quartic_solver(float4 parm)
 	if (m >= 0)
 	{
 		root2m = sqrt(2 * m);
-		root.xy = quadratic_solver((float2)(root2m, p / 2 + m - q / (2 * root2m))) + sub;
-		root.zw = quadratic_solver((float2)(-root2m, p / 2 + m + q / (2 * root2m))) + sub;
+		root.xy = quadratic_solver((float3)(1, root2m, p / 2 + m - q / (2 * root2m))) + sub;
+		root.zw = quadratic_solver((float3)(1, -root2m, p / 2 + m + q / (2 * root2m))) + sub;
 	}
 	else
 	{
@@ -58,7 +58,7 @@ float4					quartic_solver(float4 parm)
 	return (root);
 }
 
-float3					cubic_solver(float3 parm)
+float3					cubic_solver(float4 parm)
 {
 	float3	root;
 	float	p;
@@ -71,14 +71,14 @@ float3					cubic_solver(float3 parm)
 	float	sub;
 
 	root = NAN;
-	p = parm.y - parm.x * parm.x / 3;
-	q = 2 * parm.x * parm.x * parm.x / 27 - parm.y * parm.x / 3 + parm.z;
-	sub = -parm.x / 3;
+	p = (parm.z * parm.x - parm.y * parm.y / 3) / parm.x / parm.x;
+	q = (2 * parm.y * parm.y * parm.y / 27 - parm.x * parm.y * parm.z / 3 + parm.x * parm.x * parm.w) / (parm.x * parm.x * parm.x);
+	sub = -parm.y / 3 / parm.x;
 	delta = q * q / 4 + p * p * p / 27;
 	sqrdelta = sqrt(delta);
 	if (delta > 0)
 		root.s0 = cbrt(-q / 2 + sqrdelta) + cbrt(-q / 2 - sqrdelta) + sub;
-	if (delta < 0)
+	else
 	{
 		root3 = sqrt((float)3);
 		tmp2 = sqrt(-p);
@@ -91,16 +91,16 @@ float3					cubic_solver(float3 parm)
 	return (order(root));
 }
 
-float2					quadratic_solver(float2 parm)
+float2					quadratic_solver(float3 parm)
 {
 	float	delta;
 	float2	root;
 
 	root = NAN;
-	delta = parm.x * parm.x - 4 * parm.y;
+	delta = parm.y * parm.y - 4.f * parm.x * parm.z;
 	if (delta < 0)
 		return (root);
-	root.s0 = (-parm.x + sqrt(delta) * (parm.x < 0 ? 1 : -1)) / 2;
-	root.s1 = parm.y / root.s0;
+	root.s0 = (-parm.y + sqrt(delta)) / (2 * parm.x);
+	root.s1 = (-parm.y - sqrt(delta)) / (2 * parm.x);
 	return (order(root));
 }

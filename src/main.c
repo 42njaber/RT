@@ -6,7 +6,7 @@
 /*   By: njaber <neyl.jaber@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/18 17:01:19 by njaber            #+#    #+#             */
-/*   Updated: 2018/10/20 10:47:02 by njaber           ###   ########.fr       */
+/*   Updated: 2018/10/23 15:17:51 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,8 @@ static void		end_environement(void *data, int status)
 	t_ptr	*p;
 
 	p = (t_ptr*)data;
-	glfwDestroyWindow(p->win->win);
+	if (p->win != 0 && p->win->win > 0)
+		glfwDestroyWindow(p->win->win);
 	glfwTerminate();
 	exit(status);
 }
@@ -39,10 +40,11 @@ static void		glfw_error_callback(int err, const char *strerr)
 static void		launch_window(t_ptr *p)
 {
 	glfwShowWindow(p->win->win);
-	glfwFocusWindow(p->win->win);
 	glViewport(0, 0, p->win->size.v[0], p->win->size.v[1]);
 	glfwSwapInterval(1);
 	set_hooks(p);
+	glfwPollEvents();
+	glfwFocusWindow(p->win->win);
 	loop_hook(p);
 	end_environement(p, 0);
 }
@@ -78,6 +80,9 @@ int				main(int argc, char **argv)
 
 	p = get_p();
 	ft_set_error_callback(end_environement, p);
+	glfwSetErrorCallback(glfw_error_callback);
+	if (!glfwInit())
+		ft_error("Failed to initialize glut\n");
 	if (argc < 2 || ft_strcmp(argv[1], "help") == 0)
 	{
 		ft_printf("Usage : rt <scene.xml>");
@@ -90,9 +95,6 @@ int				main(int argc, char **argv)
 	if (p->scenes.elem_count < 1)
 		ft_error("%<R,!>[Error]%<0> Could not read any map, qutting...\n");
 	argc = 1;
-	glfwSetErrorCallback(glfw_error_callback);
-	if (!glfwInit())
-		ft_error("Failed to initialize glut\n");
 	init_struct(p);
 	launch_window(p);
 }

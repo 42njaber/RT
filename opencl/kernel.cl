@@ -2,25 +2,35 @@
 #include "math.clh"
 #include "hit_equations.clh"
 
-int						can_trace(__global t_obj *obj, int nobjs, float3 v1, float3 v2);
+float4					spot_projected_color(__global t_obj *obj, int nobjs, float3 v1, __global t_spot *spot);
 float4					get_point_color(__global t_obj *objs, __global t_spot *spots, int nspots, int nobjs, int obj_hit,
-															float ambiant_light, float3 v, float3 dir);
+															float ambiant_light, float3 v, float3 dir, image2d_t texture);
 
-int						can_trace(
+__const sampler_t near_sampler = CLK_NORMALIZED_COORDS_FALSE |
+								 CLK_ADDRESS_REPEAT |
+								 CLK_FILTER_NEAREST;
+
+__const sampler_t normal_sampler = CLK_NORMALIZED_COORDS_TRUE |
+								   CLK_ADDRESS_REPEAT |
+								   CLK_FILTER_NEAREST;
+
+float4					spot_projected_color(
 						   __global t_obj	*obj,
 						   int				nobjs,
 						   float3			v1,
-						   float3			v2
+						   __global t_spot	*spot
 						)
 {
 	float3			line;
 	float3			ori_tmp;
 	float3			dir_tmp;
+	float4			ret;
 	float			len;
 	float			tmp;
 	int				i;
 
-	line = v2 - v1;
+	line = spot->pos - v1;
+	ret = convert_float4(spot->color) / 255.f;
 	i = -1;
 	// Iterate throught all the objects to detect the first one hit by the ray
 	while (++i < nobjs)
@@ -29,16 +39,33 @@ int						can_trace(
 		dir_tmp = vec_mat_mult(obj[i].rot_mat, line);
 		len = length(dir_tmp);
 		dir_tmp = normalize(dir_tmp);
-		if (((obj[i].type == SPHERE && sphere_hit(ori_tmp, dir_tmp, &tmp)) ||
-			(obj[i].type == PLANE && plane_hit(ori_tmp, dir_tmp, &tmp)) ||
-			(obj[i].type == CYLINDER && cylinder_hit(ori_tmp, dir_tmp, &tmp)) ||
-			(obj[i].type == CONE && cone_hit(ori_tmp, dir_tmp, &tmp)) ||
-			(obj[i].type == TORUS && torus_hit(ori_tmp, dir_tmp, &tmp)) ||
-			(obj[i].type == MOEBIUS && moebius_hit(ori_tmp, dir_tmp, &tmp))) &&
-				tmp + 0.0001 < len)
-			return (0);
+		if (((obj[i].type == SPHERE && sphere_hit(ori_tmp, dir_tmp, &tmp, 0)) ||
+			(obj[i].type == PLANE && plane_hit(ori_tmp, dir_tmp, &tmp, 0)) ||
+			(obj[i].type == CYLINDER && cylinder_hit(ori_tmp, dir_tmp, &tmp, 0)) ||
+			(obj[i].type == CONE && cone_hit(ori_tmp, dir_tmp, &tmp, 0)) ||
+			(obj[i].type == TORUS && torus_hit(ori_tmp, dir_tmp, &tmp, 0)) ||
+			(obj[i].type == MOEBIUS && moebius_hit(ori_tmp, dir_tmp, &tmp, 0))) &&
+				tmp < len)
+		{
+			if (obj[i].transparency < 0.05)
+				return ((float4)0);
+			else
+			{
+				ori_tmp = vec_mat_mult(obj[i].transform, v1 + tmp * line / len);
+				dir_tmp = normalize(dir_tmp);
+				if ((obj[i].type == SPHERE && sphere_hit(ori_tmp, dir_tmp, &tmp, 1)) ||
+					(obj[i].type == PLANE && plane_hit(ori_tmp, dir_tmp, &tmp, 1)) ||
+					(obj[i].type == CYLINDER && cylinder_hit(ori_tmp, dir_tmp, &tmp, 1)) ||
+					(obj[i].type == CONE && cone_hit(ori_tmp, dir_tmp, &tmp, 1)) ||
+					(obj[i].type == TORUS && torus_hit(ori_tmp, dir_tmp, &tmp, 1)) ||
+					(obj[i].type == MOEBIUS && moebius_hit(ori_tmp, dir_tmp, &tmp, 1)))
+					ret *= pow(obj[i].transparency, tmp / 3) * convert_float4(obj[i].color) / 255.0f;
+				else
+					ret *= obj[i].transparency * convert_float4(obj[i].color) / 255.0f;
+			}
+		}
 	}
-	return (1);
+	return (ret);
 }
 
 float4					get_point_color(
@@ -49,7 +76,8 @@ float4					get_point_color(
 								   int obj_hit,
 								   float ambiant_light,
 								   float3 v,
-								   float3 dir
+								   float3 dir,
+								   image2d_t texture
 								  )
 {
 	float3			normal;
@@ -57,32 +85,48 @@ float4					get_point_color(
 	//float3			r_out;
 	float			a_in;
 	float			brilliance;
-	float			lum;
+	float4			lum;
+	float4			obj_color;
+	float4			tmp;
+	float2			tex_pos;
 	float4			color;
 	int				i;
 
-	lum = ambiant_light;
+	lum = (float4)ambiant_light;
 	brilliance = 0;
 	i = -1;
 	normal = get_normal(objs + obj_hit, v, dir);
 	while (++i < nspots)
-		if (can_trace(objs, nobjs, v, spots[i].pos))
+	{
+		tmp = spot_projected_color(objs, nobjs, v, spots + i);
+		if (tmp.r + tmp.g + tmp.b > 0.05)
 		{
 			r_in = v - spots[i].pos;
 			a_in = dot(normalize(r_in), normal);
 			//r_out = normalize(normalize(r_in) - (normal * 2 * a_in));
 			//brilliance = pow(dot(normalize(r_in), normal) , (float)400);
 			if (a_in > 0)
-				lum += spots[i].lum * a_in / pow(length(r_in), (float)2) + brilliance * spots[i].lum;
+				lum += tmp * (float4)(spots[i].lum * a_in / pow(length(r_in), (float)2) + brilliance * spots[i].lum);
 		}
-	color = (float4)(lum * ((float)1 + objs[obj_hit].color.r) / 255, lum * ((float)1 + objs[obj_hit].color.g) / 255,
-					lum * ((float)1 + objs[obj_hit].color.b) / 255, lum * ((float)1 + objs[obj_hit].color.a) / 255);
+	}
+	tex_pos = get_surface_pos(objs + obj_hit, v, dir);
+	obj_color = convert_float4(objs[obj_hit].color) / 255.0f;
+	//obj_color *= read_imagef(texture, normal_sampler, tex_pos);
+	color = lum * obj_color;
 	//if (fabs(fmod(v.x + 0.2, (float)20)) < 0.03 || fabs(fmod(v.y + 0.2, (float)20)) < 0.03 || fabs(fmod(v.z + 0.2, (float)20)) < 0.03)
 		//color = 1 / color;
 	return (color);
 }
 
-#include "debug.clh"
+typedef struct		s_ray {
+	float3		ori;
+	float3		dir;
+	float4		absorption;
+	float		ref_index;
+}					t_ray;
+
+#define RAY_NUMBER_MAX 20
+#define MIN_RAY_ABSORPTION 0.001f
 
 __kernel void			process_image(
 						   __write_only image2d_t		image,
@@ -90,12 +134,14 @@ __kernel void			process_image(
 						   __global t_spot				*spots,
 						   int							nobjs,
 						   int							nspots,
-						   t_set						set
+						   t_set						set,
+						   __read_only image2d_t		texture
 						  )
 {
 	int2			id;
 	float			s;
 	int2			img_size;
+
 
 	id.x = get_global_id(0);
 	id.y = get_global_id(1);
@@ -107,32 +153,44 @@ __kernel void			process_image(
 	s = 1 / tan((float)(set.fov * 0.5 * M_PI_F / 180));
 
 	// Creation of origin and direction vectors of the ray
-	float3			ori;
-	float3			dir;
+	t_ray			rays[RAY_NUMBER_MAX];
+	int				nrays;
+	int				ray;
+	int				max_rays;
 
-	ori = (float3)((float)(id.x - img_size.x / 2) / (max(img_size.x, img_size.y) / 2) / s,
+	rays[0].ori = (float3)((float)(id.x - img_size.x / 2) / (max(img_size.x, img_size.y) / 2) / s,
 				   (float)(img_size.y / 2 - id.y) / (max(img_size.x, img_size.y) / 2) / s, 1);
-	dir = ori;
-	ori = vec_mat_mult(set.cam_mat, ori);
-	dir = normalize(vec_mat_mult(set.cam_mat_rot, dir));
+	rays[0].dir = rays[0].ori;
+	rays[0].ori = vec_mat_mult(set.cam_mat, rays[0].ori);
+	rays[0].dir = normalize(vec_mat_mult(set.cam_mat_rot, rays[0].dir));
+	rays[0].absorption = (float4)(1, 1, 1, 1);
+	rays[0].ref_index = 1;
+	max_rays = min(RAY_NUMBER_MAX, set.max_rays);
+	nrays = 1;
+	ray = 0;
 
-	int				reflected;
-	float			reflect_amount;
 	float4			color;
-
 	color = (float4)0;
-	reflected = 0;
-	reflect_amount = 1;
-	while (reflected++ < set.max_rays && reflect_amount > 0.05)
+
+	while (ray < nrays)
 	{
-		// Iterate throught all the objects to detect the first one hit by the ray
+		float3			ori;
+		float3			dir;
 		float3			ori_tmp;
 		float3			dir_tmp;
+		float4			reflect_amount;
 		float			hit;
 		float			tmp;
 		int				i;
 		int				obj_hit;
 		float3			v;
+
+		ori = rays[ray].ori;
+		dir = rays[ray].dir;
+		reflect_amount = rays[ray].absorption;
+		ray++;
+		if (reflect_amount.x + reflect_amount.y + reflect_amount.z < MIN_RAY_ABSORPTION)
+			continue ;
 
 		i = -1;
 		hit = -1;
@@ -141,12 +199,12 @@ __kernel void			process_image(
 		{
 			ori_tmp = vec_mat_mult(objs[i].transform, ori);
 			dir_tmp = vec_mat_mult(objs[i].rot_mat, dir);
-			if (((objs[i].type == SPHERE && sphere_hit(ori_tmp, dir_tmp, &tmp)) ||
-				(objs[i].type == PLANE && plane_hit(ori_tmp, dir_tmp, &tmp)) ||
-				(objs[i].type == CYLINDER && cylinder_hit(ori_tmp, dir_tmp, &tmp)) ||
-				(objs[i].type == CONE && cone_hit(ori_tmp, dir_tmp, &tmp)) ||
-				(objs[i].type == TORUS && torus_hit(ori_tmp, dir_tmp, &tmp)) ||
-				(objs[i].type == MOEBIUS && moebius_hit(ori_tmp, dir_tmp, &tmp))) &&
+			if (((objs[i].type == SPHERE && sphere_hit(ori_tmp, dir_tmp, &tmp, 0)) ||
+				(objs[i].type == PLANE && plane_hit(ori_tmp, dir_tmp, &tmp, 0)) ||
+				(objs[i].type == CYLINDER && cylinder_hit(ori_tmp, dir_tmp, &tmp, 0)) ||
+				(objs[i].type == CONE && cone_hit(ori_tmp, dir_tmp, &tmp, 0)) ||
+				(objs[i].type == TORUS && torus_hit(ori_tmp, dir_tmp, &tmp, 0)) ||
+				(objs[i].type == MOEBIUS && moebius_hit(ori_tmp, dir_tmp, &tmp, 0))) &&
 					((tmp > 0 && hit < 0) || tmp < hit))
 			{
 				hit = tmp;
@@ -169,43 +227,118 @@ __kernel void			process_image(
 			if (dot(dir, spot_ray) > 0.5 && (hit < 0 || spot_dist < hit))
 			{
 				ray_diff = spot_ray - dir;
-				shine = spots[i].lum / powr(spot_dist, 2) *
+				shine = spots[i].lum / pow(spot_dist, 2) *
 					(length(ray_diff) < 0.001 ? 1 : powr((1 - sqrt(powr(length(ray_diff), 2) - powr(dot(ray_diff, spot_ray), 2))), 12));
-				color += (float4)shine * reflect_amount;
+				color += (float4)shine * convert_float4(spots[i].color) / 255.f * reflect_amount;
 			}
 		}
 
 		// If the closest object hit is closer then the far plane, calculate the luminosity add it too the color value
 		if (hit > 0)
 		{
+			float3	normal;
+			float4	intensity_mult;
+			float4	hit_color;
+			float4	absorption;
+
 			v = ori + dir * hit;
-			color += get_point_color(objs, spots, nspots, nobjs, obj_hit, set.ambiant_light, v, dir) * reflect_amount * (1 - objs[obj_hit].reflect);
-			reflect_amount *= objs[obj_hit].reflect;
+			normal = get_normal(objs + obj_hit, v, dir);
+			hit_color = convert_float4(objs[obj_hit].color) / 255.0f;
 
-			// Calculates the reflected ray
-			if (reflected < set.max_rays && reflect_amount > 0.05)
+			// Calculates the refracted/reflected rays
+			if (nrays < max_rays && (reflect_amount.x + reflect_amount.y + reflect_amount.z) * objs[obj_hit].transparency > MIN_RAY_ABSORPTION)
 			{
-				float3		normal;
+				float	cost1;
+				float	cost2;
+				float	ratio;
+				float3	refract_ori;
+				float3	refract_dir;
+				float	n1;
+				float	power_coefficient;
 
-				normal = get_normal(objs + obj_hit, v, dir);
+				n1 = objs[obj_hit].ref_index;
+				cost1 = dot(dir, normal);
+				ratio = 1. / n1;
+				cost2 = 1 - ratio * ratio * (1 - cost1 * cost1);
+				power_coefficient = pow((n1 - 1) / (n1 + 1), 2);
+				power_coefficient = power_coefficient + (1 - power_coefficient) * powr(1 - cost2, 5);
+				absorption = hit_color * objs[obj_hit].transparency;
+				if (cost2 > 0)
+				{
+					cost2 = sqrt(cost2);
+					refract_dir = normalize(ratio * dir - (ratio * cost1 - cost2) * normal);
+					refract_ori = v + refract_dir * 0.01f;
+					ori_tmp = vec_mat_mult(objs[obj_hit].transform, refract_ori);
+					dir_tmp = vec_mat_mult(objs[obj_hit].rot_mat, refract_dir);
+					if ((objs[obj_hit].type == SPHERE && sphere_hit(ori_tmp, dir_tmp, &tmp, 1)) ||
+						(objs[obj_hit].type == PLANE && plane_hit(ori_tmp, dir_tmp, &tmp, 1)) ||
+						(objs[obj_hit].type == CYLINDER && cylinder_hit(ori_tmp, dir_tmp, &tmp, 1)) ||
+						(objs[obj_hit].type == CONE && cone_hit(ori_tmp, dir_tmp, &tmp, 1)) ||
+						(objs[obj_hit].type == TORUS && torus_hit(ori_tmp, dir_tmp, &tmp, 1)) ||
+						(objs[obj_hit].type == MOEBIUS && moebius_hit(ori_tmp, dir_tmp, &tmp, 1)))
+					{
+						float3	refract_normal;
+
+						absorption = pow(absorption, tmp / 20);
+						refract_ori = refract_ori + refract_dir * (tmp + 0.01f);
+						refract_normal = get_normal(objs + obj_hit, refract_ori, refract_dir);
+						cost1 = dot(refract_dir, refract_normal);
+						ratio = n1 / 1.;
+						cost2 = 1 - ratio * ratio * (1 - cost1 * cost1);
+						if (cost2 > 0)
+						{
+							cost2 = sqrt(cost2);
+							dir = normalize(ratio * refract_dir - (ratio * cost1 - cost2) * refract_normal);
+						}
+					}
+					rays[nrays].ori = refract_ori;
+					rays[nrays].dir = refract_dir;
+					rays[nrays].absorption = reflect_amount * absorption * (1 - power_coefficient);
+					nrays++;
+				}
+			}
+			else
+			{
+				intensity_mult = reflect_amount;
+				intensity_mult *= 1 - objs[obj_hit].reflect;
+ 				if ((reflect_amount.x + reflect_amount.y + reflect_amount.z) * objs[obj_hit].transparency > MIN_RAY_ABSORPTION)
+					intensity_mult *= 1 - objs[obj_hit].transparency;
+				color += get_point_color(objs, spots, nspots, nobjs, obj_hit, set.ambiant_light, v, dir, texture) * intensity_mult;
+			}
+			if (nrays < max_rays && (reflect_amount.x + reflect_amount.y + reflect_amount.z) * objs[obj_hit].reflect > MIN_RAY_ABSORPTION)
+			{
+				float4	reflect_mult;
+
+				if (objs[obj_hit].transparency > MIN_RAY_ABSORPTION)
+				{
+					float	power_coefficient;
+					float	cost1;
+					float	n2;
+
+					n2 = objs[obj_hit].ref_index;
+					cost1 = dot(dir, normal);
+					power_coefficient = pow((1 - n2) / (n2 + 1), 2);
+					reflect_mult = (float4)(power_coefficient + (1 - power_coefficient) * pow(1 - cost1, 5));
+				}
+				else
+					reflect_mult = hit_color;
 				dir = normalize(dir - (normal * 2 * dot(dir, normal)));
 				ori = v;
+				rays[nrays].ori = ori + dir * 0.01f;
+				rays[nrays].dir = dir;
+				rays[nrays].absorption = reflect_amount * objs[obj_hit].reflect * reflect_mult;
+				nrays++;
 			}
 		}
 		else
-		{
 			color += ((1 / (1 - (convert_float4(set.sky_color) / 255))) - 1) * reflect_amount;
-			break ;
-		}
 	}
 
-	color = color / (color + 1); 
-	write_imageui(image, id, (uint4)(255 * color.r, 255 * color.g, 255 * color.b, 0));
+	color = clamp(0, 1, color);
+	write_imageui(image, id, (uint4)(255.0f * color.r, 255.0f * color.g, 255.0f * color.b, 0));
+	//if (logger(get_image_width(texture), 1))
+		//write_imageui(image, id, (uint4)(0, 255.0f, 255.0f, 0));
 }
-
-__const sampler_t near_sampler = CLK_NORMALIZED_COORDS_FALSE |
-								 CLK_ADDRESS_REPEAT |
-								 CLK_FILTER_NEAREST;
 
 __kernel void	sampler256(
 				  __write_only image2d_t	dest_image,
@@ -292,102 +425,6 @@ __kernel void	sampler1(
 	write_imageui(dest_image, (int4)(id, thumbnail_id, 0), (uint4)(color.rgb, 0x00));
 }
 
-__const sampler_t normal_sampler = CLK_NORMALIZED_COORDS_TRUE |
-								   CLK_ADDRESS_MIRRORED_REPEAT |
-								   CLK_FILTER_NEAREST;
-
-static float3				test_solver(float3 parm)
-{
-	float3	root;
-	float	p;
-	float	q;
-	float	delta;
-	float	sqrdelta;
-	float	root3;
-	float	tmp1;
-	float	tmp2;
-	float	sub;
-
-	root = NAN;
-	p = parm.y - parm.x * parm.x / 3;
-	q = 2 * parm.x * parm.x * parm.x / 27 - parm.y * parm.x / 3 + parm.z;
-	sub = -parm.x / 3;
-	delta = q * q / 4 + p * p * p / 27;
-	sqrdelta = sqrt(delta);
-	if (delta > 0)
-		root.s0 = cbrt(-q / 2 + sqrdelta) + cbrt(-q / 2 - sqrdelta) + sub;
-	else
-	{
-		root3 = sqrt((float)3);
-		tmp2 = sqrt(-p);
-		tmp1 = (2 / root3) * tmp2;
-		tmp2 = asin((3 * root3 * q) / (2 * tmp2 * tmp2 * tmp2)) / 3;
-		root.s0 = tmp1 * sin(tmp2) + sub;
-		root.s1 = -tmp1 * sin(tmp2 + M_PI_F / 3) + sub;
-		root.s2 = tmp1 * cos(tmp2 + M_PI_F / 6) + sub;
-	}
-	return (order(root));
-}
-
-static bool				moebius_in_band(float3 hit)
-{
-	float2	band_pos;
-	float	tmp;
-
-	band_pos = (float2)(length((float2)(hit.x, hit.y)) - 2, hit.z);
-	tmp = angle(hit.xy) / 2;
-	if (length(band_pos) < 1 && fabs(dot(band_pos, (float2)(cos(tmp), sin(tmp)))) < 0.01)
-		return (1);
-	return (0);
-}
-
-static bool					test_moebius(__global uchar4 *buf, int2 size, int2 pos, int2 id, t_set set)
-{
-	float	a;
-	float	b;
-	float	c;
-	float	d;
-	float3	inter;
-	float3			ori;
-	float3			dir;
-	float			s;
-
-	s = 1 / tan((float)(set.fov * 0.5 * M_PI_F / 180));
-	ori = (float3)((float)(pos.x - size.x / 2) / (max(size.x, size.y) / 2) / s,
-				   (float)(size.y / 2 - pos.y) / (max(size.x, size.y) / 2) / s, 1);
-	dir = ori;
-	ori = vec_mat_mult(set.cam_mat, ori);
-	dir = normalize(vec_mat_mult(set.cam_mat_rot, dir));
-	ori = ori - (float3)(0, -5, 40);
-	ori.yz = ori.zy * (float2)(1, -1);
-	dir.yz = dir.zy * (float2)(1, -1);
-	ori /= 5;
-	dir /= 5;
-
-	a = dir.x * dir.x * dir.y + dir.y * dir.y * dir.y - 2 * dir.x * dir.x * dir.z - 2 * dir.y * dir.y * dir.z + dir.y * dir.z * dir.z;
-	b = -4 * dir.x * dir.z + 2 * dir.x * dir.y * ori.x - 4 * dir.x * dir.z * ori.x + dir.x * dir.x * ori.y + 3 * dir.y * dir.y * ori.y
-			- 4 * dir.y * dir.z * ori.y + dir.z * dir.z * ori.y - 2 * dir.x * dir.x * ori.z - 2 * dir.y * dir.y * ori.z + 2 * dir.y * dir.z * ori.z;
-	c = -4 * dir.y - 4 * dir.z * ori.x + dir.y * ori.x * ori.x - 2 * dir.z * ori.x * ori.x + 2 * dir.x * ori.x * ori.y + 3 * dir.y * ori.y * ori.y
-			- 2 * dir.z * ori.y * ori.y - 4 * dir.x * ori.z - 4 * dir.x * ori.x * ori.z - 4 * dir.y * ori.y * ori.z + 2 * dir.z * ori.y * ori.z + dir.y * ori.z * ori.z;
-	d = -4 * ori.y + ori.x * ori.x * ori.y + ori.y * ori.y * ori.y - 4 * ori.x * ori.z - 2 * ori.x * ori.x * ori.z - 2 * ori.y * ori.y * ori.z + ori.y * ori.z * ori.z;
-	inter = NAN;
-	inter = test_solver((float3)(b, c, d) / a);
-
-	float16		test;
-	test = NAN;
-
-	if (inter.x >= 0.01 && moebius_in_band(ori + dir * inter.x))
-		test.s0 = inter.x;
-	else if (inter.y >= 0.01 && moebius_in_band(ori + dir * inter.y))
-		test.s0 = inter.y;
-	else if (moebius_in_band(ori + dir * inter.z))
-		test.s0 = inter.z;
-
-	test.s012 = inter;
-	if (logger(test, 4))
-		buf[id.x + size.x * id.y] = (uchar4)(0x00, 0xff, 0xff, 0x00);
-	return (0);
-}
 
 __kernel void	paint_gui(
 						__write_only image2d_t			screen,
@@ -466,7 +503,7 @@ __kernel void	paint_gui(
 		}
 	}
 	write_imagef(screen, id, (float4)(convert_float3(clamp(0, 255, color.bgr)) / 255, 0.));
-	//test_moebius(buf, size, gui.mouse_pos, id, set);
+	//test_moebius(screen, size, gui.mouse_pos, id, set);
 }
 
 __kernel void	clear_buf(__write_only image2d_t buf,

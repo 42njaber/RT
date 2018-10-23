@@ -4,6 +4,15 @@ FILES = main.c \
 		read_path.c \
 		parse_nodes.c \
 		parse.c \
+		png_block_parser.c \
+		png_create_huffman_tree.c \
+		png_decoder.c \
+		png_deflate_code_reader.c \
+		png_integrity_checks.c \
+		png_parse_deflate.c \
+		png_parse_zlib.c \
+		png_read_huffman_tree.c \
+		png_unfilter_image.c \
 		init.c \
 		scenes.c \
 		setup_view.c \

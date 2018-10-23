@@ -6,7 +6,7 @@
 /*   By: njaber <njaber@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/10/14 09:20:31 by njaber            #+#    #+#             */
-/*   Updated: 2018/10/16 08:08:37 by njaber           ###   ########.fr       */
+/*   Updated: 2018/10/23 19:20:54 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,6 +64,10 @@ static int		parse_obj_node(t_scene *scene, t_node *onode, char **pos)
 			obj->color = parsecolor(pos);
 		else if (ft_strcmp(node.name, "reflect") == 0)
 			obj->reflect = parsef(pos);
+		else if (ft_strcmp(node.name, "transparency") == 0)
+			obj->transparency = parsef(pos);
+		else if (ft_strcmp(node.name, "refractive_index") == 0)
+			obj->ref_index = parsef(pos);
 		default_check_node(scene, &node, pos);
 	}
 	destroy_hmap(&node.values, free_and_null);
@@ -112,6 +116,8 @@ static int		parse_spot_node(t_scene *scene, t_node *onode, char **pos)
 			spot->lum = parsef(pos);
 		else if (ft_strcmp(node.name, "pos") == 0)
 			spot->pos = parse3f(pos);
+		else if (ft_strcmp(node.name, "color") == 0)
+			spot->color = parsecolor(pos);
 		default_check_node(scene, &node, pos);
 	}
 	destroy_hmap(&node.values, free_and_null);

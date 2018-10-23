@@ -6,7 +6,7 @@
 /*   By: njaber <njaber@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/10/14 01:24:16 by njaber            #+#    #+#             */
-/*   Updated: 2018/10/17 12:32:25 by njaber           ###   ########.fr       */
+/*   Updated: 2018/10/23 19:20:53 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,6 +60,8 @@ typedef struct __attribute__((aligned(512)))	s_obj {
 	t_vec3	__attribute__((aligned(16)))		size;
 	t_color	__attribute__((aligned(16)))		color;
 	float	__attribute__((aligned(8)))			reflect;
+	float	__attribute__((aligned(8)))			transparency;
+	float	__attribute__((aligned(8)))			ref_index;
 	t_mat4	__attribute__((aligned(64)))		transform;
 	t_mat4	__attribute__((aligned(64)))		rot_mat;
 	t_mat4	__attribute__((aligned(64)))		rev_norm;
@@ -74,6 +76,7 @@ typedef struct __attribute__((aligned(512)))	s_obj {
 
 typedef struct __attribute__((aligned(32)))		s_spot {
 	t_vec3	__attribute__((aligned(16)))	pos;
+	t_color	__attribute__((aligned(16)))	color;
 	float	__attribute__((aligned(8)))		lum;
 } __attribute__((packed))						t_spot;
 

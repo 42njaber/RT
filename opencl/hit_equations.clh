@@ -4,12 +4,13 @@
 
 # include "common.clh"
 
-bool					sphere_hit(float3 ori, float3 dir, float *t);
-bool					plane_hit(float3 ori, float3 dir, float *t);
-bool					cylinder_hit(float3 ori, float3 dir, float *t);
-bool					cone_hit(float3 ori, float3 dir, float *t);
-bool					torus_hit(float3 ori, float3 dir, float *t);
-bool					moebius_hit(float3 ori, float3 dir, float *t);
+bool					sphere_hit(float3 ori, float3 dir, float *t, bool rev);
+bool					plane_hit(float3 ori, float3 dir, float *t, bool rev);
+bool					cylinder_hit(float3 ori, float3 dir, float *t, bool rev);
+bool					cone_hit(float3 ori, float3 dir, float *t, bool rev);
+bool					torus_hit(float3 ori, float3 dir, float *t, bool rev);
+bool					moebius_hit(float3 ori, float3 dir, float *t, bool rev);
 float3					get_normal(__global t_obj *obj, float3 v, float3 dir);
+float2					get_surface_pos(__global t_obj *obj, float3 v, float3 dir);
 
 #endif

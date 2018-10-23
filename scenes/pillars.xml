@@ -9,10 +9,12 @@
 	<spot>
 		<lum>1000</lum>
 		<pos>47 17 10</pos>
+		<color>AA55AA</color>
 	</spot>
 	<spot>
 		<lum>1000</lum>
 		<pos>-47 17 10</pos>
+		<color>2255AA</color>
 	</spot>
 </spotlist>
 
@@ -32,16 +34,18 @@
 	<obj>
 		<type>plane</type>
 		<pos>0 20 0</pos>
-		<rot>90 0 0</rot>
+		<rot>-90 0 0</rot>
 		<color>776655</color>
 	</obj>
 
 	<obj>
 		<type>sphere</type>
 		<pos>0 -5 40</pos>
-		<color>FF2222</color>
+		<color>FFAAAA</color>
 		<scale>5 5 5</scale>
-		<reflect>0.5</reflect>
+		<reflect>1</reflect>
+		<transparency>0.8</transparency>
+		<refractive_index>1.05</refractive_index>
 	</obj>
 
 	<obj>
@@ -76,56 +80,56 @@
 	<obj>
 		<type>sphere</type>
 		<pos>-20 20 35</pos>
-		<color>333333</color>
+		<color>777777</color>
 		<scale>6 6 6</scale>
 		<reflect>0.75</reflect>
 	</obj>
 	<obj>
 		<type>sphere</type>
 		<pos>20 20 35</pos>
-		<color>333333</color>
+		<color>777777</color>
 		<scale>6 6 6</scale>
 		<reflect>0.75</reflect>
 	</obj>
 	<obj>
 		<type>sphere</type>
 		<pos>-20 20 60</pos>
-		<color>333333</color>
+		<color>777777</color>
 		<scale>6 6 6</scale>
 		<reflect>0.75</reflect>
 	</obj>
 	<obj>
 		<type>sphere</type>
 		<pos>20 20 60</pos>
-		<color>333333</color>
+		<color>777777</color>
 		<scale>6 6 6</scale>
 		<reflect>0.75</reflect>
 	</obj>
 	<obj>
 		<type>sphere</type>
 		<pos>-20 -10 35</pos>
-		<color>333333</color>
+		<color>777777</color>
 		<scale>6 6 6</scale>
 		<reflect>0.75</reflect>
 	</obj>
 	<obj>
 		<type>sphere</type>
 		<pos>20 -10 35</pos>
-		<color>333333</color>
+		<color>777777</color>
 		<scale>6 6 6</scale>
 		<reflect>0.75</reflect>
 	</obj>
 	<obj>
 		<type>sphere</type>
 		<pos>-20 -10 60</pos>
-		<color>333333</color>
+		<color>777777</color>
 		<scale>6 6 6</scale>
 		<reflect>0.75</reflect>
 	</obj>
 	<obj>
 		<type>sphere</type>
 		<pos>20 -10 60</pos>
-		<color>333333</color>
+		<color>777777</color>
 		<scale>6 6 6</scale>
 		<reflect>0.75</reflect>
 	</obj>

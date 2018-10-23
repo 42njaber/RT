@@ -6,7 +6,7 @@
 /*   By: njaber <njaber@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/10/16 00:33:51 by njaber            #+#    #+#             */
-/*   Updated: 2018/10/17 17:03:21 by njaber           ###   ########.fr       */
+/*   Updated: 2018/10/20 12:52:52 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,10 @@ static int		read_file(t_ptr *p, char *path)
 		return (ft_printret(EXIT_FAILURE,
 					"Could not open file %s\n", path));
 	if ((scene = new_scene(p, path)) == NULL)
+	{
+		close(fd);
 		return (EXIT_FAILURE);
+	}
 	err = parse_scene_file(scene, fd);
 	close(fd);
 	if (err != EXIT_SUCCESS)

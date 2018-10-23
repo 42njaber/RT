@@ -6,7 +6,7 @@
 /*   By: njaber <neyl.jaber@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/20 15:19:13 by njaber            #+#    #+#             */
-/*   Updated: 2018/10/20 10:31:00 by njaber           ###   ########.fr       */
+/*   Updated: 2018/10/21 11:38:50 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,6 +29,43 @@ typedef struct		s_node {
 	t_hmap	values;
 	char	type;
 }					t_node;
+
+typedef struct s_btree	t_btree;
+
+struct				s_btree {
+	t_btree		*parent;
+	t_btree		*b0;
+	t_btree		*b1;
+	short		val;
+};
+
+typedef struct		s_png {
+	t_ivec	dim;
+	t_uint	*buf;
+	t_uchar	init;
+	t_uchar	bdepth;
+	t_uchar	ctype;
+	t_uchar	pxsize;
+	t_uchar	compression;
+	t_uchar	filter;
+	t_uchar	interlace;
+	t_ivec	aratio;
+	t_uchar	aunit;
+	t_uint	block_nb_;
+	t_uint	block_len_;
+	t_uchar	block_type_[4];
+	t_list	*idat_blocks_;
+	t_list	**idat_last_;
+	t_uchar	*zlib_stream_;
+	size_t	zlib_len_;
+	int		*codes_;
+	size_t	codes_len_;
+	size_t	data_size_;
+	t_uchar	*data_;
+	t_btree	*ltree;
+	t_btree	*dtree;
+	t_btree	*cltree;
+}					t_png;
 
 typedef struct		s_scene {
 	t_vec3		start_pos;
@@ -67,6 +104,8 @@ typedef struct	s_ptr {
 	t_ivec			mouse_pos;
 	int				update;
 	t_gui			gui;
+	t_png			*png;
+	t_img			texture;
 	t_scene			*current_scene;
 	t_hmap			scenes;
 	t_view			view;
@@ -130,5 +169,32 @@ t_vec3			get_normal(t_obj *obj, t_vec3 v);
 
 void			generate_cam_matrices(t_view *view);
 void			generate_obj_matrices(t_view *view);
+
+void			free_content(void *cont, size_t size);
+
+t_png			*decode_png(char *path);
+int				validate_crc(int fd, t_uchar *buf, t_png *png);
+int				checksum(t_uchar *buf, t_uint len, t_uchar *alder);
+int				destroy_png(t_png **png);
+int				parse_ihdr(int fd, t_png *png);
+int				parse_phys(int fd, t_png *png);
+int				parse_idat(int fd, t_png *png);
+int				parse_iend(int fd, t_png *png);
+int				parse_unkown(int fd, t_png *png);
+
+t_uint			get_next_bits(t_uchar *buf, t_uint *pos, t_uint len);
+int				decompress_block(t_png *png,
+									t_uchar *stream, t_uint *pos);
+int				parse_zlib(t_png *png);
+int				gen_default_tree(t_png *png);
+int				read_tree(t_png *png, t_uchar *stream, t_uint *pos);
+int				create_cltree(t_btree **cltree, t_uchar *clens);
+int				create_tree(t_btree **tree,
+										t_uchar *lens, t_ushort max);
+short			read_next(t_png *png, t_uchar *stream,
+										t_uint *pos, t_btree *tree);
+void			free_tree(t_btree **tree);
+int				read_codes(t_png *png, t_uchar *buf, t_uint *pos);
+int				recompose_image(t_png *png);
 
 #endif

@@ -1,0 +1,79 @@
+
+<config>
+	<start_pos>0 10 0</start_pos>
+	<start_rotation>0 -90</start_rotation>
+	<ambiant_light>0.3</ambiant_light>
+</config>
+
+<spotlist>
+	<spot>
+		<lum>10000</lum>
+		<pos>0 70 0</pos>
+	</spot>
+</spotlist>
+
+<!-- Test commentaire -->
+<objlist>
+	<obj>
+		<type>plane</type>
+		<pos>0 0 0</pos>
+		<rot>90 0 0</rot>
+		<color>777777</color>
+		<reflect>0.75</reflect>
+	</obj>
+	<obj>
+		<type>plane</type>
+		<pos>0 100 0</pos>
+		<rot>-90 0 0</rot>
+		<color>777777</color>
+		<reflect>0.75</reflect>
+	</obj>
+	<obj>
+		<type>plane</type>
+		<pos>100 0 0</pos>
+		<rot>0 -90 0</rot>
+		<color>FFAA00</color>
+		<reflect>0.75</reflect>
+	</obj>
+	<obj>
+		<type>plane</type>
+		<pos>0 0 60</pos>
+		<rot>0 0 0</rot>
+		<color>770077</color>
+		<reflect>0.75</reflect>
+	</obj>
+	<obj>
+		<type>plane</type>
+		<pos>0 0 -60</pos>
+		<rot>180 0 0</rot>
+		<color>770077</color>
+		<reflect>0.75</reflect>
+	</obj>
+
+	<obj>
+		<type>sphere</type>
+		<pos>30 10 40</pos>
+		<color>771717</color>
+		<scale>15 10 15</scale>
+		<reflect>0.75</reflect>
+	</obj>
+
+	<obj>
+		<type>sphere</type>
+		<pos>35 10 -20</pos>
+		<color>FF0000</color>
+		<scale>2 2 2</scale>
+		<rot>90 0 0</rot>
+	</obj>
+
+	<obj>
+		<type>sphere</type>
+		<pos>30 50 50</pos>
+		<rot>0 180 0</rot>
+		<color>00AAEE</color>
+		<scale>5 5 5</scale>
+		<reflect>0.1</reflect>
+		<transparency>0.9</transparency>
+		<refractive_index>1.1</refractive_index>
+	</obj>
+</objlist>

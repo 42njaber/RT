@@ -6,7 +6,7 @@
 /*   By: njaber <neyl.jaber@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/01/25 23:56:43 by njaber            #+#    #+#             */
-/*   Updated: 2018/10/19 05:43:10 by njaber           ###   ########.fr       */
+/*   Updated: 2018/10/21 11:43:08 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -121,7 +121,8 @@ void			display_data_str(t_win *win, char *name, char *data, int y);
 t_ocl			*init_opencl(void);
 cl_program		create_program_from_file(cl_context context, const char *file);
 
-int				init_new_image(t_img *img, t_ivec size, t_ocl *opencl);
+int				init_new_image(t_img *img, t_ivec size,
+										t_ocl *opencl, void *data);
 unsigned int	color_gradiant(unsigned int *colors, float gradiant);
 
 int				get_key_digit(int key_code);

@@ -6,7 +6,7 @@
 /*   By: njaber <neyl.jaber@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/20 14:52:32 by njaber            #+#    #+#             */
-/*   Updated: 2018/10/20 10:34:00 by njaber           ###   ########.fr       */
+/*   Updated: 2018/10/23 11:20:36 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,7 +64,7 @@ static int		key_press_hook(GLFWwindow *win, int key_code, t_ptr *p)
 			p->gui.state = UNZOOM_SCENE;
 		}
 	}
-	if (key_code == GLFW_KEY_PAGE_UP && p->view.set.max_rays < 10)
+	if (key_code == GLFW_KEY_PAGE_UP && p->view.set.max_rays < 20)
 	{
 		p->view.set.max_rays++;
 		p->update = 1;

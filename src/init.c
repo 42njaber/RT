@@ -6,7 +6,7 @@
 /*   By: njaber <neyl.jaber@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/20 13:17:27 by njaber            #+#    #+#             */
-/*   Updated: 2018/10/19 06:51:06 by njaber           ###   ########.fr       */
+/*   Updated: 2018/10/23 19:20:56 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,6 +29,16 @@ static void		init_gui(t_ptr *p)
 	p->gui.state = MENU;
 }
 
+static void		init_texture(t_ptr *p)
+{
+	if ((p->png = decode_png("textures/pavement.png")) == NULL)
+		ft_error("Error while reading png file\n");
+	if ((init_new_image(&p->texture, p->png->dim,
+					p->opencl, p->png->buf)) != EXIT_SUCCESS)
+		ft_error("Failed to initialize texture buffer\n");
+	clFinish(p->opencl->gpu_command_queue);
+}
+
 void			init_struct(t_ptr *p)
 {
 	if ((p->win = (t_win*)ft_memalloc(sizeof(t_win))) == NULL)
@@ -37,14 +47,16 @@ void			init_struct(t_ptr *p)
 			!= EXIT_SUCCESS)
 		ft_error("[Erreur] Failed to initialize window\n");
 	glfwMakeContextCurrent(p->win->win);
-	if ((p->opencl = init_opencl()) == NULL || 
-		(p->kernel = create_kernel(p)) == NULL)
+	if ((p->opencl = init_opencl()) == NULL)
 		ft_error("Could not initialize OpenCL, quiting...\n");
+	if ((p->kernel = create_kernel(p)) == NULL)
+		ft_error("Could not create kernel, quiting...\n");
 	if ((init_new_image(&p->win->img, ivec(DEFAULT_WIDTH, DEFAULT_HEIGHT),
-					p->opencl)) != EXIT_SUCCESS)
+					p->opencl, NULL)) != EXIT_SUCCESS)
 		ft_error("Failed to initialize window buffer\n");
-	gen_thumbnails(p);
+	init_texture(p);
 	init_gui(p);
+	gen_thumbnails(p);
 	p->update = 1;
 }
 
@@ -63,6 +75,8 @@ t_obj			*default_obj(t_scene *scene)
 	ret->color = 0xFFFFFF;
 	ret->size = vec3(1, 1, 1);
 	ret->reflect = 0;
+	ret->transparency = 0;
+	ret->ref_index = 1;
 	return (ret);
 }
 
@@ -77,5 +91,6 @@ t_spot			*default_spot(t_scene *scene)
 	ret = scene->spots + scene->nspots - 1;
 	ret->lum = 0;
 	ret->pos = vec3(0, 0, 0);
+	ret->color = 0xFFFFFF;
 	return (ret);
 }

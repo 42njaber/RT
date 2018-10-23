@@ -6,7 +6,7 @@
 /*   By: njaber <njaber@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/10/17 15:38:42 by njaber            #+#    #+#             */
-/*   Updated: 2018/10/17 15:38:55 by njaber           ###   ########.fr       */
+/*   Updated: 2018/10/20 12:57:23 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,9 +41,13 @@ cl_program		create_program_from_file(cl_context context, const char *file)
 	while ((rd = read(fd, buf, 4096)) > 0)
 		kernel = join_free(kernel, buf, rd);
 	if (rd == -1)
+	{
+		close(fd);
 		return (NULL);
+	}
 	ret = clCreateProgramWithSource(context, 1,
 			(const char**)&kernel, NULL, NULL);
+	close(fd);
 	free(kernel);
 	return (ret);
 }
