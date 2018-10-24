@@ -68,6 +68,23 @@ float4					spot_projected_color(
 	return (ret);
 }
 
+static float rand_noise(int t)
+{
+	t = (t << 13) ^ t;
+	t = (t * (t * t * 15731 + 789221) + 1376312589);
+	return (1.0 - (t & 0x7fffffff) / 1073741824.0);
+}
+
+static float	noise_2d(float2 position)
+{
+	int tmp;
+
+	tmp = rand_noise(position.x * 1000) * 850000;
+	return rand_noise(tmp + (position.y * 1000));
+}
+
+//calculer les 3 couleur
+
 float4					get_point_color(
 								   __global t_obj *objs,
 								   __global t_spot *spots,
@@ -112,6 +129,7 @@ float4					get_point_color(
 	tex_pos = get_surface_pos(objs + obj_hit, v, dir);
 	obj_color = convert_float4(objs[obj_hit].color) / 255.0f;
 	//obj_color *= read_imagef(texture, normal_sampler, tex_pos);
+	obj_color *= (float4)noise_2d(tex_pos);
 	color = lum * obj_color;
 	//if (fabs(fmod(v.x + 0.2, (float)20)) < 0.03 || fabs(fmod(v.y + 0.2, (float)20)) < 0.03 || fabs(fmod(v.z + 0.2, (float)20)) < 0.03)
 		//color = 1 / color;
