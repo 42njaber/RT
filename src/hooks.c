@@ -23,7 +23,7 @@
 **  - Close button clicked
 */
 
-static void refresh_callback(GLFWwindow *win)
+static void	refresh_callback(GLFWwindow *win)
 {
 	t_ptr	*p;
 
