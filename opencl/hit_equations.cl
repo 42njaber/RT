@@ -139,38 +139,6 @@ bool					moebius_hit(float3 or, float3 dir, float *t, bool rev)
 	return (0);
 }
 
-float3					get_normal(__global t_obj *obj, float3 v, float3 dir)
-{
-	float3	ret;
-	float	tmp;
-
-	v = vec_mat_mult(obj->transform, v);
-	if (obj->type == SPHERE)
-		ret = (float3)(-v.x, -v.y, -v.z);
-	else if (obj->type == PLANE)
-		ret = (float3)(0, 0, 1);
-	else if (obj->type == CYLINDER)
-		ret = (float3)(-v.x, 0, -v.z);
-	else if (obj->type == CONE)
-		ret = (float3)(-v.x, v.y, -v.z);
-	else if (obj->type == TORUS)
-	{
-		tmp = length((float2)(v.x, v.y));
-		ret = (float3)((tmp - TORUS_RADIUS) * v.x / tmp, (tmp - TORUS_RADIUS) * v.y / tmp, v.z);
-	}
-	else if (obj->type == MOEBIUS)
-	{
-		tmp = angle(v.xy) / 2;
-		ret = (float3)(normalize(v.xy) * cos(tmp), sin(tmp));
-	}
-	else
-		ret = (float3){0, 0, 1};
-	ret = vec_mat_mult(obj->rev_norm, ret);
-	if (dot(dir, ret) < 0)
-		ret *= -1;
-	return (normalize(ret));
-}
-
 float2					get_surface_pos(__global t_obj *obj, float3 v, float3 dir)
 {
 	float2	ret;
@@ -208,4 +176,78 @@ float2					get_surface_pos(__global t_obj *obj, float3 v, float3 dir)
 	else
 		ret = v.xy;
 	return (ret);
+}
+
+/*
+static float3			get_tex_delta(__global t_obj *obj, float3 v, float3 dir, float3 normal)
+{
+	float2	ret;
+	float3	tmp;
+
+	v = vec_mat_mult(obj->transform, v);
+	dir = vec_mat_mult(obj->rot_mat, dir);
+	if (obj->type == SPHERE)
+	{
+		// Other mapping ret = (float2)(sin(v.x), angle(v.yz) / (2 * M_PI_F));
+		tmp = fabs(v);
+		ret = (float3)();
+	}
+	else if (obj->type == PLANE)
+		ret = v.xy / 10;
+	else if (obj->type == CYLINDER)
+		ret = (float2)(angle(v.xz) / M_PI_F / 2.0f, v.y / M_PI_F / 2.0f);
+	else if (obj->type == CONE)
+		ret = (float2)(angle(v.xz) / M_PI_F / 2.0f, log2(fabs(v.y)));
+	else if (obj->type == TORUS)
+	{
+		ret = (float2)(angle(v.xy) / M_PI_F / 2.0f * TORUS_RADIUS,
+				angle((float2)(v.z, length(v.xy) - TORUS_RADIUS)) / M_PI_F / 2.0f * TORUS_WIDTH);
+	}
+	else if (obj->type == MOEBIUS)
+	{
+		tmp.z = angle(v.xy) / 2;
+		tmp.xy = (float2)(v.z, length(v.xy) - 2);
+		if (dot(dir, (float3)(cos(tmp.z) * normalize(v.xy), sin(tmp.z))) < 0)
+			tmp.xy = tmp.xy * -1;
+		ret = (float2)(angle(v.xy) / M_PI_F * 2,
+				((fabs(tmp.x) > fabs(tmp.y) ? tmp.x / cos(tmp.z) : tmp.y / sin(tmp.z) + 1) / 2));
+	}
+	else
+		ret = v.xy;
+	return (ret);
+}
+*/
+
+float3					get_normal(__global t_obj *obj, float3 v, float3 dir)
+{
+	float3	ret;
+	float	tmp;
+
+	v = vec_mat_mult(obj->transform, v);
+	if (obj->type == SPHERE)
+	{
+		ret = (float3)(-v.x, -v.y, -v.z);
+	}
+	else if (obj->type == PLANE)
+		ret = (float3)(0, 0, 1);
+	else if (obj->type == CYLINDER)
+		ret = (float3)(-v.x, 0, -v.z);
+	else if (obj->type == CONE)
+		ret = (float3)(-v.x, v.y, -v.z);
+	else if (obj->type == TORUS)
+	{
+		tmp = length((float2)(v.x, v.y));
+		ret = (float3)((tmp - TORUS_RADIUS) * v.x / tmp, (tmp - TORUS_RADIUS) * v.y / tmp, v.z);
+	}
+	else if (obj->type == MOEBIUS)
+	{
+		tmp = angle(v.xy) / 2;
+		ret = (float3)(normalize(v.xy) * cos(tmp), sin(tmp));
+	}
+	else
+		ret = (float3){0, 0, 1};
+	ret = vec_mat_mult(obj->rev_norm, ret);
+	if (dot(dir, ret) < 0)
+		ret *= -1;
+	return (normalize(ret));
 }

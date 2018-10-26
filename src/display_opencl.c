@@ -6,7 +6,7 @@
 /*   By: njaber <neyl.jaber@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/29 00:39:23 by njaber            #+#    #+#             */
-/*   Updated: 2018/10/21 11:45:16 by njaber           ###   ########.fr       */
+/*   Updated: 2018/10/26 09:02:05 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,7 +48,8 @@ static void			set_args(t_view *view, t_kernel *kernel)
 	clSetKernelArg(process, 3, sizeof(int), &view->nobjs);
 	clSetKernelArg(process, 4, sizeof(int), &view->nspots);
 	clSetKernelArg(process, 5, sizeof(t_set), &view->set);
-	clSetKernelArg(process, 6, sizeof(cl_mem), &get_p()->texture.cl_obj);
+	clSetKernelArg(process, 6, sizeof(cl_mem), &get_p()->texture_mem.cl_obj);
+	clSetKernelArg(process, 7, sizeof(cl_mem), &get_p()->cl_texture_sizes);
 }
 
 static void			sample_image(t_view *view, t_kernel *kernel,

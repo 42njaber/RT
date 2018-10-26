@@ -6,13 +6,13 @@
 /*   By: njaber <njaber@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/10/16 11:51:56 by njaber            #+#    #+#             */
-/*   Updated: 2018/10/23 00:42:49 by njaber           ###   ########.fr       */
+/*   Updated: 2018/10/26 08:14:52 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "rt.h"
 
-static cl_mem	create_image_array(t_ocl *opencl, int len,
+cl_mem			create_image_array(t_ocl *opencl, int len,
 											t_ivec size, int *err)
 {
 	cl_image_format		format;
@@ -26,8 +26,8 @@ static cl_mem	create_image_array(t_ocl *opencl, int len,
 	desc.image_width = (size_t)size.v[0];
 	desc.image_height = (size_t)size.v[1];
 	desc.image_array_size = len;
-	return (clCreateImage(opencl->gpu_context, CL_MEM_READ_WRITE,
-				&format, &desc, NULL, err));
+	return (clCreateImage(opencl->gpu_context, CL_MEM_READ_WRITE |
+				CL_MEM_HOST_WRITE_ONLY, &format, &desc, NULL, err));
 }
 
 static void		init_thumbnails_view(t_view *view, t_ivec size, t_ocl *ocl)

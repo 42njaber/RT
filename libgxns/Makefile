@@ -72,6 +72,7 @@ clean:
 	@echo $(DEFAULT)"_________________"
 	$(MAKE) -C ../libft/ fclean
 	$(MAKE) -C ../ft_printf/ fclean
+	$(MAKE) -C ../glfw/ clean
 
 fclean: clean
 	@echo 			"_________________"

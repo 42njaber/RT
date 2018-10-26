@@ -6,7 +6,7 @@
 /*   By: njaber <njaber@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/10/14 10:26:26 by njaber            #+#    #+#             */
-/*   Updated: 2018/10/16 12:06:36 by njaber           ###   ########.fr       */
+/*   Updated: 2018/10/25 00:28:51 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,5 +84,22 @@ int			parsetype(char **pos)
 	else if (ft_strcmp(type, "moebius") == 0)
 		ret = MOEBIUS;
 	free(type);
+	return (ret);
+}
+
+char		*parsestr(char **pos)
+{
+	int		i;
+	char	*ret;
+
+	while (ft_isinvis(**pos))
+		(*pos)++;
+	i = 0;
+	while ((*pos)[i] != '<' && (*pos)[i] != '\0')
+		i++;
+	while (ft_isinvis((*pos)[i] - 1) && i > 1)
+		i--;
+	if ((ret = ft_strldup(*pos, i)) == NULL)
+		ft_error("Malloc error\n");
 	return (ret);
 }

@@ -34,24 +34,25 @@
 		<pos>30 10 40</pos>
 		<color>FFFFFF</color>
 		<scale>15 10 15</scale>
-		<transparency>0.8</transparency>
-		<refractive_index>1.5</refractive_index>
-		<reflect>1</reflect>
+		<transparency>0.30</transparency>
+		<refractive_index>1.33</refractive_index>
+		<texture>water</texture>
 	</obj>
 
 	<obj>
 		<type>cylinder</type>
 		<pos>35 0 -20</pos>
-		<color>00AAFF</color>
+		<color>FFAA00</color>
 		<scale>2 2 2</scale>
-		<reflect>0.5</reflect>
+		<texture>pavement</texture>
 	</obj>
 	<obj>
 		<type>torus</type>
 		<pos>35 10 -20</pos>
-		<color>FF0000</color>
+		<color>FF5555</color>
 		<scale>2 2 2</scale>
 		<rot>90 0 0</rot>
+		<reflect>0.5</reflect>
 	</obj>
 
 	<obj>
@@ -60,9 +61,9 @@
 		<rot>90 0 0</rot>
 		<color>FAFFF0</color>
 		<scale>0.1 1 0.1</scale>
-		<transparency>0.99</transparency>
 		<refractive_index>1.1</refractive_index>
 		<reflect>1</reflect>
+		<texture>fence</texture>
 	</obj>
 	<obj>
 		<type>moebius</type>

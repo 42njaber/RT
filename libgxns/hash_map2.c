@@ -6,7 +6,7 @@
 /*   By: njaber <njaber@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/10/14 06:24:57 by njaber            #+#    #+#             */
-/*   Updated: 2018/10/16 07:37:04 by njaber           ###   ########.fr       */
+/*   Updated: 2018/10/26 07:14:35 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,4 +51,18 @@ void		del_helem(t_hmap *hmap, const char *key, void (*del)(void**))
 		else
 			i++;
 	}
+}
+
+size_t		get_helem_id(t_hmap *hmap, char *key)
+{
+	size_t	i;
+
+	i = 0;
+	while (i < hmap->elem_count)
+	{
+		if (ft_strcmp(hmap->keys[i], key) == 0)
+			return (i);
+		i++;
+	}
+	return (-1);
 }

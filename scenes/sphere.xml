@@ -50,14 +50,14 @@
 		<pos>0 0 77</pos>
 		<rot>0 0 0</rot>
 		<color>4444FF</color>
+		<texture>pavement</texture>
 	</obj>
-
 	<obj>
 		<type>sphere</type>
 		<pos>0 0 0</pos>
 		<rot>90 0 0</rot>
 		<color>FFFFFF</color>
 		<scale>5 5 5</scale>
-		<transparency>0.5</transparency>
+		<texture>cobblestone</texture>
 	</obj>
 </objlist>

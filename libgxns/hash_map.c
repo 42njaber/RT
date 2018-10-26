@@ -6,7 +6,7 @@
 /*   By: njaber <njaber@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/09/26 17:49:16 by njaber            #+#    #+#             */
-/*   Updated: 2018/10/14 10:04:05 by njaber           ###   ########.fr       */
+/*   Updated: 2018/10/25 01:38:26 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,7 +61,7 @@ static void	realloc_buf(t_hmap *hmap)
 	hmap->keys = tmp_key;
 }
 
-void		add_helem(t_hmap *hmap, char *key, void *data)
+size_t		add_helem(t_hmap *hmap, char *key, void *data)
 {
 	ft_printf("Adding element nb: %d (key: %s)\n", hmap->elem_count, key);
 	if (hmap->elem_count >= hmap->prebuf_size)
@@ -69,7 +69,7 @@ void		add_helem(t_hmap *hmap, char *key, void *data)
 	if ((hmap->keys[hmap->elem_count] = ft_strdup(key)) == NULL)
 		ft_error("Malloc error\n");
 	hmap->elements[hmap->elem_count] = data;
-	hmap->elem_count++;
+	return (hmap->elem_count++);
 }
 
 void		*get_helem(t_hmap *hmap, char *key)

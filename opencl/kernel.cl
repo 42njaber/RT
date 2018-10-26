@@ -2,9 +2,12 @@
 #include "math.clh"
 #include "hit_equations.clh"
 
-float4					spot_projected_color(__global t_obj *obj, int nobjs, float3 v1, __global t_spot *spot);
+float4					spot_projected_color(__global t_obj *obj, int nobjs, float3 v1, __global t_spot *spot, image3d_t texture, __global int2 *texture_sizes);
 float4					get_point_color(__global t_obj *objs, __global t_spot *spots, int nspots, int nobjs, int obj_hit,
-															float ambiant_light, float3 v, float3 dir, image2d_t texture);
+															float ambiant_light, float3 v, float3 dir, image3d_t texture, __global int2 *texture_sizes);
+
+#define RAY_NUMBER_MAX 20
+#define MIN_RAY_ABSORPTION 0.001f
 
 __const sampler_t near_sampler = CLK_NORMALIZED_COORDS_FALSE |
 								 CLK_ADDRESS_REPEAT |
@@ -18,7 +21,9 @@ float4					spot_projected_color(
 						   __global t_obj	*obj,
 						   int				nobjs,
 						   float3			v1,
-						   __global t_spot	*spot
+						   __global t_spot	*spot,
+						   image3d_t		textures,
+						   __global int2	*texture_sizes
 						)
 {
 	float3			line;
@@ -47,7 +52,24 @@ float4					spot_projected_color(
 			(obj[i].type == MOEBIUS && moebius_hit(ori_tmp, dir_tmp, &tmp, 0))) &&
 				tmp < len)
 		{
-			if (obj[i].transparency < 0.05)
+			float4	obj_color;
+			float4	tex_color;
+			float2	tex_pos;
+			int2	img_size;
+
+			obj_color = convert_float4(obj[i].color) / 255.0f;
+			tex_pos = get_surface_pos(obj + i, v1 + tmp * line / len, line);
+			if (obj[i].texture_id >= 0 && obj[i].texture_id < (int)get_image_depth(textures))
+			{
+				img_size = texture_sizes[obj[i].texture_id];
+				tex_pos = (float2)((tex_pos - floor(tex_pos)) * img_size);
+				tex_color = read_imagef(textures, near_sampler,
+						(int4)((int2)fmod(tex_pos, (float2)img_size), obj[i].texture_id, 0));
+				obj_color = (float4)(obj_color.rgb * tex_color.rgb, 1.f - (1.f - tex_color.a) * (1.f - obj_color.a));
+			}
+			obj_color.a = 1.f - (1.f - obj[i].transparency) * (1.f - obj_color.a);
+			obj_color.rgb = obj_color.rgb * obj_color.a / 2.f + obj_color.a / 2.f;
+			if (obj_color.a < MIN_RAY_ABSORPTION)
 				return ((float4)0);
 			else
 			{
@@ -59,9 +81,9 @@ float4					spot_projected_color(
 					(obj[i].type == CONE && cone_hit(ori_tmp, dir_tmp, &tmp, 1)) ||
 					(obj[i].type == TORUS && torus_hit(ori_tmp, dir_tmp, &tmp, 1)) ||
 					(obj[i].type == MOEBIUS && moebius_hit(ori_tmp, dir_tmp, &tmp, 1)))
-					ret *= pow(obj[i].transparency, tmp / 3) * convert_float4(obj[i].color) / 255.0f;
+					ret.rgb *= pow(obj_color.a, 2) * obj_color.rgb;
 				else
-					ret *= obj[i].transparency * convert_float4(obj[i].color) / 255.0f;
+					ret.rgb *= obj_color.a * obj_color.rgb;
 			}
 		}
 	}
@@ -77,7 +99,8 @@ float4					get_point_color(
 								   float ambiant_light,
 								   float3 v,
 								   float3 dir,
-								   image2d_t texture
+								   image3d_t textures,
+								   __global int2 *texture_sizes
 								  )
 {
 	float3			normal;
@@ -89,6 +112,7 @@ float4					get_point_color(
 	float4			obj_color;
 	float4			tmp;
 	float2			tex_pos;
+	int2			img_size;
 	float4			color;
 	int				i;
 
@@ -98,8 +122,8 @@ float4					get_point_color(
 	normal = get_normal(objs + obj_hit, v, dir);
 	while (++i < nspots)
 	{
-		tmp = spot_projected_color(objs, nobjs, v, spots + i);
-		if (tmp.r + tmp.g + tmp.b > 0.05)
+		tmp = spot_projected_color(objs, nobjs, v, spots + i, textures, texture_sizes);
+		if (tmp.r + tmp.g + tmp.b > MIN_RAY_ABSORPTION)
 		{
 			r_in = v - spots[i].pos;
 			a_in = dot(normalize(r_in), normal);
@@ -111,7 +135,13 @@ float4					get_point_color(
 	}
 	tex_pos = get_surface_pos(objs + obj_hit, v, dir);
 	obj_color = convert_float4(objs[obj_hit].color) / 255.0f;
-	//obj_color *= read_imagef(texture, normal_sampler, tex_pos);
+	if (objs[obj_hit].texture_id >= 0 && objs[obj_hit].texture_id < (int)get_image_depth(textures))
+	{
+		img_size = texture_sizes[objs[obj_hit].texture_id];
+		tex_pos = (float2)((tex_pos - floor(tex_pos)) * img_size);
+		obj_color *= read_imagef(textures, near_sampler,
+				(int4)((int2)fmod(tex_pos, (float2)img_size), objs[obj_hit].texture_id, 0));
+	}
 	color = lum * obj_color;
 	//if (fabs(fmod(v.x + 0.2, (float)20)) < 0.03 || fabs(fmod(v.y + 0.2, (float)20)) < 0.03 || fabs(fmod(v.z + 0.2, (float)20)) < 0.03)
 		//color = 1 / color;
@@ -125,8 +155,7 @@ typedef struct		s_ray {
 	float		ref_index;
 }					t_ray;
 
-#define RAY_NUMBER_MAX 20
-#define MIN_RAY_ABSORPTION 0.001f
+#include "debug.clh"
 
 __kernel void			process_image(
 						   __write_only image2d_t		image,
@@ -135,7 +164,8 @@ __kernel void			process_image(
 						   int							nobjs,
 						   int							nspots,
 						   t_set						set,
-						   __read_only image2d_t		texture
+						   __read_only image3d_t		textures,
+						   __global int2				*texture_sizes
 						  )
 {
 	int2			id;
@@ -239,14 +269,31 @@ __kernel void			process_image(
 			float3	normal;
 			float4	intensity_mult;
 			float4	hit_color;
+			float4	tex_color;
+			float2	tex_pos;
+			int2	img_size;
 			float4	absorption;
 
 			v = ori + dir * hit;
 			normal = get_normal(objs + obj_hit, v, dir);
+			tex_pos = get_surface_pos(objs + obj_hit, v, dir);
+			img_size = (int2)1;
 			hit_color = convert_float4(objs[obj_hit].color) / 255.0f;
+			if (objs[obj_hit].texture_id >= 0 && objs[obj_hit].texture_id < (int)get_image_depth(textures))
+			{
+				img_size = texture_sizes[objs[obj_hit].texture_id];
+				tex_pos = (float2)((tex_pos - floor(tex_pos)) * img_size);
+				tex_color = read_imagef(textures, near_sampler,
+						(int4)((int2)fmod(tex_pos, (float2)img_size), objs[obj_hit].texture_id, 0));
+				hit_color = (float4)(hit_color.rgb * tex_color.rgb, 1.f - (1.f - tex_color.a) * (1.f - hit_color.a));
+			}
+			hit_color.a = 1.f - (1.f - objs[obj_hit].transparency) * (1.f - hit_color.a);
 
 			// Calculates the refracted/reflected rays
-			if (nrays < max_rays && (reflect_amount.x + reflect_amount.y + reflect_amount.z) * objs[obj_hit].transparency > MIN_RAY_ABSORPTION)
+			intensity_mult = reflect_amount;
+			intensity_mult *= (1 - objs[obj_hit].reflect) * (1.f - hit_color.a);
+			color += get_point_color(objs, spots, nspots, nobjs, obj_hit, set.ambiant_light, v, dir, textures, texture_sizes) * intensity_mult;
+			if (nrays < max_rays && hit_color.a > MIN_RAY_ABSORPTION)
 			{
 				float	cost1;
 				float	cost2;
@@ -262,7 +309,7 @@ __kernel void			process_image(
 				cost2 = 1 - ratio * ratio * (1 - cost1 * cost1);
 				power_coefficient = pow((n1 - 1) / (n1 + 1), 2);
 				power_coefficient = power_coefficient + (1 - power_coefficient) * powr(1 - cost2, 5);
-				absorption = hit_color * objs[obj_hit].transparency;
+				absorption = (float4)(hit_color.rgb * hit_color.a / 2.f + hit_color.a / 2.f, 0);
 				if (cost2 > 0)
 				{
 					cost2 = sqrt(cost2);
@@ -296,14 +343,6 @@ __kernel void			process_image(
 					rays[nrays].absorption = reflect_amount * absorption * (1 - power_coefficient);
 					nrays++;
 				}
-			}
-			else
-			{
-				intensity_mult = reflect_amount;
-				intensity_mult *= 1 - objs[obj_hit].reflect;
- 				if ((reflect_amount.x + reflect_amount.y + reflect_amount.z) * objs[obj_hit].transparency > MIN_RAY_ABSORPTION)
-					intensity_mult *= 1 - objs[obj_hit].transparency;
-				color += get_point_color(objs, spots, nspots, nobjs, obj_hit, set.ambiant_light, v, dir, texture) * intensity_mult;
 			}
 			if (nrays < max_rays && (reflect_amount.x + reflect_amount.y + reflect_amount.z) * objs[obj_hit].reflect > MIN_RAY_ABSORPTION)
 			{

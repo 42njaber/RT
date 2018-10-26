@@ -6,7 +6,7 @@
 /*   By: njaber <neyl.jaber@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/01/25 23:56:43 by njaber            #+#    #+#             */
-/*   Updated: 2018/10/21 11:43:08 by njaber           ###   ########.fr       */
+/*   Updated: 2018/10/26 09:42:34 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,13 +56,13 @@ typedef struct	s_img {
 }				t_img;
 
 typedef struct	s_win {
-	GLFWwindow			*win;
-	t_img				img;
-	t_ivec				size;
-	int					frame;
-	float				fps;
-	t_scal				frame_elapsed;
-	unsigned long		frames[30];
+	GLFWwindow		*win;
+	t_img			img;
+	t_ivec			size;
+	int				frame;
+	float			fps;
+	t_scal			frame_elapsed;
+	unsigned long	frames[30];
 }				t_win;
 
 void			destroy_hmap(t_hmap *hmap, void (*del)(void**));
@@ -70,7 +70,8 @@ void			del_helem(t_hmap *hmap, const char *key, void (*del)(void**));
 void			reset_hmap(t_hmap *hmap, void (*del)(void**));
 void			init_hmap(t_hmap *hmap);
 void			*get_helem(t_hmap *hmap, char *key);
-void			add_helem(t_hmap *hmap, char *key, void *data);
+size_t			get_helem_id(t_hmap *hmap, char *key);
+size_t			add_helem(t_hmap *hmap, char *key, void *data);
 
 t_vec3			apply_mat_vec3(t_vec3 v, t_mat4 m);
 void			print_mat(t_mat4 m);

@@ -6,7 +6,7 @@
 /*   By: njaber <neyl.jaber@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/20 15:19:13 by njaber            #+#    #+#             */
-/*   Updated: 2018/10/21 11:38:50 by njaber           ###   ########.fr       */
+/*   Updated: 2018/10/26 08:56:16 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -104,8 +104,9 @@ typedef struct	s_ptr {
 	t_ivec			mouse_pos;
 	int				update;
 	t_gui			gui;
-	t_png			*png;
-	t_img			texture;
+	t_hmap			textures;
+	t_img			texture_mem;
+	cl_mem			cl_texture_sizes;
 	t_scene			*current_scene;
 	t_hmap			scenes;
 	t_view			view;
@@ -118,6 +119,8 @@ void			create_spot_memobjs(t_view *view, cl_context context);
 t_kernel		*create_kernel(t_ptr *p);
 cl_mem			cl_img2d(t_ocl *opencl, cl_mem_flags flags,
 														t_ivec size, int *err);
+cl_mem			create_image_array(t_ocl *opencl, int len,
+											t_ivec size, int *err);
 
 void			free_scene(void **data);
 t_scene			*new_scene(t_ptr *p, char *name);
@@ -129,6 +132,7 @@ t_vec2			parse2f(char **pos);
 t_vec3			parse3f(char **pos);
 t_color			parsecolor(char **pos);
 int				parsetype(char **pos);
+char			*parsestr(char **pos);
 
 int				get_next_xml_node(t_node *tag, char **pos, char strict);
 void			xml_set_read_buf(char *file, int len);
@@ -146,6 +150,7 @@ void			copy_scene_data(t_view *view, t_scene *scene);
 void			cleanup_view(t_view *view);
 void			init_scene(t_ptr *p);
 
+void			init_textures(t_ptr *p);
 void			init_struct(t_ptr *p);
 void			init_guielems(t_ptr *p);
 void			gen_thumbnails(t_ptr *p);

@@ -6,7 +6,7 @@
 /*   By: njaber <njaber@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/10/14 09:20:31 by njaber            #+#    #+#             */
-/*   Updated: 2018/10/23 19:20:54 by njaber           ###   ########.fr       */
+/*   Updated: 2018/10/26 09:44:21 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,6 +68,9 @@ static int		parse_obj_node(t_scene *scene, t_node *onode, char **pos)
 			obj->transparency = parsef(pos);
 		else if (ft_strcmp(node.name, "refractive_index") == 0)
 			obj->ref_index = parsef(pos);
+		else if (ft_strcmp(node.name, "texture") == 0)
+			if ((obj->texture = parsestr(pos)) == NULL)
+				ft_error("Malloc error\n");
 		default_check_node(scene, &node, pos);
 	}
 	destroy_hmap(&node.values, free_and_null);

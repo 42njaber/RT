@@ -6,7 +6,7 @@
 /*   By: njaber <neyl.jaber@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/20 13:17:27 by njaber            #+#    #+#             */
-/*   Updated: 2018/10/23 19:20:56 by njaber           ###   ########.fr       */
+/*   Updated: 2018/10/26 07:20:00 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,16 +29,6 @@ static void		init_gui(t_ptr *p)
 	p->gui.state = MENU;
 }
 
-static void		init_texture(t_ptr *p)
-{
-	if ((p->png = decode_png("textures/pavement.png")) == NULL)
-		ft_error("Error while reading png file\n");
-	if ((init_new_image(&p->texture, p->png->dim,
-					p->opencl, p->png->buf)) != EXIT_SUCCESS)
-		ft_error("Failed to initialize texture buffer\n");
-	clFinish(p->opencl->gpu_command_queue);
-}
-
 void			init_struct(t_ptr *p)
 {
 	if ((p->win = (t_win*)ft_memalloc(sizeof(t_win))) == NULL)
@@ -54,7 +44,7 @@ void			init_struct(t_ptr *p)
 	if ((init_new_image(&p->win->img, ivec(DEFAULT_WIDTH, DEFAULT_HEIGHT),
 					p->opencl, NULL)) != EXIT_SUCCESS)
 		ft_error("Failed to initialize window buffer\n");
-	init_texture(p);
+	init_textures(p);
 	init_gui(p);
 	gen_thumbnails(p);
 	p->update = 1;
@@ -77,6 +67,7 @@ t_obj			*default_obj(t_scene *scene)
 	ret->reflect = 0;
 	ret->transparency = 0;
 	ret->ref_index = 1;
+	ret->texture_id = -1;
 	return (ret);
 }
 
