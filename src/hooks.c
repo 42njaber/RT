@@ -6,19 +6,11 @@
 /*   By: njaber <neyl.jaber@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/20 14:52:32 by njaber            #+#    #+#             */
-/*   Updated: 2018/10/20 10:35:15 by njaber           ###   ########.fr       */
+/*   Updated: 2018/10/26 23:52:28 by jocarol          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "rt.h"
-
-void		events_loop(t_ptr *p)
-{
-	while (!glfwWindowShouldClose(p->win->win))
-	{
-		glfwWaitEvents();
-	}
-}
 
 /*
 ** p: the program's main structure
@@ -31,9 +23,18 @@ void		events_loop(t_ptr *p)
 **  - Close button clicked
 */
 
+static void refresh_callback(GLFWwindow *win)
+{
+	t_ptr	*p;
+
+	(void)win;
+	p = get_p();
+	paint_window(p->win, p->opencl);
+}
+
 void		set_hooks(t_ptr *p)
 {
-	//mlx_expose_hook(p->win->win, loop_hook, (void*)p);
+	glfwSetWindowRefreshCallback(p->win->win, refresh_callback);
 	glfwSetMouseButtonCallback(p->win->win, mouse_callback);
 	glfwSetCursorPosCallback(p->win->win, motion_callback);
 	glfwSetKeyCallback(p->win->win,
