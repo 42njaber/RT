@@ -90,6 +90,23 @@ float4					spot_projected_color(
 	return (ret);
 }
 
+/*
+static float rand_noise(int t)
+{
+	t = (t << 13) ^ t;
+	t = (t * (t * t * 15731 + 789221) + 1376312589);
+	return (1.0 - (t & 0x7fffffff) / 1073741824.0);
+}
+
+static float	noise_2d(float2 position)
+{
+	int tmp;
+
+	tmp = rand_noise(position.x * 1000) * 850000;
+	return rand_noise(tmp + (position.y * 1000));
+}
+*/
+
 float4					get_point_color(
 								   __global t_obj *objs,
 								   __global t_spot *spots,
