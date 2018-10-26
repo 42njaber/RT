@@ -80,56 +80,56 @@
 	<obj>
 		<type>sphere</type>
 		<pos>-20 20 35</pos>
-		<color>777777</color>
+		<color>555555</color>
 		<scale>6 6 6</scale>
 		<reflect>0.75</reflect>
 	</obj>
 	<obj>
 		<type>sphere</type>
 		<pos>20 20 35</pos>
-		<color>777777</color>
+		<color>555555</color>
 		<scale>6 6 6</scale>
 		<reflect>0.75</reflect>
 	</obj>
 	<obj>
 		<type>sphere</type>
 		<pos>-20 20 60</pos>
-		<color>777777</color>
+		<color>555555</color>
 		<scale>6 6 6</scale>
 		<reflect>0.75</reflect>
 	</obj>
 	<obj>
 		<type>sphere</type>
 		<pos>20 20 60</pos>
-		<color>777777</color>
+		<color>555555</color>
 		<scale>6 6 6</scale>
 		<reflect>0.75</reflect>
 	</obj>
 	<obj>
 		<type>sphere</type>
 		<pos>-20 -10 35</pos>
-		<color>777777</color>
+		<color>555555</color>
 		<scale>6 6 6</scale>
 		<reflect>0.75</reflect>
 	</obj>
 	<obj>
 		<type>sphere</type>
 		<pos>20 -10 35</pos>
-		<color>777777</color>
+		<color>555555</color>
 		<scale>6 6 6</scale>
 		<reflect>0.75</reflect>
 	</obj>
 	<obj>
 		<type>sphere</type>
 		<pos>-20 -10 60</pos>
-		<color>777777</color>
+		<color>555555</color>
 		<scale>6 6 6</scale>
 		<reflect>0.75</reflect>
 	</obj>
 	<obj>
 		<type>sphere</type>
 		<pos>20 -10 60</pos>
-		<color>777777</color>
+		<color>555555</color>
 		<scale>6 6 6</scale>
 		<reflect>0.75</reflect>
 	</obj>

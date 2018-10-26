@@ -6,7 +6,7 @@
 /*   By: njaber <njaber@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/10/17 15:38:42 by njaber            #+#    #+#             */
-/*   Updated: 2018/10/20 12:57:23 by njaber           ###   ########.fr       */
+/*   Updated: 2018/10/26 21:55:52 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,29 +25,39 @@ char			*join_free(char *s1, char *s2, size_t src_len)
 	return (ret);
 }
 
-cl_program		create_program_from_file(cl_context context, const char *file)
+static int		concat_file(char **str, const char *file)
 {
-	cl_program	ret;
-	char		*kernel;
 	char		buf[4096];
 	int			fd;
 	int			rd;
 
 	if ((fd = open(file, O_RDONLY)) < 0)
-		return (NULL);
-	rd = read(fd, buf, 4096);
-	kernel = ft_strnew(rd);
-	ft_memcpy(kernel, buf, rd);
+		return (EXIT_FAILURE);
 	while ((rd = read(fd, buf, 4096)) > 0)
-		kernel = join_free(kernel, buf, rd);
+		*str = join_free(*str, buf, rd);
+	close(fd);
 	if (rd == -1)
+		return (EXIT_FAILURE);
+	return (EXIT_SUCCESS);
+}
+
+cl_program		create_program_from_files(cl_context context, int file_nb,
+															const char **files)
+{
+	cl_program	ret;
+	char	*sources;
+	int		i;
+
+	if ((sources = (char*)ft_memalloc(1)) == NULL)
+		ft_error("Malloc error\n");
+	i = -1;
+	while (++i < file_nb)
 	{
-		close(fd);
-		return (NULL);
+		if (concat_file(&sources, files[i]) != EXIT_SUCCESS)
+			ft_error("Could not read kernel file: %s\n", files[i]);
 	}
 	ret = clCreateProgramWithSource(context, 1,
-			(const char**)&kernel, NULL, NULL);
-	close(fd);
-	free(kernel);
+			(const char**)&sources, NULL, NULL);
+	free(sources);
 	return (ret);
 }

@@ -6,7 +6,7 @@
 /*   By: njaber <neyl.jaber@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/01/25 23:56:43 by njaber            #+#    #+#             */
-/*   Updated: 2018/10/26 09:42:34 by njaber           ###   ########.fr       */
+/*   Updated: 2018/10/26 22:12:30 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -120,7 +120,8 @@ void			display_data_vec3(t_win *win, char *name, t_vec3 data, int y);
 void			display_data_str(t_win *win, char *name, char *data, int y);
 
 t_ocl			*init_opencl(void);
-cl_program		create_program_from_file(cl_context context, const char *file);
+cl_program		create_program_from_files(cl_context context, int file_nb,
+															const char **file);
 
 int				init_new_image(t_img *img, t_ivec size,
 										t_ocl *opencl, void *data);

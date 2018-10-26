@@ -6,14 +6,13 @@
 /*   By: njaber <neyl.jaber@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/20 15:19:13 by njaber            #+#    #+#             */
-/*   Updated: 2018/10/26 08:56:16 by njaber           ###   ########.fr       */
+/*   Updated: 2018/10/26 20:54:04 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef RT_H
 # define RT_H
 
-# include <pthread.h>
 # include "libgxns.h"
 # include "common.h"
 

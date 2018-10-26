@@ -6,7 +6,7 @@
 /*   By: njaber <neyl.jaber@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/03/16 20:23:49 by njaber            #+#    #+#             */
-/*   Updated: 2018/10/20 13:15:59 by njaber           ###   ########.fr       */
+/*   Updated: 2018/10/26 22:36:58 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,27 @@ cl_mem			cl_img2d(t_ocl *opencl, cl_mem_flags flags,
 	desc.image_height = (size_t)size.v[1];
 	return (clCreateImage(opencl->gpu_context, flags, &format,
 												&desc, NULL, err));
+}
+
+static int		build_program(t_ocl *opencl, t_kernel *kernel)
+{
+	cl_int		err;
+
+	chdir("opencl/");
+	kernel->program = create_program_from_files(opencl->gpu_context, 4,
+			(const char*[4]){"math.cl", "solvers.cl",
+			"hit_equations.cl", "kernel.cl"});
+	if (kernel->program == NULL)
+		err = EXIT_FAILURE;
+	else
+	{
+		ft_printf("%<#FFAA00>Compiling opencl program...%<0>\n");
+		err = clBuildProgram(kernel->program, 1, &opencl->gpu, "", NULL, NULL);
+	}
+	chdir("../");
+	if (err != CL_SUCCESS)
+		return (err);
+	return (EXIT_SUCCESS);
 }
 
 static int		make_kernels(t_kernel *kernel)
@@ -55,65 +76,6 @@ static int		make_kernels(t_kernel *kernel)
 	return (err);
 }
 
-#define		FILE_NUMBER 5
-
-static int		compile_files(t_ocl *opencl, cl_program *objects)
-{
-	const char		*files[FILE_NUMBER] = {"kernel.cl", "math.cl",
-		"hit_equations.cl", "solvers.cl", "debug.cl"};
-	cl_int			err;
-	int				i;
-
-	i = -1;
-	err = 0;
-	while (++i < FILE_NUMBER)
-	{
-		ft_printf("Compiling file %<G,i>%s%<0>...\n", files[i]);
-		objects[i] = create_program_from_file(opencl->gpu_context, files[i]);
-		if (objects[i] == NULL)
-			err = -100;
-		else
-		{
-			err = clCompileProgram(objects[i], 1, &opencl->gpu,
-				NULL , 0, NULL, NULL, NULL, NULL);
-		}
-		if (err != CL_SUCCESS)
-		{
-			i++;
-			while (--i >= 0)
-				clReleaseProgram(objects[i]);
-			return (err);
-		}
-	}
-	return (err);
-}
-
-static int		build_program(t_ocl *opencl, t_kernel *kernel)
-{
-	cl_program	objects[FILE_NUMBER];
-	cl_int		err;
-	int			i;
-
-	chdir("opencl/");
-	err = compile_files(opencl, objects);
-	chdir("../");
-	if (err != CL_SUCCESS)
-		return (err);
-	ft_putendl("Linking program...");
-	kernel->program = clLinkProgram(opencl->gpu_context, 1,
-			&opencl->gpu, "", FILE_NUMBER, objects, NULL, NULL, &err);
-	ft_printf("%<i>OpenCL leaks here...%<0>\n");
-	i = -1;
-	while (++i < FILE_NUMBER)
-	{
-		clReleaseProgram(objects[i]);
-		ft_printf("%<i>and here...%<0>\n");
-	}
-	if (err != CL_SUCCESS && kernel->program != NULL)
-		clReleaseProgram(kernel->program);
-	return (err);
-}
-
 t_kernel		*create_kernel(t_ptr *p)
 {
 	t_kernel	*kernel;
@@ -126,7 +88,7 @@ t_kernel		*create_kernel(t_ptr *p)
 		ft_error("[Erreur] Echec d'allocation mémoire.");
 	img = &p->win->img;
 	kernel->opencl = p->opencl;
-	if ((err = build_program(p->opencl, kernel)) != CL_SUCCESS ||
+	if ((err = build_program(p->opencl, kernel)) != EXIT_SUCCESS ||
 		(err = make_kernels(kernel)) != CL_SUCCESS)
 	{
 		ft_printf("[Error] Could not build kernel program"

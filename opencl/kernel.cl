@@ -81,7 +81,7 @@ float4					spot_projected_color(
 					(obj[i].type == CONE && cone_hit(ori_tmp, dir_tmp, &tmp, 1)) ||
 					(obj[i].type == TORUS && torus_hit(ori_tmp, dir_tmp, &tmp, 1)) ||
 					(obj[i].type == MOEBIUS && moebius_hit(ori_tmp, dir_tmp, &tmp, 1)))
-					ret.rgb *= pow(obj_color.a, 2) * obj_color.rgb;
+					ret.rgb *= pow(obj_color.a * obj_color.rgb, tmp / 20);
 				else
 					ret.rgb *= obj_color.a * obj_color.rgb;
 			}

@@ -6,7 +6,7 @@
 /*   By: njaber <njaber@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/10/25 00:56:37 by njaber            #+#    #+#             */
-/*   Updated: 2018/10/26 13:31:46 by njaber           ###   ########.fr       */
+/*   Updated: 2018/10/26 15:31:26 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,6 +76,7 @@ static void	create_texture_buffer(t_ptr *p)
 	p->cl_texture_sizes = clCreateBuffer(p->opencl->gpu_context,
 			CL_MEM_COPY_HOST_PTR, sizeof(t_ivec) * p->textures.elem_count,
 			sizes, &err);
+	free(sizes);
 	fill_buffers(p, size_max);
 }
 
@@ -106,7 +107,8 @@ static int	get_texture_id(t_ptr *p, char *name)
 		ret = -1;
 	else 
 		ret = get_helem_id(&p->textures, path);
-	ft_printf("Png id: %d\n", ret);
+	free(path);
+	free(file);
 	return (ret);
 }
 

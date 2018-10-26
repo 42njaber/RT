@@ -6,7 +6,7 @@
 /*   By: njaber <neyl.jaber@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/18 17:01:19 by njaber            #+#    #+#             */
-/*   Updated: 2018/10/23 15:17:51 by njaber           ###   ########.fr       */
+/*   Updated: 2018/10/26 22:35:23 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,7 @@ static void		end_environement(void *data, int status)
 	if (p->win != 0 && p->win->win > 0)
 		glfwDestroyWindow(p->win->win);
 	glfwTerminate();
+	while (1);
 	exit(status);
 }
 
@@ -83,9 +84,9 @@ int				main(int argc, char **argv)
 	glfwSetErrorCallback(glfw_error_callback);
 	if (!glfwInit())
 		ft_error("Failed to initialize glut\n");
-	if (argc < 2 || ft_strcmp(argv[1], "help") == 0)
+	if (argc < 2)
 	{
-		ft_printf("Usage : rt <scene.xml>");
+		ft_printf("Usage : rt <scene|directory> [scene|directory] ...\n");
 		return (0);
 	}
 	init_hmap(&p->scenes);

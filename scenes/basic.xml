@@ -71,7 +71,7 @@
 		<rot>0 180 0</rot>
 		<color>FFAAFF</color>
 		<scale>5 5 5</scale>
-		<transparency>0.7</transparency>
+		<transparency>0.9</transparency>
 		<refractive_index>1.1</refractive_index>
 		<reflect>1</reflect>
 	</obj>
