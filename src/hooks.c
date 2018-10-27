@@ -6,18 +6,19 @@
 /*   By: njaber <neyl.jaber@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/20 14:52:32 by njaber            #+#    #+#             */
-/*   Updated: 2018/10/27 02:42:42 by njaber           ###   ########.fr       */
+/*   Updated: 2018/10/27 03:02:13 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "rt.h"
 
-void		events_loop(t_ptr *p)
+static void	refresh_callback(GLFWwindow *win)
 {
-	while (!glfwWindowShouldClose(p->win->win))
-	{
-		glfwWaitEvents();
-	}
+	t_ptr	*p;
+
+	(void)win;
+	p = get_p();
+	paint_window(p->win, p->opencl);
 }
 
 /*
@@ -33,6 +34,7 @@ void		events_loop(t_ptr *p)
 
 void		set_hooks(t_ptr *p)
 {
+	glfwSetWindowRefreshCallback(p->win->win, refresh_callback);
 	glfwSetMouseButtonCallback(p->win->win, mouse_callback);
 	glfwSetCursorPosCallback(p->win->win, motion_callback);
 	glfwSetKeyCallback(p->win->win,
