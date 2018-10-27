@@ -2,7 +2,7 @@
 <config>
 	<start_pos>0 10 0</start_pos>
 	<start_rotation>0 -90</start_rotation>
-	<ambiant_light>0.3</ambiant_light>
+	<ambiant_light>0.1</ambiant_light>
 	<sky_color>002255</sky_color>
 </config>
 
@@ -34,7 +34,7 @@
 		<pos>30 10 40</pos>
 		<color>FFFFFF</color>
 		<scale>15 10 15</scale>
-		<transparency>0.30</transparency>
+		<transparency>0.00</transparency>
 		<refractive_index>1.33</refractive_index>
 		<texture>water</texture>
 	</obj>
@@ -59,7 +59,7 @@
 		<type>cone</type>
 		<pos>30 50 50</pos>
 		<rot>90 0 0</rot>
-		<color>FAFFF0</color>
+		<color>FFFFFF</color>
 		<scale>0.1 1 0.1</scale>
 		<refractive_index>1.1</refractive_index>
 		<reflect>1</reflect>
@@ -71,7 +71,7 @@
 		<rot>0 180 0</rot>
 		<color>FFAAFF</color>
 		<scale>5 5 5</scale>
-		<transparency>0.9</transparency>
+		<transparency>0.7</transparency>
 		<refractive_index>1.1</refractive_index>
 		<reflect>1</reflect>
 	</obj>

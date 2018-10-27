@@ -6,7 +6,7 @@
 /*   By: njaber <neyl.jaber@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/12/21 21:11:02 by njaber            #+#    #+#             */
-/*   Updated: 2018/10/14 09:56:50 by njaber           ###   ########.fr       */
+/*   Updated: 2018/10/27 02:36:45 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,7 +38,7 @@ char		*convert(char *format, va_list args, va_list arg_t, t_buf *buf)
 	return (format);
 }
 
-int				ft_printf(const char *format, ...)
+int			ft_printf(const char *format, ...)
 {
 	char	*tmp;
 	va_list	args;
@@ -67,7 +67,7 @@ int				ft_printf(const char *format, ...)
 	return (buf.printed);
 }
 
-void			ft_error(const char *format, ...)
+void		ft_error(const char *format, ...)
 {
 	char	*tmp;
 	va_list	args;
@@ -96,7 +96,7 @@ void			ft_error(const char *format, ...)
 	ft_error_callback();
 }
 
-static void		fill_buf(t_buf *buf)
+static void	fill_buf(t_buf *buf)
 {
 	if (buf->ret == NULL)
 		buf->ret = ft_strldup(buf->buf, B_SIZE);
@@ -104,7 +104,7 @@ static void		fill_buf(t_buf *buf)
 		buf->ret = ft_strljoin(buf->ret, buf->buf, buf->printed % B_SIZE, 1);
 }
 
-char			*ft_asprint(const char *format, ...)
+char		*ft_asprint(const char *format, ...)
 {
 	char	*tmp;
 	va_list	args;

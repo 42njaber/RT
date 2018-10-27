@@ -6,7 +6,7 @@
 /*   By: njaber <njaber@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/10/16 11:51:56 by njaber            #+#    #+#             */
-/*   Updated: 2018/10/26 08:14:52 by njaber           ###   ########.fr       */
+/*   Updated: 2018/10/27 02:43:03 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,7 +43,7 @@ static void		init_thumbnails_view(t_view *view, t_ivec size, t_ocl *ocl)
 	view->set.fov = 90;
 }
 
-static void			sample_thumbnail(t_view *view, t_kernel *kernel,
+static void		sample_thumbnail(t_view *view, t_kernel *kernel,
 										t_climg dest, int id)
 {
 	cl_int		err;
@@ -62,20 +62,6 @@ static void			sample_thumbnail(t_view *view, t_kernel *kernel,
 			(size_t[2]){g_sz, g_sz}, 0, NULL, NULL)) != CL_SUCCESS)
 		ft_error("[Erreur] Echec d'execution du sampler"
 				"%<R> (Error code: %<i>%2d)%<0>\n", err);
-}
-
-static void		create_memobjs(t_view *view, cl_context context)
-{
-	int		err;
-
-	view->objbuf = clCreateBuffer(context, CL_MEM_COPY_HOST_PTR,
-			sizeof(t_obj) * view->nobjs, view->objs, &err);
-	if (err != CL_SUCCESS)
-		ft_error("Error while creating view buffers\n");
-	view->spotbuf = clCreateBuffer(context, CL_MEM_COPY_HOST_PTR,
-			sizeof(t_spot) * view->nspots, view->spots, &err);
-	if (err != CL_SUCCESS)
-		ft_error("Error while creating view buffers\n");
 }
 
 void			gen_thumbnails(t_ptr *p)
@@ -98,7 +84,7 @@ void			gen_thumbnails(t_ptr *p)
 		copy_scene_data(&view, ((t_scene**)p->scenes.elements)[i]);
 		generate_cam_matrices(&view);
 		generate_obj_matrices(&view);
-		create_memobjs(&view, p->opencl->gpu_context);
+		create_scene_memobjs(&view, p->opencl->gpu_context);
 		process_scene_opencl(&view, p->kernel);
 		sample_thumbnail(&view, p->kernel, p->gui.thumbnails, i);
 		clFinish(p->opencl->gpu_command_queue);

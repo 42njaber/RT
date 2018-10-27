@@ -6,7 +6,7 @@
 /*   By: njaber <njaber@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/10/16 15:40:14 by njaber            #+#    #+#             */
-/*   Updated: 2018/10/20 10:16:29 by njaber           ###   ########.fr       */
+/*   Updated: 2018/10/27 02:26:03 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,27 +26,27 @@ static void		init_scene_view(t_view *view, t_ivec size, t_ocl *ocl)
 	view->set.fov = 90;
 }
 
-static void		create_memobjs(t_view *view, cl_context context)
+void			create_scene_memobjs(t_view *view, cl_context context)
 {
 	int		err;
 
 	view->objbuf = clCreateBuffer(context, CL_MEM_COPY_HOST_PTR,
-			sizeof(t_obj) * view->nobjs, view->objs, &err);
+			sizeof(t_obj) * ft_max(1, view->nobjs), view->objs, &err);
 	if (err != CL_SUCCESS)
 		ft_error("Error while creating view buffers\n");
 	view->spotbuf = clCreateBuffer(context, CL_MEM_COPY_HOST_PTR,
-			sizeof(t_spot) * view->nspots, view->spots, &err);
+			sizeof(t_spot) * ft_max(1, view->nspots), view->spots, &err);
 	if (err != CL_SUCCESS)
 		ft_error("Error while creating view buffers\n");
 }
 
-void		init_scene(t_ptr *p)
+void			init_scene(t_ptr *p)
 {
 	init_scene_view(&p->view, p->win->size, p->opencl);
 	copy_scene_data(&p->view, ((t_scene**)p->scenes.elements)[p->gui.scene_id]);
 	generate_cam_matrices(&p->view);
 	generate_obj_matrices(&p->view);
-	create_memobjs(&p->view, p->opencl->gpu_context);
+	create_scene_memobjs(&p->view, p->opencl->gpu_context);
 	p->gui.state = ZOOM_SCENE;
 	p->gui.zoom = 0;
 	p->update = 1;

@@ -6,7 +6,7 @@
 /*   By: njaber <njaber@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/08/20 11:01:29 by njaber            #+#    #+#             */
-/*   Updated: 2018/10/20 12:57:43 by njaber           ###   ########.fr       */
+/*   Updated: 2018/10/27 02:29:30 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -116,7 +116,6 @@ t_png			*decode_png(char *path)
 		ft_printf("Failed to open png: %s\n", path);
 		return (NULL);
 	}
-	ft_printf("Decoding: %s\n", path);
 	if (mbytes(fd) != 0)
 		return (NULL);
 	if ((ret = (t_png*)ft_memalloc(sizeof(t_png))) == NULL)

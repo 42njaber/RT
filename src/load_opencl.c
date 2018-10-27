@@ -6,7 +6,7 @@
 /*   By: njaber <neyl.jaber@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/03/16 20:23:49 by njaber            #+#    #+#             */
-/*   Updated: 2018/10/26 22:36:58 by njaber           ###   ########.fr       */
+/*   Updated: 2018/10/27 02:59:20 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,9 +41,10 @@ static int		build_program(t_ocl *opencl, t_kernel *kernel)
 		err = EXIT_FAILURE;
 	else
 	{
-		ft_printf("%<#FFAA00>Compiling opencl program...%<0>\n");
+		ft_printf("%<#00AAFF>Compiling opencl program...%<0>\n");
 		err = clBuildProgram(kernel->program, 1, &opencl->gpu, "", NULL, NULL);
 	}
+	ft_printf("%<#00AAFF>Done!%<0>\n");
 	chdir("../");
 	if (err != CL_SUCCESS)
 		return (err);
@@ -79,14 +80,12 @@ static int		make_kernels(t_kernel *kernel)
 t_kernel		*create_kernel(t_ptr *p)
 {
 	t_kernel	*kernel;
-	t_img		*img;
 	int			err;
 
 	if (p->kernel != NULL)
 		ft_error("Trying to override kernel\n");
 	if ((kernel = (t_kernel*)ft_memalloc(sizeof(t_kernel))) == NULL)
 		ft_error("[Erreur] Echec d'allocation mémoire.");
-	img = &p->win->img;
 	kernel->opencl = p->opencl;
 	if ((err = build_program(p->opencl, kernel)) != EXIT_SUCCESS ||
 		(err = make_kernels(kernel)) != CL_SUCCESS)

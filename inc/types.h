@@ -6,14 +6,14 @@
 /*   By: njaber <njaber@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/10/14 01:31:08 by njaber            #+#    #+#             */
-/*   Updated: 2018/10/18 01:28:09 by jocarol          ###   ########.fr       */
+/*   Updated: 2018/10/27 02:37:28 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 
 #ifndef TYPES_H
 # define TYPES_H
-#  include <OpenCL/opencl.h>
+# include <OpenCL/opencl.h>
 
 typedef float			t_scal;
 

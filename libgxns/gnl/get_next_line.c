@@ -6,7 +6,7 @@
 /*   By: njaber <neyl.jaber@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/12/20 20:17:32 by njaber            #+#    #+#             */
-/*   Updated: 2018/04/23 02:49:02 by njaber           ###   ########.fr       */
+/*   Updated: 2018/10/27 02:56:08 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,7 +81,6 @@ int				get_next_line(const int fd, char **line)
 	int		rd;
 	char	tmp[BUFF_SIZE];
 
-	rd = 0;
 	if ((f_buf = *get_file_buf(fd)))
 		f_buf = ft_lstnew(((t_stock*)(f_buf->content))->buf,
 			((t_stock*)(f_buf->content))->len);

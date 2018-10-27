@@ -6,7 +6,7 @@
 /*   By: njaber <njaber@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/09/04 14:17:43 by njaber            #+#    #+#             */
-/*   Updated: 2018/10/20 11:31:53 by njaber           ###   ########.fr       */
+/*   Updated: 2018/10/27 02:58:19 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,7 +81,6 @@ static int		code_tobuf(t_png *png, short val, t_uint *pos, t_uchar *stream)
 	t_uint	stockval;
 	t_uint	tmp;
 
-	stockval = 0;
 	if (png->codes_len_ >= png->data_size_)
 		return (-2);
 	else if (val > 256 && val < 286)

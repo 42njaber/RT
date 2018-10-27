@@ -6,7 +6,7 @@
 /*   By: njaber <njaber@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/10/14 09:56:18 by njaber            #+#    #+#             */
-/*   Updated: 2018/10/14 10:05:30 by njaber           ###   ########.fr       */
+/*   Updated: 2018/10/27 02:36:17 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,4 +40,3 @@ int				ft_printret(int ret, const char *format, ...)
 	free(buf.tbuf);
 	return (ret);
 }
-

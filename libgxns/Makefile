@@ -1,5 +1,4 @@
 SRC = window.c \
-	  display_data.c \
 	  images.c \
 	  matrix.c \
 	  matrix2.c \

@@ -6,7 +6,7 @@
 /*   By: njaber <njaber@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/10/16 00:33:51 by njaber            #+#    #+#             */
-/*   Updated: 2018/10/26 15:40:15 by njaber           ###   ########.fr       */
+/*   Updated: 2018/10/27 02:54:04 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,9 +20,10 @@ static int		read_file(t_ptr *p, char *path)
 	int		err;
 	t_scene	*scene;
 
+	ft_printf("Reading scene file: %<G>%s%<0>\n", path);
 	if ((fd = open(path, O_RDONLY)) < 0)
-		return (ft_printret(EXIT_FAILURE,
-					"Could not open file %s\n", path));
+		return (ft_printret(EXIT_FAILURE, "%<R>Could not open file%<0>\n",
+					path));
 	if ((scene = new_scene(p, path)) == NULL)
 	{
 		close(fd);
@@ -41,8 +42,8 @@ static int		read_if_file(t_ptr *p, char *path)
 	int		err;
 
 	if ((err = stat(path, &pathinfo)) < 0)
-		return (ft_printret(EXIT_FAILURE,
-					"Could not read properties of %s\n", path));
+		return (ft_printret(EXIT_FAILURE, "%<#FFAA00>[Warning]%<0>"
+				" Could not read properties of %s\n", path));
 	if ((pathinfo.st_mode & S_IFMT) != S_IFDIR)
 		read_file(p, path);
 	return (EXIT_FAILURE);
@@ -55,9 +56,10 @@ static int		read_dir(t_ptr *p, char *path)
 	char			*fpath;
 	char			*dpath;
 
+	ft_printf("Reading scenes in directory: %<y>%s%<0>\n", path);
 	if ((dir = opendir(path)) == NULL)
-		return (ft_printret(EXIT_FAILURE,
-					"Could not open dir %s\n", path));
+		return (ft_printret(EXIT_FAILURE, "%<R>Could not open directory%<0>\n",
+					path));
 	if ((dpath = ft_strjoin(path, "/")) == NULL)
 		ft_error("Malloc error\n");
 	while ((file = readdir(dir)))
@@ -76,13 +78,13 @@ static int		read_dir(t_ptr *p, char *path)
 	return (EXIT_SUCCESS);
 }
 
-int			read_path(t_ptr *p, char *path)
+int				read_path(t_ptr *p, char *path)
 {
-	struct stat		pathinfo;
-	int		err;
+	struct stat	pathinfo;
+	int			err;
 
 	if ((err = stat(path, &pathinfo)) < 0)
-		return (ft_printret(EXIT_FAILURE,
+		return (ft_printret(EXIT_FAILURE, "%<#FFAA00>[Warning]%<0> "
 					"Could not read properties of %s\n", path));
 	if ((pathinfo.st_mode & S_IFMT) == S_IFDIR)
 		return (read_dir(p, path));

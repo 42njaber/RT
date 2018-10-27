@@ -6,7 +6,7 @@
 /*   By: njaber <neyl.jaber@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/25 11:20:41 by njaber            #+#    #+#             */
-/*   Updated: 2018/10/26 15:52:38 by njaber           ###   ########.fr       */
+/*   Updated: 2018/10/27 02:23:40 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,19 +68,19 @@ int			default_check_node(t_scene *scene, t_node *onode, char **pos)
 	return (EXIT_FAILURE);
 }
 
-static int	parse_node(t_scene *scene, t_node *onode, char **pos, int *config)
+static int	parse_node(t_scene *scene, t_node *onode, char **pos)
 {
 	if (onode->type == 1)
 		return (EXIT_FAILURE);
-	ft_printf("Reading node: %s\n", onode->name);
 	if (ft_strcmp(onode->name, "config") == 0)
 	{
-		if (*config)
+		if (scene->configured)
 		{
-			ft_printf("Scene has two config blocks\n");
+			ft_printf("%<#FFAA00>[Warning]%<0>"
+					"Scene has two configuration blocks\n");
 			return (EXIT_FAILURE);
 		}
-		*config = 1;
+		scene->configured = 1;
 		return (parse_config_node(scene, onode, pos));
 	}
 	else if (ft_strcmp(onode->name, "objlist") == 0)
@@ -91,10 +91,21 @@ static int	parse_node(t_scene *scene, t_node *onode, char **pos, int *config)
 		return (default_check_node(scene, onode, pos));
 }
 
+static int	assert_scene(t_scene *scene)
+{
+	if (scene->nobjs == 0)
+		ft_printf("%<#FFAA00>[Warning]%<0> Scenes contains no object\n");
+	if (scene->nspots == 0)
+		ft_printf("%<#FFAA00>[Warning]%<0> Scenes contains no spots\n");
+	if (!scene->configured)
+		ft_printf("%<#FFAA00>[Warning]%<0>"
+				" Scene does not contain any configuration block\n");
+	return (1);
+}
+
 int			parse_scene_file(t_scene *scene, int fd)
 {
 	int			ret;
-	int			config;
 	t_node		node;
 	char		*file;
 	char		*pos;
@@ -104,14 +115,13 @@ int			parse_scene_file(t_scene *scene, int fd)
 		return (EXIT_FAILURE);
 	pos = file;
 	init_hmap(&node.values);
-	config = 0;
 	ret = 1;
 	while (ret > 0 && (ret = get_next_xml_node(&node, &pos, 1)) > 0)
-		if (parse_node(scene, &node, &pos, &config) != EXIT_SUCCESS)
+		if (parse_node(scene, &node, &pos) != EXIT_SUCCESS)
 			ret = -1;
 	destroy_hmap(&node.values, free_and_null);
 	free(file);
-	if (ret < 0 || config == 0)
+	if (ret < 0 || !assert_scene(scene))
 		return (EXIT_FAILURE);
 	return (EXIT_SUCCESS);
 }

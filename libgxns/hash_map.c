@@ -6,7 +6,7 @@
 /*   By: njaber <njaber@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/09/26 17:49:16 by njaber            #+#    #+#             */
-/*   Updated: 2018/10/25 01:38:26 by njaber           ###   ########.fr       */
+/*   Updated: 2018/10/27 02:42:17 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,8 @@ void		destroy_hmap(t_hmap *hmap, void (*del)(void**))
 	if (hmap->keys != NULL)
 	{
 		free(hmap->keys);
-		hmap->keys = NULL; }
+		hmap->keys = NULL;
+	}
 	if (hmap->elements != NULL)
 	{
 		free(hmap->elements);
@@ -63,7 +64,6 @@ static void	realloc_buf(t_hmap *hmap)
 
 size_t		add_helem(t_hmap *hmap, char *key, void *data)
 {
-	ft_printf("Adding element nb: %d (key: %s)\n", hmap->elem_count, key);
 	if (hmap->elem_count >= hmap->prebuf_size)
 		realloc_buf(hmap);
 	if ((hmap->keys[hmap->elem_count] = ft_strdup(key)) == NULL)

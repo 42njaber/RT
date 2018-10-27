@@ -6,7 +6,7 @@
 /*   By: njaber <neyl.jaber@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/20 16:00:11 by njaber            #+#    #+#             */
-/*   Updated: 2018/10/20 10:25:17 by njaber           ###   ########.fr       */
+/*   Updated: 2018/10/27 02:43:42 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,7 +58,7 @@ static void			paint_gui(t_ptr *p)
 	clFinish(p->opencl->gpu_command_queue);
 }
 
-static void		update_gui(t_ptr *p)
+static void			update_gui(t_ptr *p)
 {
 	p->gui.mouse_pos = p->mouse_pos;
 	if (p->gui.state == INIT_SCENE)

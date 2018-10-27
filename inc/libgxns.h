@@ -6,7 +6,7 @@
 /*   By: njaber <neyl.jaber@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/01/25 23:56:43 by njaber            #+#    #+#             */
-/*   Updated: 2018/10/26 22:12:30 by njaber           ###   ########.fr       */
+/*   Updated: 2018/10/27 02:37:46 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,12 +25,12 @@
 # include <OpenGL/gl.h>
 # include <CoreGraphics/CoreGraphics.h>
 
-typedef struct			s_hmap {
+typedef struct	s_hmap {
 	void	**elements;
 	char	**keys;
 	size_t	prebuf_size;
 	size_t	elem_count;
-}						t_hmap;
+}				t_hmap;
 
 typedef struct	s_ocl {
 	cl_context			gpu_context;

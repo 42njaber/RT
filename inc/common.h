@@ -6,7 +6,7 @@
 /*   By: njaber <njaber@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/10/14 01:24:16 by njaber            #+#    #+#             */
-/*   Updated: 2018/10/26 09:44:17 by njaber           ###   ########.fr       */
+/*   Updated: 2018/10/26 23:51:26 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,13 +18,13 @@
 
 enum		e_shape
 {
+	UNKOWN,
 	SPHERE,
 	PLANE,
 	CYLINDER,
 	CONE,
 	TORUS,
-	MOEBIUS,
-	UNKOWN
+	MOEBIUS
 };
 
 enum		e_guistate

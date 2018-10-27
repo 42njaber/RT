@@ -2,8 +2,11 @@ FILES = main.c \
 		read_scene.c \
 		read_xml.c \
 		read_path.c \
-		parse_nodes.c \
-		parse.c \
+		parse_config.c \
+		parse_objects.c \
+		parse_spots.c \
+		parse_numbers.c \
+		parse_strings.c \
 		png_block_parser.c \
 		png_create_huffman_tree.c \
 		png_decoder.c \

@@ -6,7 +6,7 @@
 /*   By: njaber <neyl.jaber@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/18 17:01:19 by njaber            #+#    #+#             */
-/*   Updated: 2018/10/26 22:35:23 by njaber           ###   ########.fr       */
+/*   Updated: 2018/10/27 02:57:07 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,6 @@ static void		end_environement(void *data, int status)
 	if (p->win != 0 && p->win->win > 0)
 		glfwDestroyWindow(p->win->win);
 	glfwTerminate();
-	while (1);
 	exit(status);
 }
 
@@ -95,7 +94,6 @@ int				main(int argc, char **argv)
 		read_path(p, argv[i]);
 	if (p->scenes.elem_count < 1)
 		ft_error("%<R,!>[Error]%<0> Could not read any map, qutting...\n");
-	argc = 1;
 	init_struct(p);
 	launch_window(p);
 }

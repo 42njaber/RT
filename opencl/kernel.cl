@@ -68,7 +68,7 @@ float4					spot_projected_color(
 				obj_color = (float4)(obj_color.rgb * tex_color.rgb, 1.f - (1.f - tex_color.a) * (1.f - obj_color.a));
 			}
 			obj_color.a = 1.f - (1.f - obj[i].transparency) * (1.f - obj_color.a);
-			obj_color.rgb = obj_color.rgb * obj_color.a / 2.f + obj_color.a / 2.f;
+			obj_color.rgb = 1.f - obj_color.rgb * (1.f - obj_color.a);
 			if (obj_color.a < MIN_RAY_ABSORPTION)
 				return ((float4)0);
 			else
@@ -81,7 +81,7 @@ float4					spot_projected_color(
 					(obj[i].type == CONE && cone_hit(ori_tmp, dir_tmp, &tmp, 1)) ||
 					(obj[i].type == TORUS && torus_hit(ori_tmp, dir_tmp, &tmp, 1)) ||
 					(obj[i].type == MOEBIUS && moebius_hit(ori_tmp, dir_tmp, &tmp, 1)))
-					ret.rgb *= pow(obj_color.a * obj_color.rgb, tmp / 20);
+					ret.rgb *= pow(obj_color.rgb, tmp / 2);
 				else
 					ret.rgb *= obj_color.a * obj_color.rgb;
 			}
@@ -326,7 +326,7 @@ __kernel void			process_image(
 				cost2 = 1 - ratio * ratio * (1 - cost1 * cost1);
 				power_coefficient = pow((n1 - 1) / (n1 + 1), 2);
 				power_coefficient = power_coefficient + (1 - power_coefficient) * powr(1 - cost2, 5);
-				absorption = (float4)(hit_color.rgb * hit_color.a / 2.f + hit_color.a / 2.f, 0);
+				absorption = (float4)(1.f - hit_color.rgb * (1.f - hit_color.a), 0);
 				if (cost2 > 0)
 				{
 					cost2 = sqrt(cost2);
@@ -343,7 +343,7 @@ __kernel void			process_image(
 					{
 						float3	refract_normal;
 
-						absorption = pow(absorption, tmp / 20);
+						absorption = pow(absorption, tmp * length(dir_tmp) / 2);
 						refract_ori = refract_ori + refract_dir * (tmp + 0.01f);
 						refract_normal = get_normal(objs + obj_hit, refract_ori, refract_dir);
 						cost1 = dot(refract_dir, refract_normal);

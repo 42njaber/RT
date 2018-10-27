@@ -6,7 +6,7 @@
 /*   By: njaber <njaber@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/10/17 15:38:42 by njaber            #+#    #+#             */
-/*   Updated: 2018/10/26 21:55:52 by njaber           ###   ########.fr       */
+/*   Updated: 2018/10/27 02:39:40 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,8 +45,8 @@ cl_program		create_program_from_files(cl_context context, int file_nb,
 															const char **files)
 {
 	cl_program	ret;
-	char	*sources;
-	int		i;
+	char		*sources;
+	int			i;
 
 	if ((sources = (char*)ft_memalloc(1)) == NULL)
 		ft_error("Malloc error\n");

@@ -6,7 +6,7 @@
 /*   By: njaber <neyl.jaber@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/25 11:20:41 by njaber            #+#    #+#             */
-/*   Updated: 2018/10/26 15:50:40 by njaber           ###   ########.fr       */
+/*   Updated: 2018/10/27 02:54:25 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,47 +26,50 @@ static int		read_node_name(t_node *node, char **pos)
 		i++;
 	}
 	if (i >= 32)
-		return (ft_printret(EXIT_FAILURE, "Node name to long\n"));
+		return (ft_printret(EXIT_FAILURE, "Node name too long"
+"(max 32 characters)\n"));
 	node->name[i] = '\0';
 	*pos += i;
 	return (EXIT_SUCCESS);
 }
 
-static int		read_node_vals(t_node *node, char **pos)
-{
-	int		i;
-	char	*name;
-	char	*val;
-
-	while (1)
-	{
-		while (ft_isblank(**pos))
-			(*pos)++;
-		i = 0;
-		while (ft_isalnum((*pos)[i]) || (*pos)[i] == '_')
-			i++;
-		if (i == 0)
-			break ;
-		name = ft_strldup(*pos, i);
-		*pos += i;
-		if (**pos == '=')
-		{
-			if (*(++(*pos)) != '"')
-				return (ft_printret(EXIT_FAILURE, "Expected '\"'\n"));
-			while ((*pos)[i] != '"' && (*pos)[i] != '\0')
-				i++;
-			if (((*pos)[i++]) != '"')
-				return (ft_printret(EXIT_FAILURE, "Expected '\"'\n"));
-			val = ft_strldup(*pos, i);
-			*pos += i;
-			add_helem(&node->values, name, val);
-		}
-		else
-			add_helem(&node->values, name, (void*)g_nul);
-		free(name);
-	}
-	return (EXIT_SUCCESS);
-}
+/*
+** static int		read_node_vals(t_node *node, char **pos)
+** {
+** 	int		i;
+** 	char	*name;
+** 	char	*val;
+** 
+** 	while (1)
+** 	{
+** 		while (ft_isblank(**pos))
+** 			(*pos)++;
+** 		i = 0;
+** 		while (ft_isalnum((*pos)[i]) || (*pos)[i] == '_')
+** 			i++;
+** 		if (i <= 0)
+** 			break ;
+** 		name = ft_strldup(*pos, i);
+** 		*pos += i;
+** 		if (**pos == '=')
+** 		{
+** 			if (*(++(*pos)) != '"')
+** 				return (ft_printret(EXIT_FAILURE, "Expected '\"'\n"));
+** 			while ((*pos)[i] != '"' && (*pos)[i] != '\0')
+** 				i++;
+** 			if (((*pos)[i++]) != '"')
+** 				return (ft_printret(EXIT_FAILURE, "Expected '\"'\n"));
+** 			val = ft_strldup(*pos, i);
+** 			*pos += i;
+** 			add_helem(&node->values, name, val);
+** 		}
+** 		else
+** 			add_helem(&node->values, name, (void*)g_nul);
+** 		free(name);
+** 	}
+** 	return (EXIT_SUCCESS);
+** }
+*/
 
 static int		read_node(t_node *node, char **pos)
 {
@@ -78,18 +81,15 @@ static int		read_node(t_node *node, char **pos)
 	}
 	if (read_node_name(node, pos) != EXIT_SUCCESS)
 		return (EXIT_FAILURE);
-	if (read_node_vals(node, pos) != EXIT_SUCCESS)
-		return (EXIT_FAILURE);
 	if (*(*pos) == '/')
 	{
 		if (node->type == 1)
-			return (ft_printret(EXIT_FAILURE, "Extraneous '/'\n"));
+			return (ft_printret(EXIT_FAILURE, "Extraneous '/' in xml node\n"));
 		node->type = 2;
 		(*pos)++;
 	}
-	if (**pos != '>')
+	if (*((*pos)++) != '>')
 		return (ft_printret(EXIT_FAILURE, "Expected '>' (%s)\n", node->name));
-	(*pos)++;
 	return (EXIT_SUCCESS);
 }
 
@@ -101,10 +101,10 @@ int				get_next_xml_node(t_node *node, char **pos, char strict)
 		while (**pos != '<')
 		{
 			if (**pos == '\0')
-				return (ft_printret(0, "End of xml file\n"));
+				return (0);
 			else if (strict && !ft_isinvis(**pos))
-				return (ft_printret(-1,
-							"Unexpected character between nodes: %c\n", **pos));
+				return (ft_printret(-1, "Unexpected character"
+							"between nodes: %c\n", **pos));
 			(*pos)++;
 		}
 		(*pos)++;

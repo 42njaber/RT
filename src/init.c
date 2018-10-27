@@ -6,7 +6,7 @@
 /*   By: njaber <neyl.jaber@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/20 13:17:27 by njaber            #+#    #+#             */
-/*   Updated: 2018/10/26 15:34:28 by njaber           ###   ########.fr       */
+/*   Updated: 2018/10/26 23:52:15 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,7 +59,7 @@ t_obj			*default_obj(t_scene *scene)
 		ft_realloc((void**)&scene->objs, scene->obj_pbufsize * sizeof(t_obj),
 				(scene->obj_pbufsize *= 2) * sizeof(t_obj));
 	ret = scene->objs + scene->nobjs - 1;
-	ret->type = PLANE;
+	ret->type = UNKOWN;
 	ret->pos = vec3(0, 0, 0);
 	ret->rot = vec3(0, 0, 0);
 	ret->color = 0xFFFFFF;

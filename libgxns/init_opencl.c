@@ -6,7 +6,7 @@
 /*   By: njaber <neyl.jaber@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/03/15 01:57:02 by njaber            #+#    #+#             */
-/*   Updated: 2018/10/19 05:36:37 by njaber           ###   ########.fr       */
+/*   Updated: 2018/10/27 02:42:29 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@ static void		create_context(t_ocl *opencl)
 
 	if ((opencl->gl_context = CGLGetCurrentContext()) == 0)
 		ft_error("No current OpenGL context\n");
-	props[0] = CL_CONTEXT_PROPERTY_USE_CGL_SHAREGROUP_APPLE; 
+	props[0] = CL_CONTEXT_PROPERTY_USE_CGL_SHAREGROUP_APPLE;
 	props[1] = (cl_context_properties)CGLGetShareGroup(opencl->gl_context);
 	props[2] = 0;
 	opencl->gpu_context = clCreateContext(props, 0, 0, NULL, 0, &err);

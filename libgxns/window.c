@@ -6,7 +6,7 @@
 /*   By: njaber <neyl.jaber@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/01/26 00:14:34 by njaber            #+#    #+#             */
-/*   Updated: 2018/10/19 21:56:22 by njaber           ###   ########.fr       */
+/*   Updated: 2018/10/27 02:42:36 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,7 +45,7 @@ void			paint_window(t_win *win, t_ocl *opencl)
 	win->frame++;
 	if (win->frame % 5 == 0)
 	{
-		win->fps = (float)30000000000 / (time - win->frames[win->frame  % 30]);
+		win->fps = (float)30000000000 / (time - win->frames[win->frame % 30]);
 		ft_printf("Fps: %.3g\n", win->fps);
 	}
 	win->frames[win->frame % 30] = time;

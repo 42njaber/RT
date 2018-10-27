@@ -6,7 +6,7 @@
 /*   By: njaber <njaber@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/08/20 14:19:30 by njaber            #+#    #+#             */
-/*   Updated: 2018/10/20 11:31:27 by njaber           ###   ########.fr       */
+/*   Updated: 2018/10/27 02:29:45 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,10 +34,6 @@ int		parse_ihdr(int fd, t_png *png)
 			png->compression != 0 || png->filter != 0 || png->interlace != 0)
 		return (-4);
 	png->pxsize = png->ctype == 2 ? 3 : 4;
-	ft_printf("Image size: %d, %d\nBit depth: %hu\nColortype: %hu\nCompression "
-			"methode: %hu\nFilter methode: %hu\nInterlace method: %hu\n",
-			png->dim.v[0], png->dim.v[1], png->bdepth, png->ctype,
-			png->compression, png->filter, png->interlace);
 	return (validate_crc(fd, buf, png));
 }
 
