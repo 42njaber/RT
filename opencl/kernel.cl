@@ -90,23 +90,6 @@ float4					spot_projected_color(
 	return (ret);
 }
 
-/*
-static float rand_noise(int t)
-{
-	t = (t << 13) ^ t;
-	t = (t * (t * t * 15731 + 789221) + 1376312589);
-	return (1.0 - (t & 0x7fffffff) / 1073741824.0);
-}
-
-static float	noise_2d(float2 position)
-{
-	int tmp;
-
-	tmp = rand_noise(position.x * 1000) * 850000;
-	return rand_noise(tmp + (position.y * 1000));
-}
-*/
-
 float4					get_point_color(
 								   __global t_obj *objs,
 								   __global t_spot *spots,
@@ -122,9 +105,9 @@ float4					get_point_color(
 {
 	float3			normal;
 	float3			r_in;
-	//float3			r_out;
+	float3			r_out;
 	float			a_in;
-	float			brilliance;
+	float			brillance;
 	float4			lum;
 	float4			obj_color;
 	float4			tmp;
@@ -134,7 +117,7 @@ float4					get_point_color(
 	int				i;
 
 	lum = (float4)ambiant_light;
-	brilliance = 0;
+	brillance = 0;
 	i = -1;
 	normal = get_normal(objs + obj_hit, v, dir);
 	while (++i < nspots)
@@ -144,10 +127,13 @@ float4					get_point_color(
 		{
 			r_in = v - spots[i].pos;
 			a_in = dot(normalize(r_in), normal);
-			//r_out = normalize(normalize(r_in) - (normal * 2 * a_in));
-			//brilliance = pow(dot(normalize(r_in), normal) , (float)400);
+			if (objs[obj_hit].brillance)
+			{
+				r_out = normalize(normalize(r_in) - (normal * 2 * a_in));
+				brillance = pow(dot(normalize(r_in), normal) , (float)400);
+			}
 			if (a_in > 0)
-				lum += tmp * (float4)(spots[i].lum * a_in / pow(length(r_in), (float)2) + brilliance * spots[i].lum);
+				lum += tmp * (float4)(spots[i].lum * a_in / pow(length(r_in), (float)2) + brillance * spots[i].lum);
 		}
 	}
 	tex_pos = get_surface_pos(objs + obj_hit, v, dir);
@@ -160,8 +146,6 @@ float4					get_point_color(
 				(int4)((int2)fmod(tex_pos, (float2)img_size), objs[obj_hit].texture_id, 0));
 	}
 	color = lum * obj_color;
-	//if (fabs(fmod(v.x + 0.2, (float)20)) < 0.03 || fabs(fmod(v.y + 0.2, (float)20)) < 0.03 || fabs(fmod(v.z + 0.2, (float)20)) < 0.03)
-		//color = 1 / color;
 	return (color);
 }
 
@@ -260,10 +244,11 @@ __kernel void			process_image(
 		}
 
 		// Creates à halo of light when ray passes close to a spots
-		float	shine;
+		float4	shine;
 		float	spot_dist;
 		float3	ray_diff;
 		float3	spot_ray;
+		float	tan;
 
 		i = -1;
 		while (++i < nspots)
@@ -271,12 +256,15 @@ __kernel void			process_image(
 			spot_ray = spots[i].pos - ori;
 			spot_dist = length(spot_ray);
 			spot_ray = normalize(spot_ray);
-			if (dot(dir, spot_ray) > 0.5 && (hit < 0 || spot_dist < hit))
+			if (dot(dir, spot_ray) > 0 && (hit < 0 || spot_dist / dot(spot_ray, dir) < hit))
 			{
 				ray_diff = spot_ray - dir;
-				shine = spots[i].lum / pow(spot_dist, 2) *
-					(length(ray_diff) < 0.001 ? 1 : powr((1 - sqrt(powr(length(ray_diff), 2) - powr(dot(ray_diff, spot_ray), 2))), 12));
-				color += (float4)shine * convert_float4(spots[i].color) / 255.f * reflect_amount;
+				tan = fmax(0.f, sqrt(powr(length(ray_diff) * spot_dist, 2) - powr(dot(ray_diff, spot_ray * spot_dist), 2)));
+				if (pow(tan, 2) < spots[i].lum / 100.f)
+				{
+					shine = (spots[i].lum * convert_float4(spots[i].color) / 255.f) * ((0.01f / (0.01f + powr(tan, 2))) - (0.01f / (0.01f + spots[i].lum / 100.f)));
+					color += (float4)shine * reflect_amount;
+				}
 			}
 		}
 
@@ -392,8 +380,6 @@ __kernel void			process_image(
 
 	color = clamp(0, 1, color);
 	write_imageui(image, id, (uint4)(255.0f * color.r, 255.0f * color.g, 255.0f * color.b, 0));
-	//if (logger(get_image_width(texture), 1))
-		//write_imageui(image, id, (uint4)(0, 255.0f, 255.0f, 0));
 }
 
 __kernel void	sampler256(
@@ -559,7 +545,6 @@ __kernel void	paint_gui(
 		}
 	}
 	write_imagef(screen, id, (float4)(convert_float3(clamp(0, 255, color.bgr)) / 255, 0.));
-	//test_moebius(screen, size, gui.mouse_pos, id, set);
 }
 
 __kernel void	clear_buf(__write_only image2d_t buf,

@@ -6,7 +6,7 @@
 /*   By: njaber <njaber@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/10/26 23:40:18 by njaber            #+#    #+#             */
-/*   Updated: 2018/10/27 00:39:10 by njaber           ###   ########.fr       */
+/*   Updated: 2018/10/27 15:26:03 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,8 @@ static void		read_param(t_obj *obj, t_node *node, char **pos)
 		obj->transparency = parsef(pos);
 	else if (ft_strcmp(node->name, "refractive_index") == 0)
 		obj->ref_index = parsef(pos);
+	else if (ft_strcmp(node->name, "brillance") == 0)
+		obj->brillance = (int)parsef(pos);
 	else if (ft_strcmp(node->name, "texture") == 0)
 		if ((obj->texture = parsestr(pos)) == NULL)
 			ft_error("Malloc error\n");

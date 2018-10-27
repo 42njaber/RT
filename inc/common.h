@@ -6,7 +6,7 @@
 /*   By: njaber <njaber@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/10/14 01:24:16 by njaber            #+#    #+#             */
-/*   Updated: 2018/10/26 23:51:26 by njaber           ###   ########.fr       */
+/*   Updated: 2018/10/27 15:29:04 by njaber           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,6 +65,7 @@ typedef struct __attribute__((aligned(512)))	s_obj {
 	t_mat4	__attribute__((aligned(64)))		transform;
 	t_mat4	__attribute__((aligned(64)))		rot_mat;
 	t_mat4	__attribute__((aligned(64)))		rev_norm;
+	int		__attribute__((aligned(8)))			brillance;
 	int		__attribute__((aligned(8)))			texture_id;
 	char	__attribute__((aligned(8)))			*texture;
 } __attribute__((packed))						t_obj;

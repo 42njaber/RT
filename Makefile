@@ -32,7 +32,7 @@ FILES = main.c \
 		display_opencl.c
 
 CFLAGS = -Llibgxns -lgxns -framework OpenGL -framework OpenCL -framework IOKit -framework Cocoa -framework CoreVideo
-FLAGS =  -Iinc/ -Wall -Wextra #-Werror
+FLAGS =  -Iinc/ -Wall -Wextra -Werror
 
 KEYBOARD = QWERTY
 MACROS = -D $(KEYBOARD)
