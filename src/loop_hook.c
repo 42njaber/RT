@@ -33,8 +33,7 @@ static void			paint_gui(t_ptr *p)
 
 	if ((err = clEnqueueAcquireGLObjects(p->opencl->gpu_command_queue, 1,
 					&p->win->img.cl_obj, 0, 0, NULL)) != CL_SUCCESS)
-		ft_error("[Error] Failed to acquire OpenGl object"
-				"%<R>  (Error code: %<i>%2d)%<0>\n", err);
+		ft_error("[Err]Failed acquire obj %<R> (Err code %<i>%2d)%<0>\n", err);
 	if (p->gui.state == SCENE || p->gui.state == ZOOM_SCENE)
 		update_scene(p);
 	g_sz = sqrt(WG_SIZE);
@@ -42,19 +41,16 @@ static void			paint_gui(t_ptr *p)
 	painter = get_helem(&p->kernel->cores, "gui_painter");
 	clFlush(p->opencl->gpu_command_queue);
 	clFinish(p->opencl->gpu_command_queue);
-	if ((err = clEnqueueNDRangeKernel(p->opencl->gpu_command_queue, painter,
-			2, NULL, (size_t[2]){
-			(int)ceil((int)(p->win->size.v[0]) / g_sz + 1) * g_sz,
+	if ((err = clEnqueueNDRangeKernel(p->opencl->gpu_command_queue, painter, 2,
+		NULL, (size_t[2]){(int)ceil((int)(p->win->size.v[0]) / g_sz + 1) * g_sz,
 			(int)ceil((int)(p->win->size.v[1]) / g_sz + 1) * g_sz},
 			(size_t[2]){g_sz, g_sz}, 0, NULL, NULL)) != CL_SUCCESS)
-		ft_error("[Error] Gailed to launchkernel kernel"
-				"%<R>  (Error code: %<i>%2d)%<0>\n", err);
+		ft_error("[Err]Failed launchkernel %<R> (Err code %<i>%2d)%<0>\n", err);
 	clFlush(p->opencl->gpu_command_queue);
 	clFinish(p->opencl->gpu_command_queue);
 	if ((err = clEnqueueReleaseGLObjects(p->opencl->gpu_command_queue, 1,
 					&p->win->img.cl_obj, 0, NULL, NULL)) != CL_SUCCESS)
-		ft_error("[Error] Failed to release OpenGl object"
-				"%<R>  (Error code: %<i>%2d)%<0>\n", err);
+		ft_error("[Err]Failed release obj %<R> (Err code %<i>%2d)%<0>\n", err);
 	clFinish(p->opencl->gpu_command_queue);
 }
 

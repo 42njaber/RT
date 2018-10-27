@@ -29,7 +29,7 @@ void		free_content(void *mem, size_t len)
 		free(mem);
 }
 
-void			*combine_list(t_list *lst)
+void		*combine_list(t_list *lst)
 {
 	void	*ret;
 	t_list	*tmp;

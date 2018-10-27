@@ -26,8 +26,10 @@ static int		read_node_name(t_node *node, char **pos)
 		i++;
 	}
 	if (i >= 32)
-		return (ft_printret(EXIT_FAILURE, "Node name too long"
-"(max 32 characters)\n"));
+	{
+		return (ft_printret(EXIT_FAILURE,
+			"Node name too long (max 32 characters)\n"));
+	}
 	node->name[i] = '\0';
 	*pos += i;
 	return (EXIT_SUCCESS);
@@ -39,7 +41,7 @@ static int		read_node_name(t_node *node, char **pos)
 ** 	int		i;
 ** 	char	*name;
 ** 	char	*val;
-** 
+**
 ** 	while (1)
 ** 	{
 ** 		while (ft_isblank(**pos))
@@ -103,8 +105,10 @@ int				get_next_xml_node(t_node *node, char **pos, char strict)
 			if (**pos == '\0')
 				return (0);
 			else if (strict && !ft_isinvis(**pos))
-				return (ft_printret(-1, "Unexpected character"
-							"between nodes: %c\n", **pos));
+			{
+				return (ft_printret(-1, "Unexpected character \
+							between nodes: %c\n", **pos));
+			}
 			(*pos)++;
 		}
 		(*pos)++;

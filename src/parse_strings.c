@@ -12,6 +12,26 @@
 
 #include "rt.h"
 
+static int	parsetype_for_norm(char *type)
+{
+	int ret;
+
+	ret = UNKOWN;
+	if (ft_strcmp(type, "sphere") == 0)
+		ret = SPHERE;
+	else if (ft_strcmp(type, "plane") == 0)
+		ret = PLANE;
+	else if (ft_strcmp(type, "cylinder") == 0)
+		ret = CYLINDER;
+	else if (ft_strcmp(type, "cone") == 0)
+		ret = CONE;
+	else if (ft_strcmp(type, "torus") == 0)
+		ret = TORUS;
+	else if (ft_strcmp(type, "moebius") == 0)
+		ret = MOEBIUS;
+	return (ret);
+}
+
 int			parsetype(char **pos)
 {
 	int		i;
@@ -27,19 +47,7 @@ int			parsetype(char **pos)
 		i--;
 	if ((type = ft_strldup(*pos, i)) == NULL)
 		ft_error("Malloc error\n");
-	ret = UNKOWN;
-	if (ft_strcmp(type, "sphere") == 0)
-		ret = SPHERE;
-	else if (ft_strcmp(type, "plane") == 0)
-		ret = PLANE;
-	else if (ft_strcmp(type, "cylinder") == 0)
-		ret = CYLINDER;
-	else if (ft_strcmp(type, "cone") == 0)
-		ret = CONE;
-	else if (ft_strcmp(type, "torus") == 0)
-		ret = TORUS;
-	else if (ft_strcmp(type, "moebius") == 0)
-		ret = MOEBIUS;
+	ret = parsetype_for_norm(type);
 	free(type);
 	return (ret);
 }

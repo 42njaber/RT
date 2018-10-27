@@ -22,8 +22,10 @@ static int		read_file(t_ptr *p, char *path)
 
 	ft_printf("Reading scene file: %<G>%s%<0>\n", path);
 	if ((fd = open(path, O_RDONLY)) < 0)
+	{
 		return (ft_printret(EXIT_FAILURE, "%<R>Could not open file%<0>\n",
-					path));
+																		path));
+	}
 	if ((scene = new_scene(p, path)) == NULL)
 	{
 		close(fd);
@@ -39,11 +41,13 @@ static int		read_file(t_ptr *p, char *path)
 static int		read_if_file(t_ptr *p, char *path)
 {
 	struct stat		pathinfo;
-	int		err;
+	int				err;
 
 	if ((err = stat(path, &pathinfo)) < 0)
-		return (ft_printret(EXIT_FAILURE, "%<#FFAA00>[Warning]%<0>"
-				" Could not read properties of %s\n", path));
+	{
+		return (ft_printret(EXIT_FAILURE, "%<#FFAA00>[Warning]%<0> \
+									Could not read properties of %s\n", path));
+	}
 	if ((pathinfo.st_mode & S_IFMT) != S_IFDIR)
 		read_file(p, path);
 	return (EXIT_FAILURE);
@@ -58,8 +62,7 @@ static int		read_dir(t_ptr *p, char *path)
 
 	ft_printf("Reading scenes in directory: %<y>%s%<0>\n", path);
 	if ((dir = opendir(path)) == NULL)
-		return (ft_printret(EXIT_FAILURE, "%<R>Could not open directory%<0>\n",
-					path));
+		return (ft_printret(EXIT_FAILURE, "%<R>Can't open dir%<0>\n", path));
 	if ((dpath = ft_strjoin(path, "/")) == NULL)
 		ft_error("Malloc error\n");
 	while ((file = readdir(dir)))
@@ -84,8 +87,10 @@ int				read_path(t_ptr *p, char *path)
 	int			err;
 
 	if ((err = stat(path, &pathinfo)) < 0)
+	{
 		return (ft_printret(EXIT_FAILURE, "%<#FFAA00>[Warning]%<0> "
-					"Could not read properties of %s\n", path));
+								"Could not read properties of %s\n", path));
+	}
 	if ((pathinfo.st_mode & S_IFMT) == S_IFDIR)
 		return (read_dir(p, path));
 	else
